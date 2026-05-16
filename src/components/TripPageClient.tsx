@@ -54,6 +54,8 @@ export function TripPageClient({ trip }: TripPageClientProps) {
         destination={trip.destination}
         subtitle={trip.subtitle}
         occasion={trip.occasion}
+        backHref="/"
+        backLabel="Reisen"
         rightSlot={
           (trip.participants?.length ?? 0) > 0 ? (
             <UserAvatarButton
