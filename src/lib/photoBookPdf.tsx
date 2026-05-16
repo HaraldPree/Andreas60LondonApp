@@ -24,51 +24,28 @@ import {
   View,
   Text,
   Image,
-  Font,
   StyleSheet,
 } from "@react-pdf/renderer";
 import type { Trip } from "@/types/trip";
 import type { PhotoMeta } from "@/types/photo";
 
 // ----------------------------------------------------------------------
-// Fonts — registered once on module load. Google's plain TTFs work
-// across react-pdf without needing manual subsetting.
+// Fonts — using @react-pdf's built-in PostScript Type 1 fonts:
+//   Helvetica   → sans-serif (body, captions)
+//   Times-Roman → serif (headlines)
+//   Both are embedded by react-pdf with no network dependency.
+//
+// Why not Playfair Display + DM Sans like the rest of the app?
+// We tried fetching them from Google Fonts (fonts.gstatic.com) but
+// Google rotates their hashed CDN paths between font versions, so
+// the URLs went 404 between deploys. The PDF generator can't crash
+// just because a CDN hash changed — built-in fonts are bulletproof.
+// Future improvement: bundle TTFs locally under /public/fonts/.
 // ----------------------------------------------------------------------
-Font.register({
-  family: "Playfair",
-  fonts: [
-    {
-      src: "https://fonts.gstatic.com/s/playfairdisplay/v37/nuFvD-vYSZviVYUb_rj3ij__anPXJzDwcbmjWBN2PKdFvUDQ.ttf",
-      fontWeight: 400,
-    },
-    {
-      src: "https://fonts.gstatic.com/s/playfairdisplay/v37/nuFvD-vYSZviVYUb_rj3ij__anPXJzDwcbmjWBN2PKdFvXDQ.ttf",
-      fontWeight: 600,
-    },
-    {
-      src: "https://fonts.gstatic.com/s/playfairdisplay/v37/nuFvD-vYSZviVYUb_rj3ij__anPXJzDwcbmjWBN2PKdFvUDU.ttf",
-      fontWeight: 700,
-    },
-  ],
-});
-
-Font.register({
-  family: "DMSans",
-  fonts: [
-    {
-      src: "https://fonts.gstatic.com/s/dmsans/v15/rP2Hp2ywxg089UriI5-g7vN_BL7rqg.ttf",
-      fontWeight: 400,
-    },
-    {
-      src: "https://fonts.gstatic.com/s/dmsans/v15/rP2Cp2ywxg089UriCZ2IHTWEBlw.ttf",
-      fontWeight: 500,
-    },
-    {
-      src: "https://fonts.gstatic.com/s/dmsans/v15/rP2Cp2ywxg089UriCZyIHTWEBlw.ttf",
-      fontWeight: 700,
-    },
-  ],
-});
+const FONT_SERIF = "Times-Roman";
+const FONT_SERIF_BOLD = "Times-Bold";
+const FONT_SANS = "Helvetica";
+const FONT_SANS_BOLD = "Helvetica-Bold";
 
 // ----------------------------------------------------------------------
 // Colours — mirror the Tailwind CI palette so the PDF looks like the app.
@@ -89,7 +66,7 @@ const COLORS = {
 const styles = StyleSheet.create({
   page: {
     backgroundColor: COLORS.cream,
-    fontFamily: "DMSans",
+    fontFamily: FONT_SANS,
     fontSize: 10,
     color: COLORS.inkDark,
     padding: 0,
@@ -130,13 +107,12 @@ const styles = StyleSheet.create({
     padding: 40,
   },
   coverEyebrow: {
-    fontFamily: "Playfair",
+    fontFamily: FONT_SERIF_BOLD,
     fontSize: 11,
     color: COLORS.gold,
     letterSpacing: 4,
     textTransform: "uppercase",
     marginBottom: 12,
-    fontWeight: 700,
   },
   coverGoldDivider: {
     width: 60,
@@ -145,22 +121,20 @@ const styles = StyleSheet.create({
     marginVertical: 16,
   },
   coverTitle: {
-    fontFamily: "Playfair",
+    fontFamily: FONT_SERIF_BOLD,
     fontSize: 56,
     color: COLORS.white,
-    fontWeight: 700,
     textAlign: "center",
     marginBottom: 12,
   },
   coverSubtitle: {
-    fontFamily: "Playfair",
+    fontFamily: FONT_SERIF,
     fontSize: 20,
     color: COLORS.cream,
     textAlign: "center",
-    fontWeight: 400,
   },
   coverDates: {
-    fontFamily: "DMSans",
+    fontFamily: FONT_SANS,
     fontSize: 14,
     color: COLORS.cream,
     marginTop: 24,
@@ -203,33 +177,30 @@ const styles = StyleSheet.create({
     height: 6,
   },
   separatorEyebrow: {
-    fontFamily: "DMSans",
+    fontFamily: FONT_SANS_BOLD,
     fontSize: 10,
     color: COLORS.inkMid,
     letterSpacing: 3,
     textTransform: "uppercase",
     marginBottom: 8,
-    fontWeight: 500,
   },
   separatorTitle: {
-    fontFamily: "Playfair",
+    fontFamily: FONT_SERIF_BOLD,
     fontSize: 42,
     color: COLORS.navy,
-    fontWeight: 700,
     textAlign: "center",
     marginVertical: 16,
   },
   separatorDate: {
-    fontFamily: "Playfair",
+    fontFamily: FONT_SERIF,
     fontSize: 14,
     color: COLORS.gold,
     textAlign: "center",
-    fontWeight: 400,
-    // (italic dropped — would require registering Playfair italic
-    // variant separately; the gold color already provides emphasis)
+    // (italic dropped — built-in fonts don't have italic variants
+    // by default; the gold color already provides emphasis)
   },
   separatorSummary: {
-    fontFamily: "DMSans",
+    fontFamily: FONT_SANS,
     fontSize: 12,
     color: COLORS.inkMid,
     textAlign: "center",
@@ -251,7 +222,7 @@ const styles = StyleSheet.create({
     flexDirection: "column",
   },
   photoPageHeader: {
-    fontFamily: "DMSans",
+    fontFamily: FONT_SANS,
     fontSize: 9,
     color: COLORS.inkLight,
     letterSpacing: 2,
@@ -281,7 +252,7 @@ const styles = StyleSheet.create({
     objectFit: "contain",
   },
   photoCaption: {
-    fontFamily: "DMSans",
+    fontFamily: FONT_SANS,
     fontSize: 10,
     color: COLORS.inkDark,
     marginTop: 8,
@@ -289,7 +260,7 @@ const styles = StyleSheet.create({
     lineHeight: 1.4,
   },
   photoCaptionMeta: {
-    fontFamily: "DMSans",
+    fontFamily: FONT_SANS,
     fontSize: 8,
     color: COLORS.inkLight,
     marginTop: 2,
@@ -317,22 +288,21 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   closingTitle: {
-    fontFamily: "Playfair",
+    fontFamily: FONT_SERIF_BOLD,
     fontSize: 38,
     color: COLORS.navy,
-    fontWeight: 700,
     textAlign: "center",
     marginBottom: 12,
   },
   closingSubtitle: {
-    fontFamily: "DMSans",
+    fontFamily: FONT_SANS,
     fontSize: 14,
     color: COLORS.inkMid,
     textAlign: "center",
     marginBottom: 32,
   },
   closingFooter: {
-    fontFamily: "Playfair",
+    fontFamily: FONT_SERIF,
     fontSize: 10,
     color: COLORS.inkLight,
     letterSpacing: 2,
@@ -347,7 +317,7 @@ const styles = StyleSheet.create({
     right: 20,
     fontSize: 8,
     color: COLORS.inkLight,
-    fontFamily: "DMSans",
+    fontFamily: FONT_SANS,
   },
 });
 
