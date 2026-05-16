@@ -356,6 +356,25 @@ function chunk<T>(arr: T[], size: number): T[][] {
   return out;
 }
 
+/**
+ * Strips characters that built-in PostScript fonts (Times-Roman,
+ * Helvetica) can't render — emojis, fancy hearts, arrows, CJK, etc.
+ * Without this, those glyphs come out as garbage characters like ">"
+ * or break line-wrapping (because the font has no width info for the
+ * unknown glyph).
+ *
+ * Keeps: ASCII + Latin-1 supplement (covers German umlauts, ß,
+ * basic punctuation, currency, ©®°). Drops everything else, then
+ * collapses doubled whitespace from the removed glyphs.
+ */
+function safeText(s: string | undefined | null): string {
+  if (!s) return "";
+  return s
+    .replace(/[^ -ÿ]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function formatTime(iso: string): string {
   try {
     return new Date(iso).toLocaleTimeString("de-AT", {
@@ -387,22 +406,26 @@ function CoverPage({
         {heroDataUrl && <Image src={heroDataUrl} style={styles.coverImage} />}
         <View style={styles.coverOverlay} />
         <View style={styles.coverInner}>
-          <Text style={styles.coverEyebrow}>Travel Companion</Text>
+          <Text style={styles.coverEyebrow}>TRAVEL COMPANION</Text>
           <View style={styles.coverGoldDivider} />
-          <Text style={styles.coverTitle}>{title}</Text>
+          <Text style={styles.coverTitle}>{safeText(title)}</Text>
           {trip.subtitle && (
-            <Text style={styles.coverSubtitle}>{trip.subtitle}</Text>
+            <Text style={styles.coverSubtitle}>{safeText(trip.subtitle)}</Text>
           )}
           {trip.occasionDetails?.title && (
-            <Text style={styles.coverDates}>{trip.occasionDetails.title}</Text>
+            <Text style={styles.coverDates}>
+              {safeText(trip.occasionDetails.title)}
+            </Text>
           )}
         </View>
         {participants.length > 0 && (
           <View style={styles.coverParticipants}>
             {participants.map((p) => (
               <Text key={p.name} style={styles.coverParticipantChip}>
-                {p.role === "celebrant" ? "🎂 " : ""}
-                {p.name}
+                {/* Asterisk instead of birthday-cake emoji because the
+                    built-in PostScript fonts can't render emojis. */}
+                {p.role === "celebrant" ? "* " : ""}
+                {safeText(p.name)}
               </Text>
             ))}
           </View>
@@ -432,10 +455,12 @@ function DaySeparatorPage({
       <View style={styles.separatorPage}>
         <Text style={styles.separatorEyebrow}>Tag {dayIndex + 1}</Text>
         <View style={styles.separatorGoldDivider} />
-        <Text style={styles.separatorTitle}>{day.title}</Text>
-        <Text style={styles.separatorDate}>{day.date}</Text>
+        <Text style={styles.separatorTitle}>{safeText(day.title)}</Text>
+        <Text style={styles.separatorDate}>{safeText(day.date)}</Text>
         {day.summary && (
-          <Text style={styles.separatorSummary}>{day.summary}</Text>
+          <Text style={styles.separatorSummary}>
+            {safeText(day.summary)}
+          </Text>
         )}
         <View style={styles.separatorGoldDivider} />
       </View>
@@ -477,7 +502,9 @@ function PhotoPairPage({
                 <Image src={p.dataUrl} style={styles.photoImage} />
               </View>
               {p.caption && (
-                <Text style={styles.photoCaption}>{p.caption}</Text>
+                <Text style={styles.photoCaption}>
+                  {safeText(p.caption)}
+                </Text>
               )}
               <Text style={styles.photoCaptionMeta}>
                 {formatTime(p.takenAt)}
@@ -506,7 +533,7 @@ function SinglePhotoPage({
         </View>
         {photo.caption && (
           <Text style={[styles.photoCaption, { fontSize: 12, marginTop: 12 }]}>
-            {photo.caption}
+            {safeText(photo.caption)}
           </Text>
         )}
         <Text style={styles.photoCaptionMeta}>{formatTime(photo.takenAt)}</Text>
@@ -520,20 +547,23 @@ function ClosingPage({ trip }: { trip: Trip }) {
   return (
     <Page size="A4" orientation="landscape" style={styles.page}>
       <View style={styles.closingPage}>
-        <Text style={styles.closingEmoji}>{trip.occasion ?? "✨"}</Text>
+        {/* No emoji at top — built-in fonts can't render them.
+            Use a small uppercase label as decoration instead. */}
+        <Text style={styles.coverEyebrow}>ALLES LIEBE</Text>
+        <View style={styles.coverGoldDivider} />
         <Text style={styles.closingTitle}>
           {celebrant
-            ? `Für ${celebrant.name}`
+            ? `Für ${safeText(celebrant.name)}`
             : "Eine unvergessliche Reise"}
         </Text>
         {celebrant && (
           <Text style={styles.closingSubtitle}>
-            {trip.occasionDetails?.title ?? "Happy Birthday"} ♥
+            {safeText(trip.occasionDetails?.title) || "Happy Birthday"}
           </Text>
         )}
         <View style={styles.coverGoldDivider} />
         <Text style={styles.closingFooter}>
-          Erstellt mit ♥ unterwegs
+          Erstellt unterwegs in {safeText(trip.destination)}
         </Text>
       </View>
     </Page>
