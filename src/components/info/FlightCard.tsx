@@ -1,13 +1,32 @@
+"use client";
+
 import { Plane } from "lucide-react";
 import type { Flight } from "@/types/trip";
+import { FlightStatusBadge } from "./FlightStatusBadge";
 
 interface FlightCardProps {
   outbound: Flight;
   inbound: Flight;
 }
 
+/**
+ * Parse trip-specific date format ("Mo 18.5.2026") to ISO YYYY-MM-DD.
+ * Robust to either format; returns undefined when no match.
+ */
+function parseFlightDate(s?: string): string | undefined {
+  if (!s) return undefined;
+  // Match patterns like "Mo 18.5.2026" or "18.5.2026"
+  const m = s.match(/(\d{1,2})\.(\d{1,2})\.(\d{4})/);
+  if (!m) return undefined;
+  const day = m[1].padStart(2, "0");
+  const month = m[2].padStart(2, "0");
+  return `${m[3]}-${month}-${day}`;
+}
+
 function FlightRow({ flight, direction }: { flight: Flight; direction: "out" | "in" }) {
   const isOut = direction === "out";
+  const isoDate = parseFlightDate(flight.date);
+
   return (
     <div className="p-4">
       <div className="flex items-center gap-2 mb-3">
@@ -63,6 +82,17 @@ function FlightRow({ flight, direction }: { flight: Flight; direction: "out" | "
           {flight.flightNumber ? ` · ${flight.flightNumber}` : ""}
         </p>
       )}
+
+      {/* Live status */}
+      <div className="mt-3 pt-3 border-t border-cream-200">
+        <p className="text-[10px] uppercase tracking-wider text-ink-light font-semibold mb-1.5">
+          Live-Status
+        </p>
+        <FlightStatusBadge
+          flightIata={flight.flightNumber}
+          flightDate={isoDate}
+        />
+      </div>
     </div>
   );
 }

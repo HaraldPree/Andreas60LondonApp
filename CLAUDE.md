@@ -27,6 +27,10 @@ Interaktive Reise-Companion-Webapp für Kunden des ReiseCenter Mader-Kuoni. Mobi
   - **Warum nicht `ANTHROPIC_API_KEY`?** Auf manchen Dev-Maschinen (z.B. mit Claude Code CLI) ist
     `ANTHROPIC_API_KEY` global leer gesetzt – das würde `.env.local` überschreiben. Daher app-eigener Var-Name.
   - Fallback: Falls `RCMK_ANTHROPIC_KEY` nicht gesetzt aber `ANTHROPIC_API_KEY` einen Wert hat, wird der genutzt.
+- `AVIATIONSTACK_API_KEY` – Optional für Live-Flugstatus
+  - Free Tier 100 Calls/Monat: https://aviationstack.com/signup/free
+  - Server-seitig 5 Min gecached, daher reichen wenige Calls
+  - Ohne Key: Flightradar24-Tracker-Link als Fallback
 
 ## Corporate Identity
 - Dunkelblau: #003366 (Primär) → Tailwind: `navy`
