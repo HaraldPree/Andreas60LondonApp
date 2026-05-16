@@ -8,9 +8,14 @@ import { ChatPanel } from "./ChatPanel";
 interface CompanionWidgetProps {
   tripSlug: string;
   destination: string;
+  currentUserName?: string | null;
 }
 
-export function CompanionWidget({ tripSlug, destination }: CompanionWidgetProps) {
+export function CompanionWidget({
+  tripSlug,
+  destination,
+  currentUserName,
+}: CompanionWidgetProps) {
   const [open, setOpen] = useState(false);
 
   // Close on Escape
@@ -87,7 +92,11 @@ export function CompanionWidget({ tripSlug, destination }: CompanionWidgetProps)
                 </div>
 
                 {/* Chat */}
-                <ChatPanel tripSlug={tripSlug} destination={destination} />
+                <ChatPanel
+                  tripSlug={tripSlug}
+                  destination={destination}
+                  currentUserName={currentUserName}
+                />
               </div>
             </motion.div>
           </>

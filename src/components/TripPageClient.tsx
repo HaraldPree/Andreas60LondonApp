@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import type { Trip } from "@/types/trip";
 import { Header } from "@/components/layout/Header";
@@ -14,6 +14,9 @@ import { ReservierungenTab } from "@/components/tabs/ReservierungenTab";
 import { SOSTab } from "@/components/tabs/SOSTab";
 import { InfoTab } from "@/components/tabs/InfoTab";
 import { CompanionWidget } from "@/components/companion/CompanionWidget";
+import { PersonPicker } from "@/components/identity/PersonPicker";
+import { UserAvatarButton } from "@/components/identity/UserAvatarButton";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 interface TripPageClientProps {
   trip: Trip;
@@ -21,6 +24,27 @@ interface TripPageClientProps {
 
 export function TripPageClient({ trip }: TripPageClientProps) {
   const [tab, setTab] = useState<TabKey>("programm");
+  const { currentUserName, hydrated, skipped, setUser, skip, clear } = useCurrentUser(
+    trip.slug,
+  );
+  const [pickerOpen, setPickerOpen] = useState(false);
+
+  // Auto-open picker on first visit (once hydrated)
+  useEffect(() => {
+    if (
+      hydrated &&
+      !currentUserName &&
+      !skipped &&
+      (trip.participants?.length ?? 0) > 0
+    ) {
+      // Slight delay to let the page render first
+      const t = setTimeout(() => setPickerOpen(true), 600);
+      return () => clearTimeout(t);
+    }
+  }, [hydrated, currentUserName, skipped, trip.participants]);
+
+  const currentUser =
+    trip.participants?.find((p) => p.name === currentUserName) ?? null;
 
   return (
     <div className="min-h-screen bg-cream pb-20">
@@ -28,6 +52,16 @@ export function TripPageClient({ trip }: TripPageClientProps) {
         destination={trip.destination}
         subtitle={trip.subtitle}
         occasion={trip.occasion}
+        rightSlot={
+          (trip.participants?.length ?? 0) > 0 ? (
+            <UserAvatarButton
+              currentUser={currentUser}
+              hydrated={hydrated}
+              onChangeIdentity={() => setPickerOpen(true)}
+              onClearIdentity={clear}
+            />
+          ) : null
+        }
       />
 
       <main className="mx-auto max-w-app px-4 py-4">
@@ -38,7 +72,9 @@ export function TripPageClient({ trip }: TripPageClientProps) {
           {tab === "reservierungen" && (
             <ReservierungenTab key="reservierungen" trip={trip} />
           )}
-          {tab === "sos" && <SOSTab key="sos" trip={trip} />}
+          {tab === "sos" && (
+            <SOSTab key="sos" trip={trip} currentUserName={currentUserName} />
+          )}
           {tab === "info" && <InfoTab key="info" trip={trip} />}
         </AnimatePresence>
 
@@ -46,8 +82,26 @@ export function TripPageClient({ trip }: TripPageClientProps) {
       </main>
 
       <ScrollToTop />
-      <CompanionWidget tripSlug={trip.slug} destination={trip.destination} />
+      <CompanionWidget
+        tripSlug={trip.slug}
+        destination={trip.destination}
+        currentUserName={currentUserName}
+      />
       <Navigation active={tab} onChange={setTab} />
+
+      <PersonPicker
+        open={pickerOpen}
+        destination={trip.destination}
+        participants={trip.participants ?? []}
+        onPick={(name) => {
+          setUser(name);
+          setPickerOpen(false);
+        }}
+        onSkip={() => {
+          skip();
+          setPickerOpen(false);
+        }}
+      />
     </div>
   );
 }

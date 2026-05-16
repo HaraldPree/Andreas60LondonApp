@@ -10,14 +10,16 @@ import { classNames } from "@/lib/formatters";
 interface HealthCardSectionProps {
   tripSlug: string;
   participants: TripParticipant[];
+  defaultOpenName?: string;
 }
 
 export function HealthCardSection({
   tripSlug,
   participants,
+  defaultOpenName,
 }: HealthCardSectionProps) {
   const { get, update, clear, hydrated } = useHealthCards(tripSlug);
-  const [openName, setOpenName] = useState<string | null>(null);
+  const [openName, setOpenName] = useState<string | null>(defaultOpenName ?? null);
 
   return (
     <div className="rounded-2xl bg-white shadow-card border border-cream-200/50 overflow-hidden">

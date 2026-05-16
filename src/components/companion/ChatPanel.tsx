@@ -20,6 +20,7 @@ import { classNames } from "@/lib/formatters";
 interface ChatPanelProps {
   tripSlug: string;
   destination: string;
+  currentUserName?: string | null;
 }
 
 const QUICK_PROMPTS = [
@@ -29,8 +30,15 @@ const QUICK_PROMPTS = [
   "Indoor-Plan bei Regen?",
 ];
 
-export function ChatPanel({ tripSlug, destination }: ChatPanelProps) {
-  const { messages, loading, error, send, cancel, reset } = useCompanion({ tripSlug });
+export function ChatPanel({
+  tripSlug,
+  destination,
+  currentUserName,
+}: ChatPanelProps) {
+  const { messages, loading, error, send, cancel, reset } = useCompanion({
+    tripSlug,
+    currentUserName,
+  });
   const [input, setInput] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
   const lastSpokenRef = useRef<string>("");
@@ -101,6 +109,7 @@ export function ChatPanel({ tripSlug, destination }: ChatPanelProps) {
             quickPrompts={QUICK_PROMPTS}
             onPick={handleQuickPrompt}
             disabled={loading}
+            currentUserName={currentUserName}
           />
         )}
 
@@ -227,11 +236,13 @@ function EmptyState({
   quickPrompts,
   onPick,
   disabled,
+  currentUserName,
 }: {
   destination: string;
   quickPrompts: string[];
   onPick: (p: string) => void;
   disabled: boolean;
+  currentUserName?: string | null;
 }) {
   return (
     <div className="text-center py-6">
@@ -239,7 +250,8 @@ function EmptyState({
         <Sparkles size={28} className="text-gold-600" />
       </div>
       <h3 className="font-display text-lg font-semibold text-navy">
-        Hallo! Wie kann ich dir helfen?
+        {currentUserName ? `Hallo ${currentUserName}!` : "Hallo!"} Wie kann ich
+        dir helfen?
       </h3>
       <p className="text-xs text-ink-mid mt-2 max-w-[280px] mx-auto leading-relaxed">
         Ich kenne euer komplettes {destination}-Programm, kann live Wetter

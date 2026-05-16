@@ -11,6 +11,7 @@ const MAX_TOOL_ITERATIONS = 5;
 interface ChatRequest {
   tripSlug: string;
   messages: Anthropic.MessageParam[];
+  currentUserName?: string;
 }
 
 export async function POST(req: Request) {
@@ -21,7 +22,7 @@ export async function POST(req: Request) {
     return new Response("Invalid JSON", { status: 400 });
   }
 
-  const { tripSlug, messages } = body;
+  const { tripSlug, messages, currentUserName } = body;
   if (!tripSlug || !Array.isArray(messages) || messages.length === 0) {
     return new Response("tripSlug and messages required", { status: 400 });
   }
@@ -43,8 +44,24 @@ export async function POST(req: Request) {
   }
 
   const client = new Anthropic({ apiKey });
+  // System prompt is stable per trip (cacheable). The current-user identity
+  // changes between requests, so it goes into an ephemeral system message via
+  // the messages array (as a system-reminder pattern that doesn't break cache).
   const systemPrompt = buildCompanionSystemPrompt(trip);
-  const workingMessages: Anthropic.MessageParam[] = [...messages];
+  const workingMessages: Anthropic.MessageParam[] =
+    currentUserName && trip.participants?.some((p) => p.name === currentUserName)
+      ? [
+          {
+            role: "user",
+            content: `<system-context>Der User der jetzt fragt ist ${currentUserName}. Sprich sie/ihn namentlich an wenn passend.</system-context>`,
+          },
+          {
+            role: "assistant",
+            content: "Verstanden – ich antworte persönlich.",
+          },
+          ...messages,
+        ]
+      : [...messages];
 
   const encoder = new TextEncoder();
   const sseStream = new ReadableStream({

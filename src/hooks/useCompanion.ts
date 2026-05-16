@@ -12,9 +12,10 @@ export interface ChatMessage {
 
 interface UseCompanionOptions {
   tripSlug: string;
+  currentUserName?: string | null;
 }
 
-export function useCompanion({ tripSlug }: UseCompanionOptions) {
+export function useCompanion({ tripSlug, currentUserName }: UseCompanionOptions) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -56,7 +57,11 @@ export function useCompanion({ tripSlug }: UseCompanionOptions) {
         const res = await fetch("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ tripSlug, messages: conversationForApi }),
+          body: JSON.stringify({
+            tripSlug,
+            messages: conversationForApi,
+            currentUserName: currentUserName ?? undefined,
+          }),
           signal: abort.signal,
         });
 
@@ -141,7 +146,7 @@ export function useCompanion({ tripSlug }: UseCompanionOptions) {
         abortRef.current = null;
       }
     },
-    [tripSlug, messages, loading],
+    [tripSlug, messages, loading, currentUserName],
   );
 
   const cancel = useCallback(() => {
