@@ -86,6 +86,13 @@ export function CurrencyConverter({
           </p>
         )}
 
+        {rate?.source === "static" && (
+          <p className="text-[11px] text-gold-600 text-center bg-gold/10 rounded p-2 leading-relaxed">
+            ⚠️ Live-Kurs zurzeit nicht erreichbar — wir nutzen einen
+            ungefähren Standard-Kurs. Werte sind eine grobe Schätzung.
+          </p>
+        )}
+
         {/* Two input row */}
         <div className="flex items-center gap-2">
           <label className="flex-1 block">

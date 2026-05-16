@@ -76,7 +76,12 @@ export function PhotoCard({ photo, onClick, onSelfDelete }: PhotoCardProps) {
     <button
       type="button"
       onClick={onClick}
-      className="relative aspect-square rounded-lg overflow-hidden bg-cream-200 group"
+      // block + w-full are CRITICAL — without them the button defaults
+      // to inline-block, and since all our visible children are
+      // absolutely positioned (img, badges, "Lade…" overlay), the
+      // intrinsic content width is 0, so aspect-square collapses the
+      // whole card to 0×0 and the user sees no thumbnail at all.
+      className="relative block w-full aspect-square rounded-lg overflow-hidden bg-cream-200 group"
       aria-label={`Foto ${photo.fileName}`}
     >
       {hasValidUrl ? (
