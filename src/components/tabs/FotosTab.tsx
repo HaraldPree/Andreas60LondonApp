@@ -10,6 +10,7 @@ import { PhotoUpload } from "@/components/photos/PhotoUpload";
 import { PhotoCard } from "@/components/photos/PhotoCard";
 import { PhotoDetail } from "@/components/photos/PhotoDetail";
 import { LocationIdentifier } from "@/components/photos/LocationIdentifier";
+import { PhotoBookExportButton } from "@/components/photos/PhotoBookExportButton";
 import { classNames } from "@/lib/formatters";
 
 interface FotosTabProps {
@@ -141,6 +142,8 @@ export function FotosTab({ trip }: FotosTabProps) {
               />
             );
           })()}
+
+          <PhotoBookExportButton trip={trip} photos={photos} />
 
           {editMode && (
             <button
