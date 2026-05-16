@@ -24,6 +24,8 @@ import type { LocationResult } from "@/app/api/identify-location/route";
 import type { IdentifiedLocation } from "@/types/identifiedLocation";
 import { useIdentificationHistory } from "@/hooks/useIdentificationHistory";
 import { useUserPlaces } from "@/hooks/useUserPlaces";
+import { useAiConsent } from "@/hooks/useAiConsent";
+import { AiConsentModal } from "@/components/ai/AiConsentModal";
 import { classNames } from "@/lib/formatters";
 import type { Trip } from "@/types/trip";
 
@@ -40,13 +42,23 @@ export function LocationIdentifier({ trip }: LocationIdentifierProps) {
   const [pickingForResult, setPickingForResult] = useState<LocationResult | null>(
     null,
   );
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const { history, add: addToHistory, remove: removeFromHistory, clear: clearHistory } =
     useIdentificationHistory(trip.slug);
   const { add: addUserPlace } = useUserPlaces(trip.slug);
+  const consent = useAiConsent("photo-vision");
 
   const handlePick = () => inputRef.current?.click();
+
+  const requestUpload = (file: File) => {
+    if (consent.persistent) {
+      void handleFile(file);
+    } else {
+      setPendingFile(file);
+    }
+  };
 
   const handleFile = async (file: File) => {
     setLoading(true);
@@ -135,7 +147,7 @@ export function LocationIdentifier({ trip }: LocationIdentifierProps) {
           className="hidden"
           onChange={(e) => {
             if (e.target.files && e.target.files[0]) {
-              handleFile(e.target.files[0]);
+              requestUpload(e.target.files[0]);
               e.target.value = "";
             }
           }}
@@ -283,6 +295,21 @@ export function LocationIdentifier({ trip }: LocationIdentifierProps) {
         }}
         title={`"${pickingForResult?.name ?? "Ort"}" zuordnen`}
         hint="An welchem Reisetag möchtest du diesen Ort einplanen?"
+      />
+
+      <AiConsentModal
+        open={!!pendingFile}
+        title="Foto-Location erkennen"
+        actionDescription="Dein Foto wird komprimiert (max 1500px) und einmalig an Claude Vision gesendet, um den Ort zu identifizieren."
+        dataSent={["Komprimiertes Foto", "Apartment-Standort als Kontext"]}
+        onDecide={(choice) => {
+          const file = pendingFile;
+          setPendingFile(null);
+          if (!file) return;
+          if (choice === "never") return;
+          consent.grant(choice);
+          void handleFile(file);
+        }}
       />
     </>
   );

@@ -14,6 +14,7 @@ import { RunningRoutes } from "@/components/activities/RunningRoutes";
 import { LocationSharingCard } from "@/components/activities/LocationSharingCard";
 import { CurrencyConverter } from "@/components/info/CurrencyConverter";
 import { ExpenseTracker } from "@/components/expenses/ExpenseTracker";
+import { MyDataSection } from "@/components/privacy/MyDataSection";
 
 interface InfoTabProps {
   trip: Trip;
@@ -115,6 +116,13 @@ export function InfoTab({ trip, currentUserName, onRequestIdentity }: InfoTabPro
       {/* — ENTDECKEN — */}
       <SectionHeading title="Entdecken" />
       <HiddenPlacesGrid places={trip.hiddenPlaces} />
+
+      {/* — PRIVACY / DSGVO — */}
+      <SectionHeading
+        title="Privacy & DSGVO"
+        hint="Deine Daten exportieren oder löschen"
+      />
+      <MyDataSection tripSlug={trip.slug} />
     </motion.div>
   );
 }

@@ -16,6 +16,8 @@ import { useBlobUrl } from "@/hooks/useBlobUrl";
 import { getFullBlob } from "@/lib/photoStorage";
 import { blobToDataUrl } from "@/lib/photoProcessing";
 import { mapsUrl } from "@/lib/formatters";
+import { useAiConsent } from "@/hooks/useAiConsent";
+import { AiConsentModal } from "@/components/ai/AiConsentModal";
 
 interface PhotoDetailProps {
   photo: PhotoMeta;
@@ -42,7 +44,9 @@ export function PhotoDetail({
   const [narrativeError, setNarrativeError] = useState<string | null>(null);
   const [caption, setCaption] = useState(photo.caption ?? "");
   const [captionEditing, setCaptionEditing] = useState(false);
+  const [consentOpen, setConsentOpen] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
+  const consent = useAiConsent("photo-narration");
 
   useEffect(() => {
     return () => {
@@ -50,7 +54,15 @@ export function PhotoDetail({
     };
   }, []);
 
-  const handleNarrate = async () => {
+  const requestNarrate = () => {
+    if (consent.persistent) {
+      void doNarrate();
+    } else {
+      setConsentOpen(true);
+    }
+  };
+
+  const doNarrate = async () => {
     const blob = await getFullBlob(photo.id);
     if (!blob) return;
 
@@ -137,7 +149,8 @@ export function PhotoDetail({
   };
 
   return (
-    <AnimatePresence>
+    <>
+      <AnimatePresence>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -274,7 +287,7 @@ export function PhotoDetail({
               ) : (
                 <button
                   type="button"
-                  onClick={handleNarrate}
+                  onClick={requestNarrate}
                   className="text-xs px-3 py-1.5 rounded-full bg-gradient-to-r from-gold-400 to-gold text-navy font-semibold inline-flex items-center gap-1.5 hover:scale-[1.02] transition"
                 >
                   <Sparkles size={12} />
@@ -305,6 +318,24 @@ export function PhotoDetail({
           </div>
         </div>
       </motion.div>
-    </AnimatePresence>
+      </AnimatePresence>
+
+      <AiConsentModal
+        open={consentOpen}
+        title="Foto an Claude Vision senden"
+        actionDescription="Das Foto wird komprimiert und einmalig an Claude Vision (Anthropic, USA) gesendet, um eine kurze Erzählung zum Ort zu erstellen."
+        dataSent={[
+          "Komprimiertes Foto",
+          "Tag + Bildunterschrift als Kontext",
+          "GPS falls vorhanden",
+        ]}
+        onDecide={(choice) => {
+          setConsentOpen(false);
+          if (choice === "never") return;
+          consent.grant(choice);
+          void doNarrate();
+        }}
+      />
+    </>
   );
 }

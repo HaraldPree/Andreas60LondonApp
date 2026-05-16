@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { GoldDivider } from "@/components/ui/GoldDivider";
 
 export function Footer() {
@@ -18,6 +19,12 @@ export function Footer() {
           </span>
           unterwegs
         </p>
+        <Link
+          href="/datenschutz"
+          className="inline-block text-[11px] text-ink-light hover:text-navy underline mt-3"
+        >
+          Datenschutz
+        </Link>
       </div>
     </footer>
   );
