@@ -11,6 +11,7 @@ import { PhotoCard } from "@/components/photos/PhotoCard";
 import { PhotoDetail } from "@/components/photos/PhotoDetail";
 import { LocationIdentifier } from "@/components/photos/LocationIdentifier";
 import { PhotoBookExportButton } from "@/components/photos/PhotoBookExportButton";
+import { PdfBookExportButton } from "@/components/photos/PdfBookExportButton";
 import { classNames } from "@/lib/formatters";
 
 interface FotosTabProps {
@@ -190,6 +191,7 @@ export function FotosTab({ trip }: FotosTabProps) {
             );
           })()}
 
+          <PdfBookExportButton trip={trip} photos={photos} />
           <PhotoBookExportButton trip={trip} photos={photos} />
 
           {editMode && (
