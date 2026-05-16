@@ -158,6 +158,44 @@ export interface TripOccasion {
   icon?: string;
 }
 
+export interface EmergencyContact {
+  label: string;
+  phone: string;
+  description?: string;
+  urgent?: boolean;
+}
+
+export interface Embassy {
+  name: string;
+  address: string;
+  coordinates?: Coordinates;
+  phone: string;
+  emergencyPhone?: string;
+  website?: string;
+  openingHours?: string;
+}
+
+export type MedicalType = "pharmacy" | "hospital" | "doctor" | "dentist";
+
+export interface MedicalLocation {
+  type: MedicalType;
+  name: string;
+  address: string;
+  coordinates: Coordinates;
+  open24h?: boolean;
+  phone?: string;
+  note?: string;
+}
+
+export interface EmergencyInfo {
+  country: string;
+  countryCode: string;
+  contacts: EmergencyContact[];
+  embassy?: Embassy;
+  medical: MedicalLocation[];
+  insuranceTips?: string[];
+}
+
 export interface Trip {
   slug: string;
   destination: string;
@@ -186,6 +224,7 @@ export interface Trip {
   reservations: Reservation[];
   hiddenPlaces: HiddenPlace[];
   quickActions: QuickAction[];
+  emergencyInfo?: EmergencyInfo;
 
   mapCenter: Coordinates;
   mapZoom: number;

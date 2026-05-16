@@ -814,6 +814,95 @@ export const londonTrip: Trip = {
     },
   ],
 
+  emergencyInfo: {
+    country: "United Kingdom",
+    countryCode: "GB",
+    contacts: [
+      {
+        label: "Notruf",
+        phone: "999",
+        description: "Polizei, Feuerwehr, Rettung – im Lebensgefahr-Fall",
+        urgent: true,
+      },
+      {
+        label: "EU-Notruf",
+        phone: "112",
+        description: "Funktioniert auch in UK – gleiche Stellen wie 999",
+      },
+      {
+        label: "NHS 111",
+        phone: "111",
+        description: "Medizinische Beratung wenn nicht lebensbedrohlich (24/7, kostenlos)",
+      },
+      {
+        label: "Polizei (nicht-akut)",
+        phone: "101",
+        description: "Diebstahl melden, Auskunft – nicht-Notfall",
+      },
+    ],
+    embassy: {
+      name: "Österreichische Botschaft London",
+      address: "18 Belgrave Mews West, London SW1X 8HU",
+      coordinates: { lat: 51.4986, lng: -0.1546 },
+      phone: "+442073443250",
+      emergencyPhone: "+442073443250",
+      website: "https://www.bmeia.gv.at/oeb-london",
+      openingHours: "Mo–Fr 09:00–13:00 (Konsularabteilung)",
+    },
+    medical: [
+      {
+        type: "pharmacy",
+        name: "Boots Piccadilly Circus",
+        address: "44–46 Regent St, London W1B 5RA",
+        coordinates: { lat: 51.5096, lng: -0.1353 },
+        phone: "+442077343485",
+        open24h: false,
+        note: "Großes Sortiment, oft bis 23:00 offen. Apotheker spricht meist Englisch.",
+      },
+      {
+        type: "pharmacy",
+        name: "Zafash 24h Pharmacy",
+        address: "233–235 Old Brompton Rd, London SW5 0EA",
+        coordinates: { lat: 51.4900, lng: -0.1875 },
+        phone: "+442073737831",
+        open24h: true,
+        note: "24/7 geöffnet – auch nachts und Sonntag.",
+      },
+      {
+        type: "hospital",
+        name: "University College Hospital (UCH)",
+        address: "235 Euston Rd, London NW1 2BU",
+        coordinates: { lat: 51.5246, lng: -0.1349 },
+        phone: "+442034567890",
+        open24h: true,
+        note: "Nächste 24h-Notaufnahme – ca. 10 Min vom Apartment, gut mit Bus 18/30/73 erreichbar.",
+      },
+      {
+        type: "hospital",
+        name: "St Mary's Hospital A&E",
+        address: "Praed St, London W2 1NY",
+        coordinates: { lat: 51.5170, lng: -0.1741 },
+        phone: "+443313130000",
+        open24h: true,
+        note: "Notaufnahme rund um die Uhr, Paddington-Nähe.",
+      },
+      {
+        type: "doctor",
+        name: "Marylebone Health Centre",
+        address: "17 Aybrook St, London W1U 4AP",
+        coordinates: { lat: 51.5184, lng: -0.1521 },
+        phone: "+442079354464",
+        note: "Allgemeinarzt-Praxis, sehr nahe am Apartment (~3 Min Fußweg).",
+      },
+    ],
+    insuranceTips: [
+      "Bei stationärem Aufenthalt: SOFORT die eigene Reiseversicherung anrufen – die Hotline steht auf der Versicherungskarte.",
+      "EHIC/EU-Karte gilt seit Brexit nur eingeschränkt – im Zweifel privat zahlen und in AT abrechnen.",
+      "Rechnungen/Belege IMMER aufheben (auch Taxi zum Spital, Medikamente).",
+      "Reisebüro Mader-Kuoni anrufen bei größeren Problemen: +43 7435 5433 318 – wir helfen mit Versicherung & Logistik.",
+    ],
+  },
+
   quickActions: [
     {
       icon: "📞",

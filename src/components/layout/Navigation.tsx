@@ -1,9 +1,9 @@
 "use client";
 
-import { CalendarDays, MapPinned, Camera, Ticket, Info } from "lucide-react";
+import { CalendarDays, MapPinned, Camera, Ticket, LifeBuoy, Info } from "lucide-react";
 import { classNames } from "@/lib/formatters";
 
-export type TabKey = "programm" | "karte" | "fotos" | "reservierungen" | "info";
+export type TabKey = "programm" | "karte" | "fotos" | "reservierungen" | "sos" | "info";
 
 interface NavigationProps {
   active: TabKey;
@@ -15,6 +15,7 @@ const TABS: { key: TabKey; label: string; Icon: typeof CalendarDays }[] = [
   { key: "karte", label: "Karte", Icon: MapPinned },
   { key: "fotos", label: "Fotos", Icon: Camera },
   { key: "reservierungen", label: "Reserv.", Icon: Ticket },
+  { key: "sos", label: "SOS", Icon: LifeBuoy },
   { key: "info", label: "Info", Icon: Info },
 ];
 
@@ -22,7 +23,7 @@ export function Navigation({ active, onChange }: NavigationProps) {
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-cream-200 shadow-[0_-2px_12px_rgba(0,51,102,0.06)]">
       <div className="mx-auto max-w-app">
-        <ul className="grid grid-cols-5">
+        <ul className="grid grid-cols-6">
           {TABS.map(({ key, label, Icon }) => {
             const isActive = key === active;
             return (
@@ -31,22 +32,31 @@ export function Navigation({ active, onChange }: NavigationProps) {
                   type="button"
                   onClick={() => onChange(key)}
                   className={classNames(
-                    "w-full py-2.5 flex flex-col items-center gap-0.5 transition-colors relative",
+                    "w-full py-2.5 flex flex-col items-center gap-0.5 transition-colors relative px-1",
                     isActive ? "text-navy" : "text-ink-light hover:text-navy/70",
+                    key === "sos" && !isActive && "text-warning/80 hover:text-warning",
+                    key === "sos" && isActive && "text-warning",
                   )}
                   aria-current={isActive ? "page" : undefined}
                 >
-                  <Icon size={20} strokeWidth={isActive ? 2.4 : 1.8} />
+                  <Icon size={18} strokeWidth={isActive ? 2.4 : 1.8} />
                   <span
                     className={classNames(
-                      "text-[10px] font-semibold tracking-wide uppercase",
+                      "text-[9px] font-semibold tracking-wide uppercase truncate max-w-full",
                       isActive ? "text-navy" : "text-ink-light",
+                      key === "sos" && !isActive && "text-warning/80",
+                      key === "sos" && isActive && "text-warning",
                     )}
                   >
                     {label}
                   </span>
                   {isActive && (
-                    <span className="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-8 bg-gold rounded-t-full" />
+                    <span
+                      className={classNames(
+                        "absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-6 rounded-t-full",
+                        key === "sos" ? "bg-warning" : "bg-gold",
+                      )}
+                    />
                   )}
                 </button>
               </li>

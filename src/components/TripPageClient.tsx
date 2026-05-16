@@ -11,6 +11,7 @@ import { ProgrammTab } from "@/components/tabs/ProgrammTab";
 import { KarteTab } from "@/components/tabs/KarteTab";
 import { FotosTab } from "@/components/tabs/FotosTab";
 import { ReservierungenTab } from "@/components/tabs/ReservierungenTab";
+import { SOSTab } from "@/components/tabs/SOSTab";
 import { InfoTab } from "@/components/tabs/InfoTab";
 import { CompanionWidget } from "@/components/companion/CompanionWidget";
 
@@ -37,6 +38,7 @@ export function TripPageClient({ trip }: TripPageClientProps) {
           {tab === "reservierungen" && (
             <ReservierungenTab key="reservierungen" trip={trip} />
           )}
+          {tab === "sos" && <SOSTab key="sos" trip={trip} />}
           {tab === "info" && <InfoTab key="info" trip={trip} />}
         </AnimatePresence>
 
