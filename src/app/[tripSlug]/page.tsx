@@ -13,11 +13,11 @@ export function generateStaticParams() {
 
 export function generateMetadata({ params }: PageProps): Metadata {
   const trip = getTripBySlug(params.tripSlug);
-  if (!trip) return { title: "Reise nicht gefunden | RCMK" };
+  if (!trip) return { title: "Reise nicht gefunden" };
 
   return {
-    title: `${trip.destination} ${trip.subtitle} | RCMK Travel Companion`,
-    description: `Ihre persönliche Reise nach ${trip.destination}, ${trip.subtitle} – ${trip.group}.`,
+    title: `${trip.destination} ${trip.subtitle}`,
+    description: `Deine persönliche Reise nach ${trip.destination}, ${trip.subtitle} – ${trip.group}.`,
     openGraph: {
       title: `${trip.destination} – ${trip.subtitle}`,
       description: `${trip.group}${trip.occasion ? ` · ${trip.occasion}` : ""}`,

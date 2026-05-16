@@ -28,10 +28,10 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
     default: "Andreas 60. Geburtstag · London",
-    template: "%s · RCMK Travel Companion",
+    template: "%s · London",
   },
   description:
-    "Reisebegleiter für Andreas 60. Geburtstag in London (18.–22. Mai 2026) – Live-Wetter, Karte, Programm, Tube-Status & KI-Guide. Vom ReiseCenter Mader-Kuoni.",
+    "Persönlicher Reisebegleiter für Andreas 60. Geburtstag in London (18.–22. Mai 2026) – Live-Wetter, Karte, Programm, Tube-Status & KI-Guide.",
   applicationName: "Andrea London",
   appleWebApp: {
     capable: true,
@@ -44,10 +44,10 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Andreas 60. Geburtstag · London 2026",
     description:
-      "Happy 60th, Andrea! Reisebegleiter mit Live-Wetter, Karte, KI-Guide und allem rund um Cedric Grolet, Big Ben und Co. Vom ReiseCenter Mader-Kuoni.",
+      "Happy 60th, Andrea! Persönlicher Reisebegleiter mit Live-Wetter, Karte, KI-Guide und allem rund um Cedric Grolet, Big Ben und Co.",
     type: "website",
     locale: "de_AT",
-    siteName: "RCMK Travel Companion",
+    siteName: "Andrea London",
     images: [
       {
         url: "/images/Headerbild.jpeg",

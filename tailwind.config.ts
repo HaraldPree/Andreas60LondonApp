@@ -64,6 +64,7 @@ const config: Config = {
       animation: {
         "fade-in": "fadeIn 0.3s ease-out",
         "slide-up": "slideUp 0.4s ease-out",
+        heartbeat: "heartbeat 1.4s ease-in-out infinite",
       },
       keyframes: {
         fadeIn: {
@@ -73,6 +74,11 @@ const config: Config = {
         slideUp: {
           "0%": { opacity: "0", transform: "translateY(10px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        heartbeat: {
+          "0%, 60%, 100%": { transform: "scale(1)" },
+          "20%": { transform: "scale(1.28)" },
+          "40%": { transform: "scale(1.1)" },
         },
       },
     },

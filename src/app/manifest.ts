@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "Andreas 60. Geburtstag · London",
     short_name: "Andrea London",
     description:
-      "Reisebegleiter für Andreas 60. Geburtstag in London – ReiseCenter Mader-Kuoni",
+      "Persönlicher Reisebegleiter für Andreas 60. Geburtstag in London",
     start_url: "/london-2026",
     scope: "/",
     display: "standalone",

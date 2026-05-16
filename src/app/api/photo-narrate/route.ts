@@ -37,12 +37,13 @@ export async function POST(req: Request) {
   if (!trip) return new Response("Trip not found", { status: 404 });
 
   const apiKey =
-    process.env.RCMK_ANTHROPIC_KEY ||
+    process.env.APP_ANTHROPIC_KEY ||
+    process.env.RCMK_ANTHROPIC_KEY || // legacy name
     process.env.ANTHROPIC_API_KEY ||
     undefined;
   if (!apiKey) {
     return new Response(
-      "Kein Anthropic API-Key gefunden. Setze RCMK_ANTHROPIC_KEY.",
+      "Kein Anthropic API-Key gefunden. Setze APP_ANTHROPIC_KEY.",
       { status: 500 },
     );
   }

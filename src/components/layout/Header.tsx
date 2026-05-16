@@ -13,10 +13,10 @@ export function Header({ destination, subtitle, occasion, rightSlot }: HeaderPro
   return (
     <header className="sticky top-0 z-40 bg-navy text-cream shadow-lg">
       <div className="mx-auto max-w-app">
-        {/* Brand bar */}
+        {/* Brand bar – destination is the headline */}
         <div className="px-4 pt-3 pb-2 flex items-center justify-between">
           <span className="font-display text-[11px] tracking-[0.22em] text-gold font-semibold uppercase">
-            ReiseCenter Mader·Kuoni
+            {destination}
           </span>
           <span className="text-[10px] text-cream/70 tracking-wider uppercase">
             Travel Companion

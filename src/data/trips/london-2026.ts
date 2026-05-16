@@ -1097,7 +1097,7 @@ export const londonTrip: Trip = {
       "Bei stationärem Aufenthalt: SOFORT die eigene Reiseversicherung anrufen – die Hotline steht auf der Versicherungskarte.",
       "EHIC/EU-Karte gilt seit Brexit nur eingeschränkt – im Zweifel privat zahlen und in AT abrechnen.",
       "Rechnungen/Belege IMMER aufheben (auch Taxi zum Spital, Medikamente).",
-      "Reisebüro Mader-Kuoni anrufen bei größeren Problemen: +43 7435 5433 318 – wir helfen mit Versicherung & Logistik.",
+      "Bei größeren Problemen: das buchende Reisebüro hat eine Notfall-Hotline – Nummer steht auf der Buchungsbestätigung.",
     ],
   },
 
@@ -1179,9 +1179,9 @@ export const londonTrip: Trip = {
     },
     {
       icon: "🏢",
-      label: "Reisebüro Mader-Kuoni",
+      label: "Reisebüro-Hotline",
       href: "tel:+4374355433318",
-      description: "Bei jedem Problem anrufen",
+      description: "Bei Problemen mit der Reise",
       color: "navy",
     },
     {

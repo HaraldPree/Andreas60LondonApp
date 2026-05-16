@@ -16,14 +16,14 @@ export default function HomePage() {
       <header className="bg-navy text-cream">
         <div className="mx-auto max-w-app px-4 pt-6 pb-8 text-center">
           <p className="font-display text-[11px] tracking-[0.22em] text-gold font-semibold uppercase">
-            ReiseCenter Mader·Kuoni
+            Travel Companion
           </p>
           <GoldDivider width="sm" className="mx-auto my-3" />
           <h1 className="font-display text-3xl font-semibold leading-tight">
-            Travel Companion
+            Dein persönlicher Reisebegleiter
           </h1>
           <p className="text-sm text-cream/80 mt-2">
-            Ihre Reise – elegant in der Tasche
+            Deine Reise – elegant in der Tasche
           </p>
         </div>
       </header>
@@ -128,16 +128,8 @@ export default function HomePage() {
 
         <div className="mt-8 rounded-2xl bg-white/60 border border-cream-200 p-4 text-center">
           <p className="text-xs text-ink-mid leading-relaxed">
-            Neue Reise gewünscht? Ihr Reisebüro erstellt diese auf Anfrage gerne für Sie.
+            Privates Test-Produkt für die Reisegruppe.
           </p>
-          <a
-            href="https://www.meinreisecenter.at"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block text-xs text-gold-600 font-semibold mt-2 hover:text-gold transition-colors"
-          >
-            www.meinreisecenter.at →
-          </a>
         </div>
 
         <Footer />
