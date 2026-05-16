@@ -66,6 +66,9 @@ export const londonTrip: Trip = {
     timezone: "Europe/London",
   },
 
+  currency: "GBP",
+  homeCurrency: "EUR",
+
   accommodation: {
     name: "Apartment Great Portland Street",
     address: "126 Great Portland Street 3, Westminster, W1W 6PR",

@@ -258,4 +258,8 @@ export interface Trip {
     name: string;
     timezone: string;
   };
+  /** Primary currency at the destination, e.g. "GBP". Default "EUR" if omitted. */
+  currency?: string;
+  /** Traveler's home currency, e.g. "EUR". Default "EUR". */
+  homeCurrency?: string;
 }

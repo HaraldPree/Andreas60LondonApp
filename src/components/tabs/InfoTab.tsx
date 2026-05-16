@@ -12,6 +12,8 @@ import { PackingList } from "@/components/organize/PackingList";
 import { ProfileCard } from "@/components/identity/ProfileCard";
 import { RunningRoutes } from "@/components/activities/RunningRoutes";
 import { LocationSharingCard } from "@/components/activities/LocationSharingCard";
+import { CurrencyConverter } from "@/components/info/CurrencyConverter";
+import { ExpenseTracker } from "@/components/expenses/ExpenseTracker";
 
 interface InfoTabProps {
   trip: Trip;
@@ -80,6 +82,24 @@ export function InfoTab({ trip, currentUserName, onRequestIdentity }: InfoTabPro
         <RunningRoutes routes={trip.runningRoutes} />
       )}
       <LocationSharingCard />
+
+      {/* — BUDGET & GELD — */}
+      <SectionHeading
+        title="Budget & Geld"
+        hint={`Live-Kurs ${trip.currency ?? "GBP"} ↔ ${trip.homeCurrency ?? "EUR"} + wer hat was bezahlt`}
+      />
+      <CurrencyConverter
+        tripCurrency={trip.currency ?? "GBP"}
+        homeCurrency={trip.homeCurrency ?? "EUR"}
+      />
+      {trip.participants && trip.participants.length > 0 && (
+        <ExpenseTracker
+          trip={trip}
+          currentUserName={currentUserName}
+          tripCurrency={trip.currency ?? "GBP"}
+          homeCurrency={trip.homeCurrency ?? "EUR"}
+        />
+      )}
 
       {/* — LOGISTIK — */}
       <SectionHeading title="Logistik" />
