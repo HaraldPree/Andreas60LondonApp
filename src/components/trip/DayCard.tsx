@@ -1,13 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, Lightbulb, CloudRain } from "lucide-react";
+import { ChevronDown, Lightbulb, CloudRain, Sparkles, MapPin, Trash2 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import type { Day } from "@/types/trip";
+import type { UserPlace } from "@/types/userPlace";
 import type { DayDisruptionWindow } from "@/lib/disruptions";
-import { classNames } from "@/lib/formatters";
+import { classNames, mapsUrl } from "@/lib/formatters";
 import { TimelineItem } from "./TimelineItem";
 import { DisruptionPill } from "./DisruptionPill";
+import { TransportButtons } from "@/components/ui/TransportButtons";
 
 interface DayCardProps {
   day: Day;
@@ -17,6 +19,10 @@ interface DayCardProps {
   rainProbability?: number;
   /** Active service disruptions for this day */
   disruptions?: DayDisruptionWindow[];
+  /** User-added places (from photo identification, etc.) for this day */
+  userPlaces?: UserPlace[];
+  /** Called when user wants to remove an own discovery */
+  onRemoveUserPlace?: (id: string) => void;
 }
 
 export function DayCard({
@@ -25,6 +31,8 @@ export function DayCard({
   defaultOpen = false,
   rainProbability,
   disruptions = [],
+  userPlaces = [],
+  onRemoveUserPlace,
 }: DayCardProps) {
   const [open, setOpen] = useState(defaultOpen);
   const [showRainy, setShowRainy] = useState(false);
@@ -103,6 +111,90 @@ export function DayCard({
                   />
                 ))}
               </div>
+
+              {/* User-added discoveries */}
+              {userPlaces.length > 0 && (
+                <div className="mt-4 rounded-xl bg-gold/5 border border-gold/30 overflow-hidden">
+                  <div className="px-3 py-2 bg-gold/10 border-b border-gold/20">
+                    <p className="text-xs font-semibold text-gold-600 uppercase tracking-wider inline-flex items-center gap-1.5">
+                      <Sparkles size={12} /> Eure Entdeckungen ({userPlaces.length})
+                    </p>
+                  </div>
+                  <ul className="divide-y divide-gold/10">
+                    {userPlaces.map((p) => (
+                      <li key={p.id} className="p-3">
+                        <div className="flex items-start gap-2.5">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              {p.time && (
+                                <span className="text-[10px] font-mono uppercase tracking-wider text-ink-light">
+                                  {p.time}
+                                </span>
+                              )}
+                              {p.category && (
+                                <span className="text-[9px] uppercase tracking-wider bg-navy/10 text-navy font-bold px-1.5 py-0.5 rounded">
+                                  {p.category}
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-sm font-semibold text-ink-dark leading-tight mt-0.5">
+                              {p.name}
+                            </p>
+                            {p.description && (
+                              <p className="text-xs text-ink-mid mt-1 leading-relaxed">
+                                {p.description}
+                              </p>
+                            )}
+                            {p.address && (
+                              <p className="text-[10px] text-ink-light italic mt-0.5">
+                                📍 {p.address}
+                              </p>
+                            )}
+                            {p.notes && (
+                              <p className="text-[11px] text-ink-mid italic mt-1">
+                                💡 {p.notes}
+                              </p>
+                            )}
+                            <div className="flex flex-wrap items-center gap-2 mt-2">
+                              {p.coordinates && (
+                                <>
+                                  <a
+                                    href={mapsUrl(p.coordinates.lat, p.coordinates.lng, p.name)}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-xs text-navy hover:text-gold transition-colors font-medium inline-flex items-center gap-1"
+                                  >
+                                    <MapPin size={11} /> Karte
+                                  </a>
+                                  <TransportButtons
+                                    coordinates={p.coordinates}
+                                    label={p.name}
+                                    compact
+                                  />
+                                </>
+                              )}
+                            </div>
+                          </div>
+                          {onRemoveUserPlace && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (confirm(`"${p.name}" wieder entfernen?`)) {
+                                  onRemoveUserPlace(p.id);
+                                }
+                              }}
+                              className="text-ink-light hover:text-warning flex-shrink-0 p-1"
+                              aria-label="Entfernen"
+                            >
+                              <Trash2 size={12} />
+                            </button>
+                          )}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
 
               {/* Tips */}
               {day.tips.length > 0 && (

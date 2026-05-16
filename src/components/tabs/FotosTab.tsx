@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { Camera } from "lucide-react";
+import { Camera, Pencil, Check, Trash2, X } from "lucide-react";
 import type { Trip } from "@/types/trip";
 import type { PhotoMeta } from "@/types/photo";
 import { usePhotos } from "@/hooks/usePhotos";
@@ -10,6 +10,7 @@ import { PhotoUpload } from "@/components/photos/PhotoUpload";
 import { PhotoCard } from "@/components/photos/PhotoCard";
 import { PhotoDetail } from "@/components/photos/PhotoDetail";
 import { LocationIdentifier } from "@/components/photos/LocationIdentifier";
+import { classNames } from "@/lib/formatters";
 
 interface FotosTabProps {
   trip: Trip;
@@ -19,6 +20,7 @@ export function FotosTab({ trip }: FotosTabProps) {
   const { photos, loading, uploadProgress, upload, remove, setCaption, setNarrative } =
     usePhotos({ tripSlug: trip.slug, days: trip.days });
   const [openId, setOpenId] = useState<string | null>(null);
+  const [editMode, setEditMode] = useState(false);
 
   const grouped = useMemo(() => {
     const map = new Map<number | "unsorted", PhotoMeta[]>();
@@ -37,6 +39,22 @@ export function FotosTab({ trip }: FotosTabProps) {
       ? `Tag ${openPhoto.assignedDay + 1} · ${trip.days[openPhoto.assignedDay]?.date ?? ""}`
       : undefined;
 
+  const handleDelete = (id: string) => {
+    if (confirm("Foto löschen?")) remove(id);
+  };
+
+  const handleDeleteAll = () => {
+    if (
+      photos.length > 0 &&
+      confirm(
+        `Wirklich ALLE ${photos.length} Fotos dieser Reise löschen? Nicht rückgängig machbar.`,
+      )
+    ) {
+      photos.forEach((p) => remove(p.id));
+      setEditMode(false);
+    }
+  };
+
   return (
     <motion.div
       key="fotos"
@@ -46,9 +64,7 @@ export function FotosTab({ trip }: FotosTabProps) {
       className="space-y-4"
     >
       <div className="px-1">
-        <h2 className="font-display text-xl font-semibold text-navy">
-          Fotos
-        </h2>
+        <h2 className="font-display text-xl font-semibold text-navy">Fotos</h2>
         <p className="text-xs text-ink-mid mt-0.5">
           {photos.length === 0
             ? "Lade Fotos von deinem Handy – sie bleiben auf deinem Gerät."
@@ -57,12 +73,27 @@ export function FotosTab({ trip }: FotosTabProps) {
       </div>
 
       {/* Location-Erkennung: prominent oben für "Foto vom Freund – wo ist das?" */}
-      <LocationIdentifier tripSlug={trip.slug} />
+      <LocationIdentifier trip={trip} />
 
-      <div className="px-1 pt-2">
+      <div className="px-1 pt-2 flex items-baseline justify-between">
         <p className="font-display text-[11px] uppercase tracking-[0.2em] text-gold-600 font-bold">
           Deine eigenen Fotos
         </p>
+        {photos.length > 0 && (
+          <button
+            type="button"
+            onClick={() => setEditMode((e) => !e)}
+            className={classNames(
+              "text-[11px] font-semibold inline-flex items-center gap-1 px-2 py-1 rounded-md transition",
+              editMode
+                ? "bg-navy text-cream"
+                : "text-ink-mid hover:text-navy",
+            )}
+          >
+            {editMode ? <Check size={11} /> : <Pencil size={11} />}
+            {editMode ? "Fertig" : "Bearbeiten"}
+          </button>
+        )}
       </div>
 
       <PhotoUpload onFiles={upload} uploadProgress={uploadProgress} />
@@ -75,9 +106,7 @@ export function FotosTab({ trip }: FotosTabProps) {
         </div>
       )}
 
-      {!loading && photos.length === 0 && (
-        <EmptyState />
-      )}
+      {!loading && photos.length === 0 && <EmptyState />}
 
       {!loading && photos.length > 0 && (
         <div className="space-y-5">
@@ -92,6 +121,8 @@ export function FotosTab({ trip }: FotosTabProps) {
                 color={day.color}
                 photos={list}
                 onOpen={setOpenId}
+                editMode={editMode}
+                onDelete={handleDelete}
               />
             );
           })}
@@ -105,14 +136,27 @@ export function FotosTab({ trip }: FotosTabProps) {
                 color="#7A7A8A"
                 photos={unsorted}
                 onOpen={setOpenId}
+                editMode={editMode}
+                onDelete={handleDelete}
               />
             );
           })()}
+
+          {editMode && (
+            <button
+              type="button"
+              onClick={handleDeleteAll}
+              className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-warning/10 text-warning text-xs font-semibold hover:bg-warning/20 transition border border-warning/30"
+            >
+              <Trash2 size={12} /> Alle Fotos dieser Reise löschen
+            </button>
+          )}
         </div>
       )}
 
       <p className="text-[11px] text-center text-ink-light italic px-4 pt-2">
-        Alle Fotos werden lokal in deinem Browser gespeichert. Kein Upload zu Servern.
+        Alle Fotos werden lokal in deinem Browser gespeichert. Kein Upload zu
+        Servern.
       </p>
 
       {openPhoto && (
@@ -136,12 +180,16 @@ function DaySection({
   color,
   photos,
   onOpen,
+  editMode,
+  onDelete,
 }: {
   title: string;
   subtitle: string;
   color: string;
   photos: PhotoMeta[];
   onOpen: (id: string) => void;
+  editMode: boolean;
+  onDelete: (id: string) => void;
 }) {
   return (
     <div className="rounded-2xl bg-white shadow-card border border-cream-200/50 overflow-hidden">
@@ -158,7 +206,22 @@ function DaySection({
         </div>
         <div className="grid grid-cols-3 gap-1.5">
           {photos.map((p) => (
-            <PhotoCard key={p.id} photo={p} onClick={() => onOpen(p.id)} />
+            <div key={p.id} className="relative">
+              <PhotoCard photo={p} onClick={() => onOpen(p.id)} />
+              {editMode && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete(p.id);
+                  }}
+                  className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-warning text-white shadow-elevated flex items-center justify-center hover:scale-110 transition"
+                  aria-label="Foto löschen"
+                >
+                  <X size={14} strokeWidth={3} />
+                </button>
+              )}
+            </div>
           ))}
         </div>
       </div>
@@ -180,7 +243,8 @@ function EmptyState() {
         Handy aus. Fotos werden automatisch nach Reisetag sortiert.
       </p>
       <p className="text-[11px] text-ink-light mt-3 italic">
-        💡 Tipp: Tippe später auf ein Foto und frag die KI &quot;Erzähl mir was&quot;
+        💡 Tipp: Tippe später auf ein Foto und frag die KI &quot;Erzähl mir
+        was&quot;
       </p>
     </div>
   );

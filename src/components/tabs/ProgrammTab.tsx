@@ -10,6 +10,7 @@ import { DayCard } from "@/components/trip/DayCard";
 import { TripHero } from "@/components/trip/TripHero";
 import { useWeather } from "@/hooks/useWeather";
 import { getDisruptionsForDay } from "@/lib/disruptions";
+import { useUserPlaces } from "@/hooks/useUserPlaces";
 
 interface ProgrammTabProps {
   trip: Trip;
@@ -21,6 +22,7 @@ export function ProgrammTab({ trip }: ProgrammTabProps) {
     trip.weatherLocation.lng,
     trip.weatherLocation.timezone,
   );
+  const { listForDay, remove: removeUserPlace } = useUserPlaces(trip.slug);
 
   const precipByDate = useMemo(() => {
     const map = new Map<string, number>();
@@ -79,6 +81,8 @@ export function ProgrammTab({ trip }: ProgrammTabProps) {
                   ? getDisruptionsForDay(day.isoDate, trip.disruptions)
                   : []
               }
+              userPlaces={listForDay(i)}
+              onRemoveUserPlace={removeUserPlace}
             />
           ))}
         </div>
