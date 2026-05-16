@@ -1,5 +1,8 @@
 import { ImageResponse } from "next/og";
 
+// iOS browser-tab / iOS Safari "Add to Home Screen" fallback when no
+// PWA manifest is honoured. For Android home-screen icons we use the
+// real photo via manifest.ts.
 export const runtime = "edge";
 export const size = { width: 180, height: 180 };
 export const contentType = "image/png";

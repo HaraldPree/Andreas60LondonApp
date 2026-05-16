@@ -1,5 +1,9 @@
 import { ImageResponse } from "next/og";
 
+// Browser-tab favicon (small navy "60 ANDREA LONDON" badge). The PWA
+// home-screen icon is configured separately in manifest.ts and uses
+// the actual photo of Andrea — so this only shows up in the browser
+// tab and the OS app-switcher.
 export const runtime = "edge";
 export const size = { width: 192, height: 192 };
 export const contentType = "image/png";
@@ -21,7 +25,6 @@ export default function Icon() {
           color: "#E5A00D",
         }}
       >
-        {/* Decorative gold border */}
         <div
           style={{
             position: "absolute",
