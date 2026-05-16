@@ -20,21 +20,47 @@ export async function GET() {
   const pin = process.env.APP_PIN?.trim() ?? "";
   const pinConfigured = pin.length > 0;
 
+  const aviationstackKey = process.env.AVIATIONSTACK_API_KEY?.trim() ?? "";
+  const aviationstackConfigured = aviationstackKey.length > 0;
+
+  const anthropicKey = (
+    process.env.APP_ANTHROPIC_KEY ||
+    process.env.RCMK_ANTHROPIC_KEY ||
+    process.env.ANTHROPIC_API_KEY ||
+    ""
+  ).trim();
+  const anthropicConfigured = anthropicKey.length > 0;
+
+  const hints: string[] = [];
+  if (!pinConfigured) {
+    hints.push(
+      "APP_PIN ist im Edge-Runtime nicht sichtbar. In Vercel setzen + Redeploy.",
+    );
+  }
+  if (!aviationstackConfigured) {
+    hints.push(
+      "AVIATIONSTACK_API_KEY nicht gesetzt — Flugstatus fällt auf Flightradar24-Link zurück.",
+    );
+  }
+  if (!anthropicConfigured) {
+    hints.push(
+      "APP_ANTHROPIC_KEY fehlt — KI-Chat liefert 500-Fehler.",
+    );
+  }
+
   return Response.json(
     {
       version,
       deployedAt:
         process.env.VERCEL_DEPLOYMENT_ID ?? new Date().toISOString(),
-      // Gate diagnostics (safe — no secret value exposed)
+      nodeEnv: process.env.NODE_ENV ?? "unknown",
+      // Gate diagnostics (safe — no secret values exposed)
       pinConfigured,
       pinLength: pinConfigured ? pin.length : 0,
-      nodeEnv: process.env.NODE_ENV ?? "unknown",
-      // Hint when env-var clearly wasn't picked up at build time —
-      // helps users notice that they need to redeploy after changing
-      // project-level vars in Vercel.
-      hint: pinConfigured
-        ? undefined
-        : "APP_PIN ist im Edge-Runtime nicht sichtbar. Falls du es in Vercel gesetzt hast: einmal Redeploy auslösen (Deployments → ··· → Redeploy ohne Cache).",
+      // Integration diagnostics
+      aviationstackConfigured,
+      anthropicConfigured,
+      hints: hints.length > 0 ? hints : undefined,
     },
     {
       headers: {
