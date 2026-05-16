@@ -9,6 +9,7 @@ import { usePhotos } from "@/hooks/usePhotos";
 import { PhotoUpload } from "@/components/photos/PhotoUpload";
 import { PhotoCard } from "@/components/photos/PhotoCard";
 import { PhotoDetail } from "@/components/photos/PhotoDetail";
+import { LocationIdentifier } from "@/components/photos/LocationIdentifier";
 
 interface FotosTabProps {
   trip: Trip;
@@ -52,6 +53,15 @@ export function FotosTab({ trip }: FotosTabProps) {
           {photos.length === 0
             ? "Lade Fotos von deinem Handy – sie bleiben auf deinem Gerät."
             : `${photos.length} ${photos.length === 1 ? "Foto" : "Fotos"} aus dieser Reise`}
+        </p>
+      </div>
+
+      {/* Location-Erkennung: prominent oben für "Foto vom Freund – wo ist das?" */}
+      <LocationIdentifier tripSlug={trip.slug} />
+
+      <div className="px-1 pt-2">
+        <p className="font-display text-[11px] uppercase tracking-[0.2em] text-gold-600 font-bold">
+          Deine eigenen Fotos
         </p>
       </div>
 

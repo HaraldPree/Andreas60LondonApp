@@ -460,6 +460,10 @@ function AddExpenseForm({
   onCancel: () => void;
 }) {
   const names = participants?.map((p) => p.name) ?? [];
+  // Default-Split: Geburtstagskind ausgenommen (ist eingeladen)
+  const defaultSplit =
+    participants?.filter((p) => p.role !== "celebrant").map((p) => p.name) ??
+    names;
   const todayIso = new Date().toISOString().slice(0, 10);
 
   const [amount, setAmount] = useState<string>("");
@@ -467,7 +471,7 @@ function AddExpenseForm({
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState<ExpenseCategory>("food");
   const [paidBy, setPaidBy] = useState<string>(currentUserName ?? names[0] ?? "");
-  const [splitAmong, setSplitAmong] = useState<string[]>(names);
+  const [splitAmong, setSplitAmong] = useState<string[]>(defaultSplit);
   const [date, setDate] = useState<string>(todayIso);
 
   const toggleSplit = (n: string) =>
@@ -599,24 +603,33 @@ function AddExpenseForm({
 
       {/* Split among */}
       <div>
-        <p className="text-[10px] uppercase tracking-wider text-ink-light font-semibold mb-1">
-          Geteilt unter
+        <p className="text-[10px] uppercase tracking-wider text-ink-light font-semibold mb-1 flex items-center justify-between gap-2">
+          <span>Geteilt unter</span>
+          {participants?.some((p) => p.role === "celebrant") && (
+            <span className="normal-case font-normal tracking-normal text-[9px] text-gold-600">
+              🎂 Geburtstagskind default ausgenommen
+            </span>
+          )}
         </p>
         <div className="flex flex-wrap gap-1">
-          {names.map((n) => {
+          {(participants ?? []).map((p) => {
+            const n = p.name;
             const active = splitAmong.includes(n);
+            const isCelebrant = p.role === "celebrant";
             return (
               <button
                 key={n}
                 type="button"
                 onClick={() => toggleSplit(n)}
                 className={classNames(
-                  "px-2 py-1 rounded-full text-[11px] font-semibold transition",
-                  active
-                    ? "bg-success text-white"
-                    : "bg-white border border-cream-300 text-ink-mid line-through",
+                  "px-2 py-1 rounded-full text-[11px] font-semibold transition inline-flex items-center gap-1",
+                  active && !isCelebrant && "bg-success text-white",
+                  active && isCelebrant && "bg-gold text-navy",
+                  !active && "bg-white border border-cream-300 text-ink-mid line-through",
+                  !active && isCelebrant && "border-gold/40",
                 )}
               >
+                {isCelebrant && "🎂"}
                 {n}
               </button>
             );
