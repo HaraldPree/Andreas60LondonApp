@@ -42,33 +42,69 @@ export async function getPhoto(id: string): Promise<PhotoEntry | undefined> {
   return db.get(STORE, id);
 }
 
+/**
+ * Duck-typed Blob check. We deliberately don't use `instanceof Blob`
+ * because in some browsers (especially Firefox) blobs round-tripped
+ * through IndexedDB lose their constructor identity even though they
+ * are otherwise fully functional Blob-shaped objects. Falsely flagging
+ * a valid blob as broken would auto-delete real user photos.
+ */
+function isBlobLike(b: unknown): b is Blob {
+  return (
+    b !== null &&
+    b !== undefined &&
+    typeof b === "object" &&
+    typeof (b as Blob).size === "number" &&
+    typeof (b as Blob).type === "string" &&
+    typeof (b as Blob).arrayBuffer === "function"
+  );
+}
+
 export async function listPhotos(tripSlug: string): Promise<PhotoMeta[]> {
   const db = await getDB();
   const all = await db.getAllFromIndex(STORE, "tripSlug", tripSlug);
 
-  // Auto-repair: drop "ghost" entries with missing blobs. These can be
-  // left behind by older buggy versions or interrupted deletes — they
-  // count toward the photo total but render as grey placeholders that
-  // never resolve. Quietly removing them keeps the gallery honest.
-  const orphans: string[] = [];
-  const valid = all.filter((entry) => {
-    const ok = entry.fullBlob instanceof Blob && entry.thumbBlob instanceof Blob;
-    if (!ok) orphans.push(entry.id);
-    return ok;
+  // We separate the entries into three buckets:
+  //   - VALID  : both blobs are blob-shaped with size > 0 → show normally
+  //   - BROKEN : at least one blob is blob-shaped but size 0 → still
+  //              show (so user can self-delete via the warning card)
+  //   - GHOST  : at least one blob is genuinely missing (null/undefined)
+  //              → auto-cleanup in background, drop from view
+  // Only the GHOST bucket is auto-deleted; the BROKEN bucket stays
+  // visible so the user has the choice and the cause stays diagnosable.
+  const ghosts: string[] = [];
+  const visible = all.filter((entry) => {
+    if (entry.fullBlob == null || entry.thumbBlob == null) {
+      ghosts.push(entry.id);
+      return false;
+    }
+    return true;
   });
 
-  if (orphans.length > 0) {
+  if (ghosts.length > 0) {
     console.warn(
-      `[photoStorage] Cleaning up ${orphans.length} ghost photo entr${orphans.length === 1 ? "y" : "ies"} (missing blobs):`,
-      orphans,
+      `[photoStorage] Cleaning up ${ghosts.length} ghost entr${ghosts.length === 1 ? "y" : "ies"} (null blobs):`,
+      ghosts,
     );
-    // Fire-and-forget — don't block the list call on cleanup
-    void Promise.all(orphans.map((id) => db.delete(STORE, id))).catch((e) =>
+    void Promise.all(ghosts.map((id) => db.delete(STORE, id))).catch((e) =>
       console.error("[photoStorage] Ghost cleanup failed", e),
     );
   }
 
-  return valid
+  // Log diagnostic info for visible entries — helps debug rendering issues
+  for (const entry of visible) {
+    const fullOk = isBlobLike(entry.fullBlob);
+    const thumbOk = isBlobLike(entry.thumbBlob);
+    const fullSize = (entry.fullBlob as Blob | undefined)?.size ?? 0;
+    const thumbSize = (entry.thumbBlob as Blob | undefined)?.size ?? 0;
+    if (!fullOk || !thumbOk || thumbSize === 0) {
+      console.warn(
+        `[photoStorage] Suspicious entry id=${entry.id} fullOk=${fullOk}(${fullSize}b) thumbOk=${thumbOk}(${thumbSize}b)`,
+      );
+    }
+  }
+
+  return visible
     .map(stripBlobs)
     .sort((a, b) => a.takenAt.localeCompare(b.takenAt));
 }
