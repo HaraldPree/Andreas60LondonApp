@@ -270,6 +270,7 @@ export interface Trip {
   quickActions: QuickAction[];
   emergencyInfo?: EmergencyInfo;
   runningRoutes?: RunningRoute[];
+  restaurants?: import("./restaurant").Restaurant[];
 
   mapCenter: Coordinates;
   mapZoom: number;

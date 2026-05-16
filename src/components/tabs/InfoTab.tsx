@@ -15,6 +15,8 @@ import { LocationSharingCard } from "@/components/activities/LocationSharingCard
 import { CurrencyConverter } from "@/components/info/CurrencyConverter";
 import { ExpenseTracker } from "@/components/expenses/ExpenseTracker";
 import { MyDataSection } from "@/components/privacy/MyDataSection";
+import { RestaurantsList } from "@/components/dining/RestaurantsList";
+import { Phrasebook } from "@/components/info/Phrasebook";
 
 interface InfoTabProps {
   trip: Trip;
@@ -102,6 +104,17 @@ export function InfoTab({ trip, currentUserName, onRequestIdentity }: InfoTabPro
         />
       )}
 
+      {/* — ESSEN & TRINKEN — */}
+      {trip.restaurants && trip.restaurants.length > 0 && (
+        <>
+          <SectionHeading
+            title="Essen & Trinken"
+            hint="Kuratierte Restaurants mit Buchungs-Links (TheFork)"
+          />
+          <RestaurantsList trip={trip} />
+        </>
+      )}
+
       {/* — LOGISTIK — */}
       <SectionHeading title="Logistik" />
       <AccommodationCard accommodation={trip.accommodation} />
@@ -111,6 +124,7 @@ export function InfoTab({ trip, currentUserName, onRequestIdentity }: InfoTabPro
       {/* — SCHNELLZUGRIFF — */}
       <SectionHeading title="Schnellzugriff & Tipps" />
       <QuickActions actions={trip.quickActions} />
+      <Phrasebook />
       <TransportTips />
 
       {/* — ENTDECKEN — */}
