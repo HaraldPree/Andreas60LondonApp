@@ -4,13 +4,16 @@
  * so users can hit one button to send Harald a useful issue report
  * without having to remember all the diagnostic context.
  *
- * The destination phone number lives in NEXT_PUBLIC_HARALD_WHATSAPP
- * — set in Vercel without redeploy needed for the button code itself.
- * Format: international with + and country code, e.g. "+436641234567".
- *
- * If the env var is missing, the button shows a fallback "kontaktiere
- * Harald separat" hint instead of producing a broken wa.me link.
+ * The destination phone number defaults to Harald's personal mobile
+ * (this is a private app for the travel group, Harald explicitly
+ * shared the number for this purpose). Can be overridden via
+ * NEXT_PUBLIC_HARALD_WHATSAPP if needed (e.g. holiday-cover number).
  */
+
+/** Harald's personal WhatsApp — only used by the 5 travelers to
+ *  report bugs during the trip. Format: international without "+" or
+ *  leading "00", just digits. wa.me requires this exact format. */
+const DEFAULT_HARALD_WHATSAPP = "4369918888002";
 
 export interface IssueContext {
   /** Optional: user's chosen identity from localStorage */
@@ -56,17 +59,21 @@ export function buildIssueMessage(ctx: IssueContext = {}): string {
 }
 
 /**
- * Returns wa.me URL or null if no destination number is configured.
- * The number env var is sanitised: anything but digits is stripped
- * (wa.me only accepts digits in the path).
+ * Returns wa.me URL or null if no usable number is available.
+ *
+ * Sanitisation pipeline:
+ *   1. Strip everything except digits (handles "+43 ..." or "0043...")
+ *   2. Strip a leading "00" (international dial prefix that wa.me
+ *      rejects — it wants country code without the 00)
+ *   3. Require ≥8 digits as a sanity check
  */
 export function buildWhatsappUrl(ctx: IssueContext = {}): string | null {
-  const raw = process.env.NEXT_PUBLIC_HARALD_WHATSAPP;
-  if (!raw) return null;
-  const digits = raw.replace(/[^\d]/g, "");
-  if (digits.length < 8) return null;
+  const raw =
+    process.env.NEXT_PUBLIC_HARALD_WHATSAPP || DEFAULT_HARALD_WHATSAPP;
+  const sanitised = raw.replace(/[^\d]/g, "").replace(/^00/, "");
+  if (sanitised.length < 8) return null;
   const text = buildIssueMessage(ctx);
-  return `https://wa.me/${digits}?text=${encodeURIComponent(text)}`;
+  return `https://wa.me/${sanitised}?text=${encodeURIComponent(text)}`;
 }
 
 function shortUserAgent(ua: string): string {
