@@ -1,0 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-navy: #003366;
+  --color-gold: #E5A00D;
+  --color-cream: #F8F6F1;
+  --color-ink-dark: #1A1A2E;
+  --color-ink-mid: #4A4A5A;
+  --color-ink-light: #7A7A8A;
+  --color-success: #2D8F5E;
+  --color-warning: #D44638;
+  --color-info: #2980B9;
+}
+
+html,
+body {
+  background: var(--color-cream);
+  color: var(--color-ink-dark);
+  font-family: var(--font-dmsans), system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  min-height: 100vh;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Hide scrollbar but keep functionality (for forecast bar) */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Display heading with Playfair */
+.font-display {
+  font-family: var(--font-playfair), Georgia, serif;
+}
+
+/* Custom scrollbar for desktop */
+@media (min-width: 768px) {
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--color-cream);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(0, 51, 102, 0.25);
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 51, 102, 0.4);
+  }
+}
+
+/* Smooth focus rings in CI colors */
+:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
