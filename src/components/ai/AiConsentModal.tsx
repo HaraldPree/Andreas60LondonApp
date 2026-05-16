@@ -40,10 +40,16 @@ export function AiConsentModal({
             animate={{ y: 0, opacity: 1, scale: 1 }}
             exit={{ y: 30, opacity: 0, scale: 0.95 }}
             transition={{ type: "spring", damping: 25, stiffness: 280 }}
-            className="fixed inset-x-4 top-1/2 -translate-y-1/2 max-w-md mx-auto z-[60] bg-white rounded-2xl shadow-elevated overflow-hidden"
+            // Flex column with a hard max-height so the modal can't
+            // exceed the viewport. Header + actions stay fixed, body
+            // becomes scrollable when content overflows.
+            // top-1/2 + -translate-y-1/2 centers vertically when the
+            // content fits; max-h-[90vh] keeps it inside the viewport
+            // when it doesn't.
+            className="fixed inset-x-4 top-1/2 -translate-y-1/2 max-w-md mx-auto z-[60] bg-white rounded-2xl shadow-elevated overflow-hidden flex flex-col max-h-[90vh] max-h-[90dvh]"
           >
-            {/* Header */}
-            <div className="bg-gradient-to-br from-info to-info/80 text-white p-4 flex items-start gap-3">
+            {/* Header (fixed) */}
+            <div className="bg-gradient-to-br from-info to-info/80 text-white p-4 flex items-start gap-3 flex-shrink-0">
               <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
                 <ShieldAlert size={20} />
               </div>
@@ -65,8 +71,8 @@ export function AiConsentModal({
               </button>
             </div>
 
-            {/* Body */}
-            <div className="p-4 space-y-3">
+            {/* Body (scrollable) */}
+            <div className="p-4 space-y-3 overflow-y-auto flex-1 min-h-0">
               <p className="text-sm text-ink-dark leading-relaxed">
                 {actionDescription}
               </p>
@@ -95,8 +101,8 @@ export function AiConsentModal({
               </p>
             </div>
 
-            {/* Actions */}
-            <div className="bg-cream-50 border-t border-cream-200 p-3 flex flex-col gap-2">
+            {/* Actions (fixed at bottom — always visible, even on short screens) */}
+            <div className="bg-cream-50 border-t border-cream-200 p-3 flex flex-col gap-2 flex-shrink-0">
               <button
                 type="button"
                 onClick={() => onDecide("always")}
