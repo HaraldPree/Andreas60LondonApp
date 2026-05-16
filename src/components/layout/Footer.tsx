@@ -19,12 +19,21 @@ export function Footer() {
           </span>
           unterwegs
         </p>
-        <Link
-          href="/datenschutz"
-          className="inline-block text-[11px] text-ink-light hover:text-navy underline mt-3"
-        >
-          Datenschutz
-        </Link>
+        <div className="inline-flex items-center gap-3 mt-3 text-[11px]">
+          <Link
+            href="/anleitung"
+            className="text-ink-light hover:text-navy underline"
+          >
+            Anleitung
+          </Link>
+          <span className="text-ink-light/40">·</span>
+          <Link
+            href="/datenschutz"
+            className="text-ink-light hover:text-navy underline"
+          >
+            Datenschutz
+          </Link>
+        </div>
       </div>
     </footer>
   );

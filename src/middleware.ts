@@ -10,6 +10,7 @@ import { NextResponse, type NextRequest } from "next/server";
 const PUBLIC_PATH_PREFIXES = [
   "/login",
   "/datenschutz", // privacy policy must be accessible without auth
+  "/anleitung", // user guide should be accessible without PIN (link share-able)
   "/api/login",
   "/api/logout",
   "/_next",
