@@ -7,6 +7,9 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const MAX_TOOL_ITERATIONS = 5;
+const MAX_REQUEST_BYTES = 100 * 1024; // 100 KB
+const MAX_MESSAGE_LENGTH = 4000; // chars per message
+const MAX_MESSAGES_PER_REQUEST = 50; // conversation history limit
 
 interface ChatRequest {
   tripSlug: string;
@@ -15,6 +18,12 @@ interface ChatRequest {
 }
 
 export async function POST(req: Request) {
+  // Size check first – cheap defense before parsing
+  const contentLength = req.headers.get("content-length");
+  if (contentLength && parseInt(contentLength, 10) > MAX_REQUEST_BYTES) {
+    return new Response("Request body too large (max 100 KB)", { status: 413 });
+  }
+
   let body: ChatRequest;
   try {
     body = await req.json();
@@ -25,6 +34,35 @@ export async function POST(req: Request) {
   const { tripSlug, messages, currentUserName } = body;
   if (!tripSlug || !Array.isArray(messages) || messages.length === 0) {
     return new Response("tripSlug and messages required", { status: 400 });
+  }
+
+  // Conversation length limit (cost protection)
+  if (messages.length > MAX_MESSAGES_PER_REQUEST) {
+    return new Response(
+      `Zu viele Nachrichten (max ${MAX_MESSAGES_PER_REQUEST}). Bitte Chat zurücksetzen.`,
+      { status: 400 },
+    );
+  }
+
+  // Per-message length limit (cost + abuse protection)
+  for (const m of messages) {
+    const text =
+      typeof m.content === "string"
+        ? m.content
+        : JSON.stringify(m.content);
+    if (text.length > MAX_MESSAGE_LENGTH) {
+      return new Response(
+        `Nachricht zu lang (max ${MAX_MESSAGE_LENGTH} Zeichen).`,
+        { status: 400 },
+      );
+    }
+  }
+
+  // currentUserName whitelist check (only allow names from the trip)
+  if (currentUserName) {
+    if (typeof currentUserName !== "string" || currentUserName.length > 50) {
+      return new Response("Invalid currentUserName", { status: 400 });
+    }
   }
 
   const trip = getTripBySlug(tripSlug);

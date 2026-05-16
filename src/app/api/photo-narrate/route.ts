@@ -5,6 +5,16 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 30;
 
+const MAX_REQUEST_BYTES = 10 * 1024 * 1024; // 10 MB
+const MAX_IMAGE_BASE64_BYTES = 7 * 1024 * 1024; // 7 MB base64 ≈ 5 MB binary
+const MAX_CAPTION_LENGTH = 500;
+const ALLOWED_MEDIA_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+];
+
 interface NarrateRequest {
   tripSlug: string;
   /** Base64 image data without the "data:image/jpeg;base64," prefix. */
@@ -18,6 +28,12 @@ interface NarrateRequest {
 }
 
 export async function POST(req: Request) {
+  // Cheap size guard before parsing
+  const contentLength = req.headers.get("content-length");
+  if (contentLength && parseInt(contentLength, 10) > MAX_REQUEST_BYTES) {
+    return new Response("Foto zu groß (max 10 MB).", { status: 413 });
+  }
+
   let body: NarrateRequest;
   try {
     body = await req.json();
@@ -31,6 +47,42 @@ export async function POST(req: Request) {
     return new Response("tripSlug, imageBase64, mediaType required", {
       status: 400,
     });
+  }
+
+  // Validate media type
+  if (!ALLOWED_MEDIA_TYPES.includes(mediaType)) {
+    return new Response(
+      "Bildformat nicht unterstützt (JPEG, PNG, WebP, GIF).",
+      { status: 400 },
+    );
+  }
+
+  // Validate image size
+  if (imageBase64.length > MAX_IMAGE_BASE64_BYTES) {
+    return new Response(
+      "Foto zu groß für AI-Analyse (max ~5 MB).",
+      { status: 413 },
+    );
+  }
+
+  // Validate caption length
+  if (caption && caption.length > MAX_CAPTION_LENGTH) {
+    return new Response(
+      `Bildunterschrift zu lang (max ${MAX_CAPTION_LENGTH} Zeichen).`,
+      { status: 400 },
+    );
+  }
+
+  // Validate coordinates if present
+  if (coordinates) {
+    if (
+      typeof coordinates.lat !== "number" ||
+      typeof coordinates.lng !== "number" ||
+      Math.abs(coordinates.lat) > 90 ||
+      Math.abs(coordinates.lng) > 180
+    ) {
+      return new Response("Invalid coordinates", { status: 400 });
+    }
   }
 
   const trip = getTripBySlug(tripSlug);
