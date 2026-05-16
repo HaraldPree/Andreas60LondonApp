@@ -49,6 +49,12 @@ export function ExpenseTracker({
   const [formOpen, setFormOpen] = useState(false);
 
   const participants = trip.participants ?? [];
+  // Splitters = everyone except the celebrant (Geburtstagskind ist
+  // eingeladen) — used for the header hint so it doesn't say "Split
+  // unter den 5" when really only 4 people split the bill.
+  const hasCelebrant = participants.some((p) => p.role === "celebrant");
+  const splitterCount = participants.filter((p) => p.role !== "celebrant")
+    .length;
 
   // Sort newest first
   const sortedExpenses = useMemo(
@@ -137,7 +143,11 @@ export function ExpenseTracker({
           <p className="text-[11px] text-ink-mid">
             {hydrated && totals[tripCurrency]
               ? `Insgesamt ${fmtBoth(totals[tripCurrency])}`
-              : "Wer hat was bezahlt + Split unter den 5"}
+              : splitterCount > 0
+                ? hasCelebrant
+                  ? `Wer hat was bezahlt + Split unter den ${splitterCount} (Geburtstagskind eingeladen)`
+                  : `Wer hat was bezahlt + Split unter den ${splitterCount}`
+                : "Wer hat was bezahlt + Split unter den Mitreisenden"}
           </p>
         </div>
         <ChevronDown
