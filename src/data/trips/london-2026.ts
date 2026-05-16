@@ -108,8 +108,8 @@ export const londonTrip: Trip = {
     {
       type: "warning",
       icon: "🚇",
-      title: "Tube-Streik 19.–22. Mai",
-      text: "Die Londoner U-Bahn wird voraussichtlich von Di 19.5. bis Fr 22.5. bestreikt. Plant Alternativen: Bus, Uber Boat, zu Fuß, Uber. Mehr Infos im Info-Tab.",
+      title: "Tube-Streik: Di 19.5. 12:00 → Fr 22.5. 11:59",
+      text: "Die Londoner U-Bahn ist durchgehend ~72h bestreikt. ENGLISCHE ZEIT-INFO: 12 PM = 12:00 (Mittag), 11:59 AM = 11:59 (Vormittag). ⚠️ Heißt: Bei eurer ABREISE Fr 22.5. um 09:30 ist der Streik NOCH AKTIV. Plant für Friday morning Bus 205 oder Uber statt Tube ein.",
       validFrom: "2026-05-18",
       validUntil: "2026-05-22",
     },
@@ -119,6 +119,28 @@ export const londonTrip: Trip = {
       text: "Happy Birthday! Wir wünschen euch eine unvergessliche Reise zum 60er.",
       validFrom: "2026-05-18",
       validUntil: "2026-05-22",
+    },
+  ],
+
+  disruptions: [
+    {
+      id: "tube-strike-may-2026",
+      type: "strike",
+      service: "London Tube",
+      icon: "🚇",
+      // London is BST (UTC+1) im Mai
+      startIso: "2026-05-19T12:00:00+01:00",
+      endIso: "2026-05-22T11:59:00+01:00",
+      shortLabel: "Tube-Streik",
+      description:
+        "London Underground bestreikt von Di 19.5. 12:00 Uhr durchgehend bis Fr 22.5. 11:59 Uhr (rund 72 Stunden). Betrifft alle Tube-Linien.",
+      alternatives: [
+        "Bus 205 (Liverpool St ↔ Marylebone Rd)",
+        "Bus 11, 23, 24, 88 (Zone 1)",
+        "Uber Boat / Thames Clipper (Themse)",
+        "Uber / Bolt / FreeNow (Auto)",
+        "Zu Fuß (Zone 1 ist klein, alles in 30-45 Min erreichbar)",
+      ],
     },
   ],
 
@@ -729,7 +751,8 @@ export const londonTrip: Trip = {
         { name: "Crossrail Roof Garden", coordinates: { lat: 51.5054, lng: -0.0186 }, category: "hidden", icon: "🌴" },
       ],
       tips: [
-        "Thames Clipper River Roamer Pass = £21/Tag unbegrenzt – ideal für Hin & Zurück.",
+        "🚇 Tube-Streik: heute GANZTÄGIG. Aber: DLR (Docklands Light Railway) ist KEIN Tube und fährt normal! Perfekt nach Greenwich + Canary Wharf.",
+        "Thames Clipper River Roamer Pass = £21/Tag unbegrenzt – ideal für Hin & Zurück, vom Streik nicht betroffen.",
         "Royal Observatory: 30 Min Aufstieg auf den Hügel, gute Schuhe!",
         "Painted Hall ist der Geheimtipp – die meisten Touristen übersehen ihn.",
       ],
@@ -795,19 +818,20 @@ export const londonTrip: Trip = {
           note: "Schlüssel zurück, kurze Wohnungs-Kontrolle (Kühlschrank, Bad, Steckdosen).",
         },
         {
-          time: "09:40",
-          label: "Fußweg zur Tube Great Portland Street",
-          type: "transport",
-          icon: "🚶",
-          note: "5 Min vom Apartment. Tube hat Aufzug.",
+          time: "09:35",
+          label: "⚠️ Tube-Streik bis 11:59 aktiv – Bus 205 oder Uber",
+          type: "alternative",
+          icon: "🚌",
+          highlight: true,
+          note: "Tube fährt NICHT vor 11:59 (Streik). Empfohlene Reihenfolge: 1) Uber direkt vor Tür (~£20-25, 25 Min, am sichersten), 2) Bus 205 von Marylebone Rd (ca. 30 Min, alle 8-10 Min). Vermeidet jede U-Bahn-Linie.",
         },
         {
-          time: "09:50",
-          label: "Tube → Liverpool Street (Hammersmith & City oder Circle Line)",
+          time: "09:40",
+          label: "Abfahrt zum Liverpool Street (Bus/Uber)",
           type: "transport",
-          icon: "🚇",
+          icon: "🚌",
           coordinates: { lat: 51.5180, lng: -0.0815 },
-          note: "Direkte Verbindung, 4 Stationen, ca. 12 Min. Alternative bei Streik: Bus 205 oder Uber (£20-25, 25 Min einkalkulieren).",
+          note: "Fahrtzeit 25-30 Min einplanen, je nach Verkehr morgens 09:30-10:15 kann es zäh sein.",
         },
         {
           time: "10:15",
@@ -858,11 +882,11 @@ export const londonTrip: Trip = {
         { name: "Liverpool Street Station", coordinates: { lat: 51.5180, lng: -0.0815 }, category: "transport", icon: "🚆" },
       ],
       tips: [
+        "🚇 ACHTUNG TUBE-STREIK: Endet erst 11:59 Uhr – eure Abreise 09:30 ist NOCH IM STREIK. KEINE Tube nehmen, sondern Bus 205 (~30 Min) oder Uber (~25 Min, £20-25). Uber vorab im App fertig machen!",
         "Großes Gepäck früh aufgeben – Ryanair ist streng (Online-Boarding-Pass am Handy parat!).",
         "Stansted Security kann in Stoßzeiten lang sein – Puffer einkalkuliert (90 Min vor Abflug am Gate).",
         "Letzte Souvenirs gestern besorgen (Fortnum & Mason Tea, M&S) – Stansted-Preise sind höher.",
-        "Falls Tube-Streik: Bus 205 oder Uber (25 Min, £20-25) statt Hammersmith & City.",
-        "Stansted Express: Falls verspätet, gibt es bei Ryanair keine Kulanz – Puffer ist König.",
+        "Stansted Express fährt durchgehend (nicht von Tube-Streik betroffen) – falls verspätet, gibt es bei Ryanair keine Kulanz.",
       ],
     },
   ],

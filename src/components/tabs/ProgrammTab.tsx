@@ -9,6 +9,7 @@ import { AlertBanner } from "@/components/trip/AlertBanner";
 import { DayCard } from "@/components/trip/DayCard";
 import { TripHero } from "@/components/trip/TripHero";
 import { useWeather } from "@/hooks/useWeather";
+import { getDisruptionsForDay } from "@/lib/disruptions";
 
 interface ProgrammTabProps {
   trip: Trip;
@@ -72,6 +73,11 @@ export function ProgrammTab({ trip }: ProgrammTabProps) {
               defaultOpen={i === 0}
               rainProbability={
                 day.isoDate ? precipByDate.get(day.isoDate) : undefined
+              }
+              disruptions={
+                day.isoDate
+                  ? getDisruptionsForDay(day.isoDate, trip.disruptions)
+                  : []
               }
             />
           ))}

@@ -38,6 +38,26 @@ export interface Alert {
   validUntil?: string;
 }
 
+export type DisruptionType = "strike" | "closure" | "delay" | "maintenance";
+
+export interface TransportDisruption {
+  id: string;
+  type: DisruptionType;
+  /** Service name e.g. "London Tube" */
+  service: string;
+  icon: string;
+  /** ISO 8601 with timezone, e.g. "2026-05-19T12:00:00+01:00" */
+  startIso: string;
+  /** ISO 8601 with timezone, exclusive end (Strike ends BEFORE this time) */
+  endIso: string;
+  /** Short label for pill, e.g. "Tube-Streik" */
+  shortLabel: string;
+  /** Longer text for the alert banner */
+  description: string;
+  /** Recommended workarounds */
+  alternatives: string[];
+}
+
 export type ProgramItemType =
   | "flight"
   | "activity"
@@ -242,6 +262,8 @@ export interface Trip {
   accommodation: Accommodation;
   flights: { outbound: Flight; inbound: Flight };
   alerts: Alert[];
+  /** Structured transport/service disruptions with exact 24h time windows */
+  disruptions?: TransportDisruption[];
   days: Day[];
   reservations: Reservation[];
   hiddenPlaces: HiddenPlace[];

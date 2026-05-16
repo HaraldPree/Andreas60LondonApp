@@ -12,6 +12,7 @@ export function buildCompanionSystemPrompt(trip: Trip): string {
       accommodation: trip.accommodation,
       flights: trip.flights,
       alerts: trip.alerts,
+      disruptions: trip.disruptions,
       days: trip.days.map((d) => ({
         date: d.date,
         title: d.title,

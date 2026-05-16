@@ -4,8 +4,10 @@ import { useState } from "react";
 import { ChevronDown, Lightbulb, CloudRain } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import type { Day } from "@/types/trip";
+import type { DayDisruptionWindow } from "@/lib/disruptions";
 import { classNames } from "@/lib/formatters";
 import { TimelineItem } from "./TimelineItem";
+import { DisruptionPill } from "./DisruptionPill";
 
 interface DayCardProps {
   day: Day;
@@ -13,6 +15,8 @@ interface DayCardProps {
   defaultOpen?: boolean;
   /** If known (>=0..100), shows a "Plan B" banner when precipitation is high. */
   rainProbability?: number;
+  /** Active service disruptions for this day */
+  disruptions?: DayDisruptionWindow[];
 }
 
 export function DayCard({
@@ -20,6 +24,7 @@ export function DayCard({
   dayNumber,
   defaultOpen = false,
   rainProbability,
+  disruptions = [],
 }: DayCardProps) {
   const [open, setOpen] = useState(defaultOpen);
   const [showRainy, setShowRainy] = useState(false);
@@ -61,6 +66,11 @@ export function DayCard({
             {day.title}
           </h3>
           <p className="text-xs text-ink-mid mt-0.5 line-clamp-2">{day.summary}</p>
+          {disruptions.length > 0 && (
+            <div className="mt-1.5">
+              <DisruptionPill windows={disruptions} />
+            </div>
+          )}
         </div>
         <ChevronDown
           size={20}
