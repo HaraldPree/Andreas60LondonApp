@@ -1,13 +1,18 @@
 "use client";
 
-import { useState } from "react";
-import { BookOpen, Download, Loader2, CheckCircle2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import {
+  BookOpen,
+  Download,
+  Loader2,
+  Share2,
+  RotateCcw,
+} from "lucide-react";
 import type { Trip } from "@/types/trip";
 import type { PhotoMeta } from "@/types/photo";
 import {
   buildPhotoBookZip,
   defaultZipFilename,
-  triggerDownload,
   type PhotoBookExportProgress,
 } from "@/lib/photoBookExport";
 
@@ -16,18 +21,39 @@ interface Props {
   photos: PhotoMeta[];
 }
 
+interface ReadyZip {
+  blob: Blob;
+  url: string;
+  filename: string;
+  sizeMb: string;
+}
+
 export function PhotoBookExportButton({ trip, photos }: Props) {
   const [exporting, setExporting] = useState(false);
   const [progress, setProgress] = useState<PhotoBookExportProgress | null>(null);
-  const [doneAt, setDoneAt] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [ready, setReady] = useState<ReadyZip | null>(null);
+  const previousUrlRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (previousUrlRef.current) {
+        URL.revokeObjectURL(previousUrlRef.current);
+        previousUrlRef.current = null;
+      }
+    };
+  }, []);
 
   if (photos.length === 0) return null;
 
   const handleExport = async () => {
     setExporting(true);
     setError(null);
-    setDoneAt(null);
+    setReady(null);
+    if (previousUrlRef.current) {
+      URL.revokeObjectURL(previousUrlRef.current);
+      previousUrlRef.current = null;
+    }
     setProgress({ current: 0, total: photos.length, step: "collecting" });
     try {
       const blob = await buildPhotoBookZip({
@@ -35,15 +61,57 @@ export function PhotoBookExportButton({ trip, photos }: Props) {
         photos,
         onProgress: setProgress,
       });
-      triggerDownload(blob, defaultZipFilename(trip));
-      setDoneAt(Date.now());
+      const url = URL.createObjectURL(blob);
+      previousUrlRef.current = url;
+      const filename = defaultZipFilename(trip);
+      const sizeMb = (blob.size / 1024 / 1024).toFixed(1);
+      setReady({ blob, url, filename, sizeMb });
     } catch (e) {
       setError(e instanceof Error ? e.message : "Export fehlgeschlagen");
     } finally {
       setExporting(false);
-      // clear progress after a moment so the "done" tick stays briefly
       setTimeout(() => setProgress(null), 2500);
     }
+  };
+
+  const handleShare = async () => {
+    if (!ready) return;
+    try {
+      if (
+        typeof navigator.share === "function" &&
+        typeof navigator.canShare === "function" &&
+        typeof File !== "undefined"
+      ) {
+        const file = new File([ready.blob], ready.filename, {
+          type: ready.blob.type,
+        });
+        if (navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            files: [file],
+            title: ready.filename,
+          });
+          return;
+        }
+      }
+      const a = document.createElement("a");
+      a.href = ready.url;
+      a.download = ready.filename;
+      a.click();
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      if (!/abort|cancel/i.test(msg)) {
+        console.warn("[PhotoBookExportButton] share failed:", e);
+      }
+    }
+  };
+
+  const handleReset = () => {
+    if (previousUrlRef.current) {
+      URL.revokeObjectURL(previousUrlRef.current);
+      previousUrlRef.current = null;
+    }
+    setReady(null);
+    setError(null);
   };
 
   const progressPct =
@@ -55,9 +123,7 @@ export function PhotoBookExportButton({ trip, photos }: Props) {
       ? `Bilder sammeln… ${progress.current}/${progress.total}`
       : progress?.step === "compressing"
         ? "ZIP wird gebaut…"
-        : progress?.step === "done"
-          ? "Fertig — Download gestartet"
-          : "";
+        : "Wird vorbereitet…";
 
   return (
     <div className="rounded-2xl bg-white shadow-card border border-cream-200/50 overflow-hidden">
@@ -79,36 +145,86 @@ export function PhotoBookExportButton({ trip, photos }: Props) {
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={handleExport}
-          disabled={exporting}
-          className="w-full inline-flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-navy text-cream text-sm font-semibold hover:bg-navy-700 disabled:opacity-60 disabled:cursor-not-allowed transition"
-        >
-          {exporting ? (
-            <>
-              <Loader2 size={14} className="animate-spin" />
-              {stepLabel || "Wird vorbereitet…"}
-            </>
-          ) : doneAt ? (
-            <>
-              <CheckCircle2 size={14} />
-              Download gestartet — nochmal exportieren
-            </>
-          ) : (
-            <>
-              <Download size={14} />
-              ZIP herunterladen
-            </>
-          )}
-        </button>
+        {/* Initial / generating state */}
+        {!ready && (
+          <>
+            <button
+              type="button"
+              onClick={handleExport}
+              disabled={exporting}
+              className="w-full inline-flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-navy text-cream text-sm font-semibold hover:bg-navy-700 disabled:opacity-60 disabled:cursor-not-allowed transition"
+            >
+              {exporting ? (
+                <>
+                  <Loader2 size={14} className="animate-spin" />
+                  {stepLabel}
+                </>
+              ) : (
+                <>
+                  <BookOpen size={14} />
+                  ZIP erstellen
+                </>
+              )}
+            </button>
 
-        {progress && progress.step !== "done" && (
-          <div className="mt-2 h-1.5 w-full rounded-full bg-cream-200 overflow-hidden">
-            <div
-              className="h-full bg-gold transition-all duration-200"
-              style={{ width: `${progressPct}%` }}
-            />
+            {progress && progress.step !== "done" && (
+              <div className="mt-2 h-1.5 w-full rounded-full bg-cream-200 overflow-hidden">
+                <div
+                  className="h-full bg-gold transition-all duration-200"
+                  style={{ width: `${progressPct}%` }}
+                />
+              </div>
+            )}
+          </>
+        )}
+
+        {/* Ready state — persistent download link + share button */}
+        {ready && (
+          <div className="space-y-2">
+            <div className="rounded-lg bg-success/10 border border-success/30 p-3 text-center">
+              <p className="text-xs font-semibold text-success">
+                ✓ ZIP bereit ({ready.sizeMb} MB)
+              </p>
+              <p className="text-[10px] text-ink-mid mt-0.5 leading-relaxed">
+                Tippe auf den Button unten zum Speichern auf deinem Handy
+              </p>
+            </div>
+
+            {/* Real <a download> — tap is "user initiated" which mobile
+                browsers handle reliably (programmatic click() was the
+                bug). Works on Firefox / Chrome / Samsung / Safari. */}
+            <a
+              href={ready.url}
+              download={ready.filename}
+              className="w-full inline-flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-navy text-cream text-sm font-semibold hover:bg-navy-700 transition shadow-sm"
+            >
+              <Download size={16} />
+              ZIP speichern
+            </a>
+
+            <button
+              type="button"
+              onClick={handleShare}
+              className="w-full inline-flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-gold/15 text-gold-600 text-sm font-semibold hover:bg-gold/25 transition"
+            >
+              <Share2 size={14} />
+              Teilen (WhatsApp, Drive, E-Mail…)
+            </button>
+
+            <button
+              type="button"
+              onClick={handleReset}
+              className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs text-ink-mid hover:text-navy transition"
+            >
+              <RotateCcw size={11} />
+              Neu erstellen (z.B. nach neuen Fotos)
+            </button>
+
+            <p className="text-[10px] text-ink-light text-center italic mt-1 leading-relaxed">
+              💡 Falls "Speichern" einen neuen Tab öffnet:{" "}
+              <strong>lange auf den Button drücken</strong> → „Link
+              speichern unter" wählen
+            </p>
           </div>
         )}
 
