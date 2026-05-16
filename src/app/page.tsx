@@ -5,6 +5,7 @@ import { GoldDivider } from "@/components/ui/GoldDivider";
 import { Footer } from "@/components/layout/Footer";
 import { ParticipantsRow } from "@/components/trip/ParticipantsRow";
 import { TripCountdownChip } from "@/components/trip/TripCountdownChip";
+import { InstallHint } from "@/components/pwa/InstallHint";
 
 export default function HomePage() {
   return (
@@ -26,6 +27,8 @@ export default function HomePage() {
       </header>
 
       <main className="mx-auto max-w-app px-4 py-6">
+        <InstallHint />
+
         <div className="mb-4">
           <h2 className="font-display text-lg font-semibold text-navy">
             Verfügbare Reisen

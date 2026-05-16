@@ -20,27 +20,67 @@ const jetBrains = JetBrains_Mono({
   display: "swap",
 });
 
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  "https://birthdaytravelguidelondon.vercel.app";
+
 export const metadata: Metadata = {
-  title: "RCMK Travel Companion",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "Andreas 60. Geburtstag · London",
+    template: "%s · RCMK Travel Companion",
+  },
   description:
-    "Ihr persönlicher Reisebegleiter vom ReiseCenter Mader-Kuoni – Live-Wetter, Karte, Reservierungen und Tagesplan in einer App.",
-  manifest: "/manifest.json",
-  openGraph: {
-    title: "RCMK Travel Companion",
-    description: "Ihre Reise in einer App – ReiseCenter Mader-Kuoni",
-    type: "website",
-    locale: "de_AT",
+    "Reisebegleiter für Andreas 60. Geburtstag in London (18.–22. Mai 2026) – Live-Wetter, Karte, Programm, Tube-Status & KI-Guide. Vom ReiseCenter Mader-Kuoni.",
+  applicationName: "Andrea London",
+  appleWebApp: {
+    capable: true,
+    title: "Andrea London",
+    statusBarStyle: "black-translucent",
   },
   formatDetection: {
     telephone: false,
   },
+  openGraph: {
+    title: "Andreas 60. Geburtstag · London 2026",
+    description:
+      "Happy 60th, Andrea! Reisebegleiter mit Live-Wetter, Karte, KI-Guide und allem rund um Cedric Grolet, Big Ben und Co. Vom ReiseCenter Mader-Kuoni.",
+    type: "website",
+    locale: "de_AT",
+    siteName: "RCMK Travel Companion",
+    images: [
+      {
+        url: "/images/Headerbild.jpeg",
+        width: 880,
+        height: 441,
+        alt: "Happy 60th Andrea – London 2026",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Andreas 60. Geburtstag · London 2026",
+    description:
+      "Happy 60th, Andrea! Live-Wetter, Karte, KI-Guide, Cedric Grolet & mehr.",
+    images: ["/images/Headerbild.jpeg"],
+  },
+  other: {
+    "mobile-web-app-capable": "yes",
+    "apple-mobile-web-app-capable": "yes",
+    "apple-mobile-web-app-status-bar-style": "black-translucent",
+    "apple-mobile-web-app-title": "Andrea London",
+  },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#003366",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#003366" },
+    { media: "(prefers-color-scheme: dark)", color: "#003366" },
+  ],
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
@@ -49,7 +89,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="de" className={`${playfair.variable} ${dmSans.variable} ${jetBrains.variable}`}>
+    <html
+      lang="de"
+      className={`${playfair.variable} ${dmSans.variable} ${jetBrains.variable}`}
+    >
       <body className="font-body antialiased">{children}</body>
     </html>
   );
