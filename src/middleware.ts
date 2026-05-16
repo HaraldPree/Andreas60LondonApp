@@ -11,6 +11,7 @@ const PUBLIC_PATH_PREFIXES = [
   "/login",
   "/datenschutz", // privacy policy must be accessible without auth
   "/anleitung", // user guide should be accessible without PIN (link share-able)
+  "/impressum", // imprint should also be accessible without auth
   "/api/login",
   "/api/logout",
   "/_next",
