@@ -3,6 +3,8 @@
 import { Sparkles } from "lucide-react";
 import type { Trip } from "@/types/trip";
 import { ParticipantsRow } from "./ParticipantsRow";
+import { CountdownBadge } from "./CountdownBadge";
+import { useCountdown } from "@/hooks/useCountdown";
 
 interface TripHeroProps {
   trip: Trip;
@@ -12,6 +14,11 @@ export function TripHero({ trip }: TripHeroProps) {
   const fallbackGradient =
     trip.heroGradient ??
     "linear-gradient(135deg, #003366 0%, #2980B9 70%, #E5A00D 100%)";
+
+  const countdown = useCountdown(
+    trip.days[0]?.isoDate,
+    trip.days[trip.days.length - 1]?.isoDate,
+  );
 
   // When the hero image has the title baked in, we skip the overlay text
   // so we don't compete with the image's own typography.
@@ -70,14 +77,17 @@ export function TripHero({ trip }: TripHeroProps) {
           </p>
         )}
 
-        {trip.occasionDetails?.highlightLabel && (
-          <div className="inline-flex items-center gap-1.5 bg-gold/10 border border-gold/30 rounded-full px-3 py-1">
-            <Sparkles size={11} className="text-gold-600" />
-            <span className="text-[11px] uppercase tracking-wider text-gold-600 font-semibold">
-              Highlight: {trip.occasionDetails.highlightLabel}
-            </span>
-          </div>
-        )}
+        <div className="flex flex-wrap items-center gap-2">
+          {countdown && <CountdownBadge state={countdown} variant="light" size="md" />}
+          {trip.occasionDetails?.highlightLabel && (
+            <div className="inline-flex items-center gap-1.5 bg-gold/10 border border-gold/30 rounded-full px-3 py-1">
+              <Sparkles size={11} className="text-gold-600" />
+              <span className="text-[11px] uppercase tracking-wider text-gold-600 font-semibold">
+                Highlight: {trip.occasionDetails.highlightLabel}
+              </span>
+            </div>
+          )}
+        </div>
 
         {trip.participants && trip.participants.length > 0 && (
           <div className="flex items-center justify-between pt-1">

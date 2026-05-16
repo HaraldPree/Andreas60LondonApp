@@ -8,12 +8,14 @@ import { QuickActions } from "@/components/info/QuickActions";
 import { TransportTips } from "@/components/info/TransportTips";
 import { TfLLiveWidget } from "@/components/info/TfLLiveWidget";
 import { HiddenPlacesGrid } from "@/components/discover/HiddenPlacesGrid";
+import { PackingList } from "@/components/organize/PackingList";
 
 interface InfoTabProps {
   trip: Trip;
+  currentUserName?: string | null;
 }
 
-export function InfoTab({ trip }: InfoTabProps) {
+export function InfoTab({ trip, currentUserName }: InfoTabProps) {
   return (
     <motion.div
       key="info"
@@ -31,6 +33,7 @@ export function InfoTab({ trip }: InfoTabProps) {
         </p>
       </div>
 
+      <PackingList trip={trip} currentUserName={currentUserName} />
       <AccommodationCard accommodation={trip.accommodation} />
       <FlightCard outbound={trip.flights.outbound} inbound={trip.flights.inbound} />
       <TfLLiveWidget />

@@ -4,6 +4,7 @@ import { trips } from "@/data/trips";
 import { GoldDivider } from "@/components/ui/GoldDivider";
 import { Footer } from "@/components/layout/Footer";
 import { ParticipantsRow } from "@/components/trip/ParticipantsRow";
+import { TripCountdownChip } from "@/components/trip/TripCountdownChip";
 
 export default function HomePage() {
   return (
@@ -58,6 +59,13 @@ export default function HomePage() {
                         "linear-gradient(to top, rgba(0,20,41,0.75) 0%, rgba(0,20,41,0.15) 70%)",
                     }}
                   />
+                  {/* Countdown chip top-right */}
+                  <div className="absolute top-2 right-2">
+                    <TripCountdownChip
+                      startIso={trip.days[0]?.isoDate}
+                      endIso={trip.days[trip.days.length - 1]?.isoDate}
+                    />
+                  </div>
                   <div className="absolute bottom-2 left-3 right-3 flex items-end justify-between text-cream">
                     <div className="min-w-0">
                       <h3 className="font-display text-xl font-semibold leading-tight">

@@ -75,7 +75,9 @@ export function TripPageClient({ trip }: TripPageClientProps) {
           {tab === "sos" && (
             <SOSTab key="sos" trip={trip} currentUserName={currentUserName} />
           )}
-          {tab === "info" && <InfoTab key="info" trip={trip} />}
+          {tab === "info" && (
+            <InfoTab key="info" trip={trip} currentUserName={currentUserName} />
+          )}
         </AnimatePresence>
 
         <Footer />
