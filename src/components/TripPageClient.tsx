@@ -17,6 +17,7 @@ import { CompanionWidget } from "@/components/companion/CompanionWidget";
 import { PersonPicker } from "@/components/identity/PersonPicker";
 import { UserAvatarButton } from "@/components/identity/UserAvatarButton";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { UpdateBanner } from "@/components/pwa/UpdateBanner";
 
 interface TripPageClientProps {
   trip: Trip;
@@ -48,6 +49,7 @@ export function TripPageClient({ trip }: TripPageClientProps) {
 
   return (
     <div className="min-h-screen bg-cream pb-20">
+      <UpdateBanner />
       <Header
         destination={trip.destination}
         subtitle={trip.subtitle}

@@ -6,10 +6,12 @@ import { Footer } from "@/components/layout/Footer";
 import { ParticipantsRow } from "@/components/trip/ParticipantsRow";
 import { TripCountdownChip } from "@/components/trip/TripCountdownChip";
 import { InstallHint } from "@/components/pwa/InstallHint";
+import { UpdateBanner } from "@/components/pwa/UpdateBanner";
 
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-cream">
+      <UpdateBanner />
       {/* Hero / Brand bar */}
       <header className="bg-navy text-cream">
         <div className="mx-auto max-w-app px-4 pt-6 pb-8 text-center">
