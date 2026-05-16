@@ -224,8 +224,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: COLORS.gold,
     textAlign: "center",
-    fontStyle: "italic",
     fontWeight: 400,
+    // (italic dropped — would require registering Playfair italic
+    // variant separately; the gold color already provides emphasis)
   },
   separatorSummary: {
     fontFamily: "DMSans",
@@ -293,7 +294,7 @@ const styles = StyleSheet.create({
     color: COLORS.inkLight,
     marginTop: 2,
     textAlign: "center",
-    fontStyle: "italic",
+    // Light grey + small size already reads as "secondary" — no italic needed
   },
   // Single photo page (full)
   singlePhotoWrap: {
@@ -328,7 +329,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: COLORS.inkMid,
     textAlign: "center",
-    fontStyle: "italic",
     marginBottom: 32,
   },
   closingFooter: {
