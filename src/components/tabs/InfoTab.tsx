@@ -9,13 +9,17 @@ import { TransportTips } from "@/components/info/TransportTips";
 import { TfLLiveWidget } from "@/components/info/TfLLiveWidget";
 import { HiddenPlacesGrid } from "@/components/discover/HiddenPlacesGrid";
 import { PackingList } from "@/components/organize/PackingList";
+import { ProfileCard } from "@/components/identity/ProfileCard";
 
 interface InfoTabProps {
   trip: Trip;
   currentUserName?: string | null;
+  onRequestIdentity?: () => void;
 }
 
-export function InfoTab({ trip, currentUserName }: InfoTabProps) {
+export function InfoTab({ trip, currentUserName, onRequestIdentity }: InfoTabProps) {
+  const currentUser =
+    trip.participants?.find((p) => p.name === currentUserName) ?? null;
   return (
     <motion.div
       key="info"
@@ -33,6 +37,12 @@ export function InfoTab({ trip, currentUserName }: InfoTabProps) {
         </p>
       </div>
 
+      {trip.participants && trip.participants.length > 0 && (
+        <ProfileCard
+          currentUser={currentUser}
+          onRequestIdentity={onRequestIdentity}
+        />
+      )}
       <PackingList trip={trip} currentUserName={currentUserName} />
       <AccommodationCard accommodation={trip.accommodation} />
       <FlightCard outbound={trip.flights.outbound} inbound={trip.flights.inbound} />

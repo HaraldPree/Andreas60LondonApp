@@ -27,6 +27,7 @@ import { TransportButtons } from "@/components/ui/TransportButtons";
 interface SOSTabProps {
   trip: Trip;
   currentUserName?: string | null;
+  onRequestIdentity?: () => void;
 }
 
 const MEDICAL_LABEL: Record<MedicalType, string> = {
@@ -43,7 +44,7 @@ const MEDICAL_ICON: Record<MedicalType, typeof Pill> = {
   dentist: Cross,
 };
 
-export function SOSTab({ trip, currentUserName }: SOSTabProps) {
+export function SOSTab({ trip, currentUserName, onRequestIdentity }: SOSTabProps) {
   const [medFilter, setMedFilter] = useState<MedicalType | "all">("all");
   const ei = trip.emergencyInfo;
 
@@ -176,12 +177,13 @@ export function SOSTab({ trip, currentUserName }: SOSTabProps) {
         </>
       )}
 
-      {/* Health cards per participant */}
+      {/* Health card – private, current user only */}
       {trip.participants && trip.participants.length > 0 && (
         <HealthCardSection
           tripSlug={trip.slug}
           participants={trip.participants}
-          defaultOpenName={currentUserName ?? undefined}
+          currentUserName={currentUserName}
+          onRequestIdentity={onRequestIdentity}
         />
       )}
 

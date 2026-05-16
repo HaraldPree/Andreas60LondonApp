@@ -73,10 +73,20 @@ export function TripPageClient({ trip }: TripPageClientProps) {
             <ReservierungenTab key="reservierungen" trip={trip} />
           )}
           {tab === "sos" && (
-            <SOSTab key="sos" trip={trip} currentUserName={currentUserName} />
+            <SOSTab
+              key="sos"
+              trip={trip}
+              currentUserName={currentUserName}
+              onRequestIdentity={() => setPickerOpen(true)}
+            />
           )}
           {tab === "info" && (
-            <InfoTab key="info" trip={trip} currentUserName={currentUserName} />
+            <InfoTab
+              key="info"
+              trip={trip}
+              currentUserName={currentUserName}
+              onRequestIdentity={() => setPickerOpen(true)}
+            />
           )}
         </AnimatePresence>
 
