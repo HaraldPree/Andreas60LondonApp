@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { Camera, Pencil, Check, Trash2, X } from "lucide-react";
+import { Camera, Pencil, Check, Trash2, X, AlertCircle } from "lucide-react";
 import type { Trip } from "@/types/trip";
 import type { PhotoMeta } from "@/types/photo";
 import { usePhotos } from "@/hooks/usePhotos";
@@ -22,6 +22,8 @@ export function FotosTab({ trip }: FotosTabProps) {
     photos,
     loading,
     uploadProgress,
+    uploadErrors,
+    dismissUploadErrors,
     upload,
     remove,
     removeMany,
@@ -106,6 +108,43 @@ export function FotosTab({ trip }: FotosTabProps) {
       </div>
 
       <PhotoUpload onFiles={upload} uploadProgress={uploadProgress} />
+
+      {uploadErrors.length > 0 && (
+        <div className="rounded-2xl bg-warning/10 border border-warning/30 p-3 space-y-1.5">
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex items-start gap-2 min-w-0">
+              <AlertCircle
+                size={14}
+                className="text-warning flex-shrink-0 mt-0.5"
+              />
+              <p className="text-xs font-semibold text-warning">
+                {uploadErrors.length === 1
+                  ? "1 Foto konnte nicht hochgeladen werden:"
+                  : `${uploadErrors.length} Fotos konnten nicht hochgeladen werden:`}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={dismissUploadErrors}
+              className="text-warning/60 hover:text-warning"
+              aria-label="Fehler ausblenden"
+            >
+              <X size={14} />
+            </button>
+          </div>
+          <ul className="text-[11px] text-ink-dark space-y-1 pl-6">
+            {uploadErrors.map((err, i) => (
+              <li key={i}>
+                <span className="font-mono text-[10px] text-ink-mid">
+                  {err.fileName}
+                </span>
+                <br />
+                <span className="text-warning">→ {err.reason}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {loading && (
         <div className="space-y-3">
@@ -218,7 +257,13 @@ function DaySection({
         <div className="grid grid-cols-3 gap-1.5">
           {photos.map((p) => (
             <div key={p.id} className="relative">
-              <PhotoCard photo={p} onClick={() => onOpen(p.id)} />
+              <PhotoCard
+                photo={p}
+                onClick={() => onOpen(p.id)}
+                // Broken photos can always be removed even without
+                // entering edit mode — they're useless to the user.
+                onSelfDelete={onDelete}
+              />
               {editMode && (
                 <button
                   type="button"
