@@ -1,19 +1,19 @@
 "use client";
 
-import { CalendarDays, MapPinned, Ticket, Info } from "lucide-react";
+import { CalendarDays, MapPinned, Camera, Ticket, Info } from "lucide-react";
 import { classNames } from "@/lib/formatters";
 
-export type TabKey = "programm" | "karte" | "reservierungen" | "info";
+export type TabKey = "programm" | "karte" | "fotos" | "reservierungen" | "info";
 
 interface NavigationProps {
   active: TabKey;
   onChange: (tab: TabKey) => void;
-  hasMap?: boolean;
 }
 
 const TABS: { key: TabKey; label: string; Icon: typeof CalendarDays }[] = [
   { key: "programm", label: "Programm", Icon: CalendarDays },
   { key: "karte", label: "Karte", Icon: MapPinned },
+  { key: "fotos", label: "Fotos", Icon: Camera },
   { key: "reservierungen", label: "Reserv.", Icon: Ticket },
   { key: "info", label: "Info", Icon: Info },
 ];
@@ -22,7 +22,7 @@ export function Navigation({ active, onChange }: NavigationProps) {
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-cream-200 shadow-[0_-2px_12px_rgba(0,51,102,0.06)]">
       <div className="mx-auto max-w-app">
-        <ul className="grid grid-cols-4">
+        <ul className="grid grid-cols-5">
           {TABS.map(({ key, label, Icon }) => {
             const isActive = key === active;
             return (

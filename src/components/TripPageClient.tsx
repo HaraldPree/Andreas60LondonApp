@@ -9,6 +9,7 @@ import { Footer } from "@/components/layout/Footer";
 import { ScrollToTop } from "@/components/layout/ScrollToTop";
 import { ProgrammTab } from "@/components/tabs/ProgrammTab";
 import { KarteTab } from "@/components/tabs/KarteTab";
+import { FotosTab } from "@/components/tabs/FotosTab";
 import { ReservierungenTab } from "@/components/tabs/ReservierungenTab";
 import { InfoTab } from "@/components/tabs/InfoTab";
 import { CompanionWidget } from "@/components/companion/CompanionWidget";
@@ -32,6 +33,7 @@ export function TripPageClient({ trip }: TripPageClientProps) {
         <AnimatePresence mode="wait">
           {tab === "programm" && <ProgrammTab key="programm" trip={trip} />}
           {tab === "karte" && <KarteTab key="karte" trip={trip} />}
+          {tab === "fotos" && <FotosTab key="fotos" trip={trip} />}
           {tab === "reservierungen" && (
             <ReservierungenTab key="reservierungen" trip={trip} />
           )}
