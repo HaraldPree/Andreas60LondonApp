@@ -211,16 +211,7 @@ export function defaultPdfFilename(trip: Trip): string {
   return `Foto-Buch_${slug}_${today}.pdf`;
 }
 
-/**
- * Triggers a browser download of a Blob.
- */
-export function triggerDownload(blob: Blob, filename: string): void {
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
+// triggerDownload re-exported from the shared mobile-friendly downloader.
+// On phones this opens the native share sheet (Save to Files /
+// WhatsApp / Drive); on desktop it falls back to anchor-download.
+export { downloadOrShareBlob as triggerDownload } from "./downloadBlob";

@@ -269,20 +269,13 @@ export async function buildPhotoBookZip({
   return result;
 }
 
-/**
- * Triggers a browser download of the given blob with the given filename.
- */
-export function triggerDownload(blob: Blob, filename: string): void {
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  // Defer revoke so Safari has time to start the download
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
+// triggerDownload re-exported from shared downloadBlob helper. On
+// phones it uses Web Share API (native share sheet → Files / WhatsApp
+// / Drive), on desktop it falls back to anchor-download. The previous
+// inline implementation revoked the blob URL after 1s, which on Firefox
+// Android caused the new tab opened by the browser to show about:blank
+// before the download could start.
+export { downloadOrShareBlob as triggerDownload } from "./downloadBlob";
 
 /**
  * Convenience filename for the download: "Foto-Buch_London-2026_2026-05-21.zip"
