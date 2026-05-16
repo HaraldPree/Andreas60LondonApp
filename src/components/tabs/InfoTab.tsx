@@ -17,6 +17,7 @@ import { ExpenseTracker } from "@/components/expenses/ExpenseTracker";
 import { MyDataSection } from "@/components/privacy/MyDataSection";
 import { RestaurantsList } from "@/components/dining/RestaurantsList";
 import { Phrasebook } from "@/components/info/Phrasebook";
+import { ReportIssueCard } from "@/components/support/ReportIssueCard";
 
 interface InfoTabProps {
   trip: Trip;
@@ -130,6 +131,13 @@ export function InfoTab({ trip, currentUserName, onRequestIdentity }: InfoTabPro
       {/* — ENTDECKEN — */}
       <SectionHeading title="Entdecken" />
       <HiddenPlacesGrid places={trip.hiddenPlaces} />
+
+      {/* — HILFE / BUG REPORT — */}
+      <SectionHeading
+        title="Hilfe & Support"
+        hint="Etwas funktioniert nicht? Direkt-Kanal an Harald"
+      />
+      <ReportIssueCard currentUserName={currentUserName} />
 
       {/* — PRIVACY / DSGVO — */}
       <SectionHeading
