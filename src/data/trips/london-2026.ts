@@ -1074,6 +1074,67 @@ export const londonTrip: Trip = {
     ],
   },
 
+  runningRoutes: [
+    {
+      id: "lukas-regent-primrose",
+      name: "Regent's Park + Primrose Hill (Lukas-Route)",
+      shortDescription:
+        "Lukas' Lieblingsroute – über English Gardens und Broad Walk durch Regent's Park, kurze Schleife um Primrose Hill, zurück zum Apartment.",
+      distanceKm: 5.6,
+      estimatedMinutes: 32,
+      difficulty: "moderate",
+      surface: "park",
+      loop: true,
+      startCoordinates: { lat: 51.5219, lng: -0.1418 },
+      mapsUrl:
+        "https://www.google.com/maps/dir/51.5219,-0.1418/English+Gardens,+The+Broad+Walk,+London+NW1+4LL/Ready+Money+Drinking+Fountain,+Regents+Park,+The+Broad+Walk,+London+NW1+4HJ/51.5295683,-0.1571262/51.5294294,-0.1607398/51.5291018,-0.1617308/51.5240785,-0.1546256/51.5218487,-0.1419357/data=!4m2!4m1!3e2",
+      highlights: ["English Gardens", "Broad Walk", "Primrose Hill Aussicht"],
+      bestTime: "Früh morgens (vor 8:00) oder Abend",
+      suggestedBy: "Lukas",
+      notes: "Klassische 5,5-km-Schleife mit moderatem Aufstieg über Primrose Hill. Pfade großteils asphaltiert.",
+    },
+    {
+      id: "regents-easy-loop",
+      name: "Regent's Park Inner Circle (Easy)",
+      shortDescription:
+        "Flache Runde um den Inner Circle – fast komplett im Park, kaum Straßenquerung, ideal für Aufwärmung.",
+      distanceKm: 4.2,
+      estimatedMinutes: 24,
+      difficulty: "easy",
+      surface: "park",
+      loop: true,
+      startCoordinates: { lat: 51.5219, lng: -0.1418 },
+      mapsUrl:
+        "https://www.google.com/maps/dir/?api=1&origin=51.5219,-0.1418&destination=51.5219,-0.1418&waypoints=51.5267,-0.1565|51.5300,-0.1565|51.5300,-0.1430|51.5267,-0.1430&travelmode=walking",
+      highlights: ["Queen Mary's Gardens", "Boating Lake", "Open Air Theatre"],
+      bestTime: "Jederzeit",
+      notes: "Ebenes Terrain, viele Bänke. Toilettenstops im Park (Hub Pavilion).",
+    },
+    {
+      id: "hyde-kensington",
+      name: "Hyde Park + Kensington Gardens (Long Run)",
+      shortDescription:
+        "Längere Runde durch zwei der schönsten Parks Londons – Serpentine, Italian Gardens, Round Pond.",
+      distanceKm: 8.4,
+      estimatedMinutes: 48,
+      difficulty: "challenging",
+      surface: "park",
+      loop: true,
+      startCoordinates: { lat: 51.5219, lng: -0.1418 },
+      mapsUrl:
+        "https://www.google.com/maps/dir/?api=1&origin=51.5219,-0.1418&destination=51.5219,-0.1418&waypoints=51.5097,-0.1655|51.5074,-0.1763|51.5054,-0.1843|51.5031,-0.1727|51.5076,-0.1625&travelmode=walking",
+      highlights: [
+        "Serpentine",
+        "Princess Diana Memorial",
+        "Italian Gardens",
+        "Round Pond",
+      ],
+      bestTime: "Früh morgens (Hyde Park wird ab 10:00 voll)",
+      notes:
+        "Anfahrt über Marylebone Road – die ersten 1,5 km sind Straße. Im Park dann fast nur Wege/Wiese.",
+    },
+  ],
+
   quickActions: [
     {
       icon: "📞",

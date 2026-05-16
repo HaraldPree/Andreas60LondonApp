@@ -196,6 +196,28 @@ export interface EmergencyInfo {
   insuranceTips?: string[];
 }
 
+export type RouteDifficulty = "easy" | "moderate" | "challenging";
+export type RouteSurface = "park" | "street" | "mixed";
+
+export interface RunningRoute {
+  id: string;
+  name: string;
+  shortDescription: string;
+  distanceKm: number;
+  estimatedMinutes: number;
+  difficulty: RouteDifficulty;
+  surface: RouteSurface;
+  loop: boolean;
+  startCoordinates: Coordinates;
+  /** Google Maps directions URL (multi-waypoint OK). */
+  mapsUrl: string;
+  highlights: string[];
+  bestTime?: string;
+  /** Suggested by (e.g. a participant name). */
+  suggestedBy?: string;
+  notes?: string;
+}
+
 export interface Trip {
   slug: string;
   destination: string;
@@ -225,6 +247,7 @@ export interface Trip {
   hiddenPlaces: HiddenPlace[];
   quickActions: QuickAction[];
   emergencyInfo?: EmergencyInfo;
+  runningRoutes?: RunningRoute[];
 
   mapCenter: Coordinates;
   mapZoom: number;

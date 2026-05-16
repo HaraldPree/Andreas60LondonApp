@@ -10,6 +10,8 @@ import { TfLLiveWidget } from "@/components/info/TfLLiveWidget";
 import { HiddenPlacesGrid } from "@/components/discover/HiddenPlacesGrid";
 import { PackingList } from "@/components/organize/PackingList";
 import { ProfileCard } from "@/components/identity/ProfileCard";
+import { RunningRoutes } from "@/components/activities/RunningRoutes";
+import { LocationSharingCard } from "@/components/activities/LocationSharingCard";
 
 interface InfoTabProps {
   trip: Trip;
@@ -47,6 +49,10 @@ export function InfoTab({ trip, currentUserName, onRequestIdentity }: InfoTabPro
       <AccommodationCard accommodation={trip.accommodation} />
       <FlightCard outbound={trip.flights.outbound} inbound={trip.flights.inbound} />
       <TfLLiveWidget />
+      {trip.runningRoutes && trip.runningRoutes.length > 0 && (
+        <RunningRoutes routes={trip.runningRoutes} />
+      )}
+      <LocationSharingCard />
       <QuickActions actions={trip.quickActions} />
       <TransportTips />
       <HiddenPlacesGrid places={trip.hiddenPlaces} />
