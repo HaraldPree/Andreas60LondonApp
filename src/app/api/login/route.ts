@@ -15,7 +15,9 @@ export async function POST(req: Request) {
   }
 
   const submittedPin = (body.pin ?? "").trim();
-  const expectedPin = process.env.APP_PIN;
+  // Trim the env var too — pasting into Vercel sometimes adds trailing
+  // whitespace/newlines that silently break the comparison.
+  const expectedPin = process.env.APP_PIN?.trim();
 
   if (!expectedPin) {
     return NextResponse.json(

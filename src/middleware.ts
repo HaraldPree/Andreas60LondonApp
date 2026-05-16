@@ -32,7 +32,9 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const requiredPin = process.env.APP_PIN;
+  // Trim env var defensively — Vercel paste can add trailing whitespace
+  // that silently breaks the comparison.
+  const requiredPin = process.env.APP_PIN?.trim();
 
   // If no PIN configured (dev mode), skip auth
   if (!requiredPin) {
