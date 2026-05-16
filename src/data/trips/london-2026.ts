@@ -188,8 +188,9 @@ export const londonTrip: Trip = {
           note: "Empfehlungen: The Toucan (Soho, Irish/Guinness), The Old Coffee House, Lyric Soho.",
         },
       ],
+      // NB: Die Unterkunft wird automatisch aus trip.accommodation übernommen –
+      // nicht in den day-mapPoints duplizieren (sonst 3-fach in der Karte).
       mapPoints: [
-        { name: "Apartment", coordinates: { lat: 51.5219, lng: -0.1418 }, category: "accommodation", icon: "🏠" },
         { name: "Oxford Street", coordinates: { lat: 51.5152, lng: -0.1418 }, category: "sight", icon: "🛍️" },
         { name: "Leicester Square", coordinates: { lat: 51.5113, lng: -0.1281 }, category: "sight", icon: "🎬" },
         { name: "Soho", coordinates: { lat: 51.5128, lng: -0.1339 }, category: "sight", icon: "🍜" },
@@ -680,8 +681,9 @@ export const londonTrip: Trip = {
           icon: "🛬",
         },
       ],
+      // NB: Die Unterkunft wird automatisch aus trip.accommodation übernommen –
+      // nicht in den day-mapPoints duplizieren.
       mapPoints: [
-        { name: "Apartment", coordinates: { lat: 51.5219, lng: -0.1418 }, category: "accommodation", icon: "🏠" },
         { name: "Liverpool Street Station", coordinates: { lat: 51.5180, lng: -0.0815 }, category: "transport", icon: "🚆" },
       ],
       tips: [

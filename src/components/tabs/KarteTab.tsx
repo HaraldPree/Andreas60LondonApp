@@ -37,7 +37,7 @@ export function KarteTab({ trip }: KarteTabProps) {
   const allPoints = useMemo(() => {
     const points: Array<MapPoint & { dayIdx?: number }> = [];
 
-    // Always include accommodation
+    // Always include accommodation as the canonical "Home" entry
     points.push({
       name: trip.accommodation.name,
       coordinates: trip.accommodation.coordinates,
@@ -46,7 +46,12 @@ export function KarteTab({ trip }: KarteTabProps) {
     });
 
     trip.days.forEach((day, i) => {
-      day.mapPoints.forEach((p) => points.push({ ...p, dayIdx: i }));
+      day.mapPoints.forEach((p) => {
+        // Defensive: don't re-add accommodation if it accidentally appears
+        // in a day's mapPoints (would show as duplicate marker).
+        if (p.category === "accommodation") return;
+        points.push({ ...p, dayIdx: i });
+      });
     });
 
     trip.hiddenPlaces.forEach((p) =>
@@ -58,7 +63,14 @@ export function KarteTab({ trip }: KarteTabProps) {
       }),
     );
 
-    return points;
+    // Final dedup safety net: collapse duplicates by name+coords (keep first occurrence)
+    const seen = new Set<string>();
+    return points.filter((p) => {
+      const key = `${p.name}|${p.coordinates.lat.toFixed(4)},${p.coordinates.lng.toFixed(4)}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
   }, [trip]);
 
   const filtered = useMemo(() => {
