@@ -45,7 +45,30 @@ export async function getPhoto(id: string): Promise<PhotoEntry | undefined> {
 export async function listPhotos(tripSlug: string): Promise<PhotoMeta[]> {
   const db = await getDB();
   const all = await db.getAllFromIndex(STORE, "tripSlug", tripSlug);
-  return all
+
+  // Auto-repair: drop "ghost" entries with missing blobs. These can be
+  // left behind by older buggy versions or interrupted deletes — they
+  // count toward the photo total but render as grey placeholders that
+  // never resolve. Quietly removing them keeps the gallery honest.
+  const orphans: string[] = [];
+  const valid = all.filter((entry) => {
+    const ok = entry.fullBlob instanceof Blob && entry.thumbBlob instanceof Blob;
+    if (!ok) orphans.push(entry.id);
+    return ok;
+  });
+
+  if (orphans.length > 0) {
+    console.warn(
+      `[photoStorage] Cleaning up ${orphans.length} ghost photo entr${orphans.length === 1 ? "y" : "ies"} (missing blobs):`,
+      orphans,
+    );
+    // Fire-and-forget — don't block the list call on cleanup
+    void Promise.all(orphans.map((id) => db.delete(STORE, id))).catch((e) =>
+      console.error("[photoStorage] Ghost cleanup failed", e),
+    );
+  }
+
+  return valid
     .map(stripBlobs)
     .sort((a, b) => a.takenAt.localeCompare(b.takenAt));
 }

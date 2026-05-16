@@ -91,6 +91,20 @@ export function usePhotos({ tripSlug, days }: UsePhotosOptions) {
     [refresh],
   );
 
+  /**
+   * Deletes many photos in a single batch (single refresh at the end)
+   * — safer than `photos.forEach(remove)` which fires N parallel
+   * refreshes and can leave the UI in an inconsistent state if any
+   * delete is still in-flight when the next refresh reads the DB.
+   */
+  const removeMany = useCallback(
+    async (ids: string[]) => {
+      await Promise.all(ids.map((id) => deletePhoto(id)));
+      await refresh();
+    },
+    [refresh],
+  );
+
   const setCaption = useCallback(
     async (id: string, caption: string) => {
       await updatePhoto(id, { caption });
@@ -113,6 +127,7 @@ export function usePhotos({ tripSlug, days }: UsePhotosOptions) {
     uploadProgress,
     upload,
     remove,
+    removeMany,
     setCaption,
     setNarrative,
     refresh,

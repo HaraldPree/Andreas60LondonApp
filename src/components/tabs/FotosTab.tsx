@@ -18,8 +18,16 @@ interface FotosTabProps {
 }
 
 export function FotosTab({ trip }: FotosTabProps) {
-  const { photos, loading, uploadProgress, upload, remove, setCaption, setNarrative } =
-    usePhotos({ tripSlug: trip.slug, days: trip.days });
+  const {
+    photos,
+    loading,
+    uploadProgress,
+    upload,
+    remove,
+    removeMany,
+    setCaption,
+    setNarrative,
+  } = usePhotos({ tripSlug: trip.slug, days: trip.days });
   const [openId, setOpenId] = useState<string | null>(null);
   const [editMode, setEditMode] = useState(false);
 
@@ -44,14 +52,14 @@ export function FotosTab({ trip }: FotosTabProps) {
     if (confirm("Foto löschen?")) remove(id);
   };
 
-  const handleDeleteAll = () => {
+  const handleDeleteAll = async () => {
     if (
       photos.length > 0 &&
       confirm(
         `Wirklich ALLE ${photos.length} Fotos dieser Reise löschen? Nicht rückgängig machbar.`,
       )
     ) {
-      photos.forEach((p) => remove(p.id));
+      await removeMany(photos.map((p) => p.id));
       setEditMode(false);
     }
   };
