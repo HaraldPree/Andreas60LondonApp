@@ -36,9 +36,18 @@ export function InstallHint() {
                 <p className="text-[11px] text-ink-mid leading-relaxed mt-1">
                   Tippe oben rechts auf{" "}
                   <MoreVertical size={11} className="inline text-info" />{" "}
-                  <strong>Menü</strong> →{" "}
-                  <strong>&quot;App installieren&quot;</strong> (oder
-                  &quot;Zum Startbildschirm hinzufügen&quot;).
+                  <strong>Menü</strong>:
+                  <br />
+                  <span className="text-[10px]">
+                    • <strong>Samsung Internet:</strong> Mehr →{" "}
+                    <strong>&quot;App zum Startbildschirm hinzufügen&quot;</strong>
+                  </span>
+                  <br />
+                  <span className="text-[10px]">
+                    • <strong>Chrome:</strong>{" "}
+                    <strong>&quot;App installieren&quot;</strong> oder &quot;Zum
+                    Startbildschirm hinzufügen&quot;
+                  </span>
                 </p>
               )}
             </div>

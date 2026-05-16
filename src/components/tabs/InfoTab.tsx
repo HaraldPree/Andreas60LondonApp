@@ -19,6 +19,23 @@ interface InfoTabProps {
   onRequestIdentity?: () => void;
 }
 
+function SectionHeading({
+  title,
+  hint,
+}: {
+  title: string;
+  hint?: string;
+}) {
+  return (
+    <div className="px-1 pt-1">
+      <p className="font-display text-[11px] uppercase tracking-[0.2em] text-gold-600 font-bold">
+        {title}
+      </p>
+      {hint && <p className="text-[11px] text-ink-mid mt-0.5">{hint}</p>}
+    </div>
+  );
+}
+
 export function InfoTab({ trip, currentUserName, onRequestIdentity }: InfoTabProps) {
   const currentUser =
     trip.participants?.find((p) => p.name === currentUserName) ?? null;
@@ -35,26 +52,48 @@ export function InfoTab({ trip, currentUserName, onRequestIdentity }: InfoTabPro
           Info & Hilfe
         </h2>
         <p className="text-xs text-ink-mid mt-0.5">
-          Unterkunft, Flüge, Notfallnummern und Geheimtipps.
+          Alles für vor & während der Reise.
         </p>
       </div>
 
+      {/* — DEIN PROFIL — */}
       {trip.participants && trip.participants.length > 0 && (
-        <ProfileCard
-          currentUser={currentUser}
-          onRequestIdentity={onRequestIdentity}
-        />
+        <>
+          <SectionHeading title="Dein Profil" />
+          <ProfileCard
+            currentUser={currentUser}
+            onRequestIdentity={onRequestIdentity}
+          />
+        </>
       )}
+
+      {/* — VORBEREITUNG — */}
+      <SectionHeading title="Vor & während der Reise" />
       <PackingList trip={trip} currentUserName={currentUserName} />
-      <AccommodationCard accommodation={trip.accommodation} />
-      <FlightCard outbound={trip.flights.outbound} inbound={trip.flights.inbound} />
-      <TfLLiveWidget />
+
+      {/* — AKTIV UNTERWEGS — (Laufen, Standort teilen) */}
+      <SectionHeading
+        title="Aktiv unterwegs"
+        hint="Laufrouten + Standort sicher mit der Gruppe teilen"
+      />
       {trip.runningRoutes && trip.runningRoutes.length > 0 && (
         <RunningRoutes routes={trip.runningRoutes} />
       )}
       <LocationSharingCard />
+
+      {/* — LOGISTIK — */}
+      <SectionHeading title="Logistik" />
+      <AccommodationCard accommodation={trip.accommodation} />
+      <FlightCard outbound={trip.flights.outbound} inbound={trip.flights.inbound} />
+      <TfLLiveWidget />
+
+      {/* — SCHNELLZUGRIFF — */}
+      <SectionHeading title="Schnellzugriff & Tipps" />
       <QuickActions actions={trip.quickActions} />
       <TransportTips />
+
+      {/* — ENTDECKEN — */}
+      <SectionHeading title="Entdecken" />
       <HiddenPlacesGrid places={trip.hiddenPlaces} />
     </motion.div>
   );
