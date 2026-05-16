@@ -29,6 +29,12 @@ export async function GET() {
       pinConfigured,
       pinLength: pinConfigured ? pin.length : 0,
       nodeEnv: process.env.NODE_ENV ?? "unknown",
+      // Hint when env-var clearly wasn't picked up at build time —
+      // helps users notice that they need to redeploy after changing
+      // project-level vars in Vercel.
+      hint: pinConfigured
+        ? undefined
+        : "APP_PIN ist im Edge-Runtime nicht sichtbar. Falls du es in Vercel gesetzt hast: einmal Redeploy auslösen (Deployments → ··· → Redeploy ohne Cache).",
     },
     {
       headers: {
