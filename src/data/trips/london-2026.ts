@@ -70,13 +70,59 @@ export const londonTrip: Trip = {
   homeCurrency: "EUR",
 
   accommodation: {
-    name: "Apartment Great Portland Street",
-    address: "126 Great Portland Street 3, Westminster, W1W 6PR",
-    checkIn: "Mo 18.5. ab 13:00",
-    checkOut: "Fr 22.5. bis 10:00",
+    name: "Duplex Flat near Oxford Street",
+    address: "126 Great Portland Street, Top Floor, Flat 3, London W1W 6PR",
+    checkIn: "ab 15:00 (Schlüssel-Box am Eingang)",
+    checkOut: "bis 11:00",
     coordinates: { lat: 51.5219, lng: -0.1418 },
     mapUrl: "https://maps.google.com/?q=51.5219,-0.1418",
-    notes: "5-Min-Fußweg zur Great Portland Street Tube Station. Sehr zentral in Marylebone/Fitzrovia.",
+    notes: "5-Min-Fußweg zur Great Portland Street Tube Station. Sehr zentral zwischen Oxford Circus und Regent's Park.",
+    entranceHint: "Eingang direkt neben „Coco Nails“.",
+    floorInfo: "Top Floor · Flat 3 · KEIN LIFT (nur Treppen)",
+    keyAccess: {
+      location:
+        "Obere Schlüssel-Box, rechts von der Haustür außen an der Wand.",
+      code: "0901",
+      scrambleReminder:
+        "Nach Entnahme bitte Deckel schließen und Code wieder verstellen.",
+    },
+    doorInstructions: [
+      "Zuerst das UNTERE Schloss aufsperren",
+      "Dann den Schlüssel im OBEREN Schloss nach RECHTS drehen",
+      "Gleichzeitig den Türgriff nach UNTEN drücken um zu öffnen",
+      "Den Hosts kurz Bescheid geben sobald drinnen ✓",
+    ],
+    wifi: {
+      network: "Welcome to Adjoin",
+      password: "Welc0meH0me!",
+      note: "Achtung: die zwei „0“ sind NULLEN (nicht Großbuchstaben O).",
+    },
+    climate: {
+      heating:
+        "Zentraler Schalter HINTER der Küchentür, neben der Wohnzimmertür. Thermostat regelt die Temperatur.",
+      cooling:
+        "Klimaanlage: ein Bedienpanel rechts beim Eintreten ins Wohnzimmer, zweites Panel im OG vor den Schlafzimmern.",
+      warning:
+        "Heizung NICHT über die Heizkörper direkt regeln — die werden nicht für Temperaturkontrolle verwendet.",
+    },
+    houseRules: [
+      "Rauchen NUR auf der Terrasse erlaubt (Türen geschlossen halten, Fläche sauber)",
+      "Drinnen: striktes Rauchverbot (Schlafzimmer, Wohnbereich, Bad)",
+      "Beim Verlassen Schlüssel wieder in die Box, Code verstellen",
+      "Bei Auszug bitte kurze Nachricht an Hosts schreiben",
+    ],
+    emergencyContact: {
+      name: "Velizar (Local Staff)",
+      phone: "+44 7365 822324",
+      note:
+        "Nur für echte Notfälle direkt anrufen. Sonst Hosts via Plattform-Chat.",
+    },
+    hosts: {
+      names: "Evie & Ronalyn (auch Lyubo)",
+      company: "UDOMA LIMITED",
+      contactNote:
+        "Hosts antworten via Buchungs-Plattform-Chat (Booking/Airbnb).",
+    },
   },
 
   flights: {
@@ -221,7 +267,7 @@ export const londonTrip: Trip = {
           icon: "🏠",
           highlight: true,
           coordinates: { lat: 51.5219, lng: -0.1418 },
-          note: "Apartment ist ab 13:00 verfügbar, früher Check-in falls Schlüssel-Box am Eingang.",
+          note: "Eingang neben 'Coco Nails'. Offizieller Check-in ab 15:00, Schlüssel-Box (Code 0901) rechts neben Haustür — bei früher Ankunft kurz den Hosts (Evie & Ronalyn) Bescheid geben. Wichtig: Top Floor, KEIN LIFT, nur Treppen. Türen-Trick: unten aufsperren, oben rechts drehen + Griff runterdrücken. WLAN: 'Welcome to Adjoin' / 'Welc0meH0me!' (Nullen!). Alle Details auf der Info-Seite.",
         },
         {
           time: "Nachmittag",

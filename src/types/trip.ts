@@ -13,6 +13,44 @@ export interface Accommodation {
   image?: string;
   notes?: string;
   phone?: string;
+  /** Hint to find the front door / entrance (e.g. "neben Coco Nails"). */
+  entranceHint?: string;
+  /** Floor / unit info (e.g. "Top Floor, Flat 3 — kein Lift"). */
+  floorInfo?: string;
+  /** Key collection: where the lockbox is + the code + scramble reminder. */
+  keyAccess?: {
+    location: string;
+    code: string;
+    scrambleReminder?: string;
+  };
+  /** Step-by-step door-opening instructions if non-trivial. */
+  doorInstructions?: string[];
+  /** WiFi credentials shown prominently inside the flat. */
+  wifi?: {
+    network: string;
+    password: string;
+    note?: string;
+  };
+  /** Heating/AC operating instructions specific to the unit. */
+  climate?: {
+    heating?: string;
+    cooling?: string;
+    warning?: string;
+  };
+  /** House rules summary (smoking, noise, etc.). */
+  houseRules?: string[];
+  /** Local emergency contact (caretaker), separate from hosts. */
+  emergencyContact?: {
+    name: string;
+    phone: string;
+    note?: string;
+  };
+  /** Host details (booking platform contact, friendly names). */
+  hosts?: {
+    names: string;
+    company?: string;
+    contactNote?: string;
+  };
 }
 
 export interface Flight {
