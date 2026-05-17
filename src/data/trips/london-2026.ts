@@ -138,6 +138,16 @@ export const londonTrip: Trip = {
       airline: "Ryanair",
       flightNumber: "FR1694",
       duration: "2h",
+      // TODO Harald: PNR + Sitzplätze hier eintragen
+      // bookingReference: "ABCDEF",
+      // checkedIn: true,
+      // seats: { Andrea: "12A", Harald: "12B", Martin: "12C", Lukas: "12D", Judith: "12E" },
+      manageUrl: "https://www.ryanair.com/gb/en/check-in",
+      airlineAppUrl: "ryanair://",
+      airlineAppStoreUrl:
+        "https://play.google.com/store/apps/details?id=com.ryanair.cheapflights",
+      baggageNote:
+        "Hand-Carry: 1 Tasche max 40×25×20cm + 1 Bordtrolley max 55×40×20cm (10kg) bei Priority-Tarif. Sonst nur die kleine Tasche kostenlos.",
     },
     inbound: {
       date: "Fr 22.5.2026",
@@ -146,10 +156,22 @@ export const londonTrip: Trip = {
       from: "London Stansted (STN)",
       to: "Linz (LNZ)",
       airline: "Ryanair",
-      // NB: laut Buchung "RK1695" – ungewöhnlich für Ryanair (sonst FR).
-      // Falls AviationStack nichts findet, ist FR1695 evtl. der korrekte Code.
-      flightNumber: "RK1695",
+      // Korrigiert auf FR-Code (Ryanair-Standard). "RK1695" war ein
+      // Schreibfehler in der ursprünglichen Buchungs-Email — alle Ryanair-
+      // Flüge laufen unter dem IATA-Code "FR" und sind nur darunter in
+      // Tracking-Tools (AviationStack, Flightradar24) auffindbar.
+      flightNumber: "FR1695",
       duration: "1h 55m",
+      // TODO Harald: PNR + Sitzplätze hier eintragen
+      // bookingReference: "ABCDEF",   // selber PNR wie outbound bei Round-Trip
+      // checkedIn: true,
+      // seats: { Andrea: "14A", Harald: "14B", Martin: "14C", Lukas: "14D", Judith: "14E" },
+      manageUrl: "https://www.ryanair.com/gb/en/check-in",
+      airlineAppUrl: "ryanair://",
+      airlineAppStoreUrl:
+        "https://play.google.com/store/apps/details?id=com.ryanair.cheapflights",
+      baggageNote:
+        "Hand-Carry: 1 Tasche max 40×25×20cm + 1 Bordtrolley max 55×40×20cm (10kg) bei Priority-Tarif. Sonst nur die kleine Tasche kostenlos.",
     },
   },
 
@@ -913,7 +935,7 @@ export const londonTrip: Trip = {
         },
         {
           time: "13:30",
-          label: "Abflug Stansted → Linz (RK1695)",
+          label: "Abflug Stansted → Linz (FR1695)",
           type: "flight",
           icon: "✈️",
           highlight: true,

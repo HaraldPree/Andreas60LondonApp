@@ -68,6 +68,20 @@ export interface Flight {
   airline?: string;
   terminal?: string;
   duration?: string;
+  /** Booking reference / PNR (6-char code from Ryanair / airline). */
+  bookingReference?: string;
+  /** Whether check-in is already done online (boarding passes generated). */
+  checkedIn?: boolean;
+  /** Per-participant seat assignments. Key is participant.name. */
+  seats?: Record<string, string>;
+  /** Direct deep-link / URL for the airline check-in or "manage booking" tool. */
+  manageUrl?: string;
+  /** Airline mobile-app deep-link (e.g. "ryanair://"). */
+  airlineAppUrl?: string;
+  /** App Store / Play Store URL for the airline app (fallback). */
+  airlineAppStoreUrl?: string;
+  /** Free-text note about luggage / baggage / hand-carry rules. */
+  baggageNote?: string;
 }
 
 export type AlertType = "warning" | "info" | "success";

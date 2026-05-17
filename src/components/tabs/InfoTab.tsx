@@ -119,7 +119,11 @@ export function InfoTab({ trip, currentUserName, onRequestIdentity }: InfoTabPro
       {/* — LOGISTIK — */}
       <SectionHeading title="Logistik" />
       <AccommodationCard accommodation={trip.accommodation} />
-      <FlightCard outbound={trip.flights.outbound} inbound={trip.flights.inbound} />
+      <FlightCard
+        outbound={trip.flights.outbound}
+        inbound={trip.flights.inbound}
+        currentUserName={currentUserName}
+      />
       <TfLLiveWidget />
 
       {/* — SCHNELLZUGRIFF — */}
