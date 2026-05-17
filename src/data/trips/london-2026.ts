@@ -138,16 +138,21 @@ export const londonTrip: Trip = {
       airline: "Ryanair",
       flightNumber: "FR1694",
       duration: "2h",
-      // TODO Harald: PNR + Sitzplätze hier eintragen
-      // bookingReference: "ABCDEF",
-      // checkedIn: true,
-      // seats: { Andrea: "12A", Harald: "12B", Martin: "12C", Lukas: "12D", Judith: "12E" },
+      bookingReference: "H58R9R",
+      checkedIn: true,
+      seats: {
+        Martin: "18D",
+        Harald: "18E",
+        Andrea: "18F",
+        Lukas: "19E",
+        Judith: "19F",
+      },
       manageUrl: "https://www.ryanair.com/gb/en/check-in",
       airlineAppUrl: "ryanair://",
       airlineAppStoreUrl:
         "https://play.google.com/store/apps/details?id=com.ryanair.cheapflights",
       baggageNote:
-        "Hand-Carry: 1 Tasche max 40×25×20cm + 1 Bordtrolley max 55×40×20cm (10kg) bei Priority-Tarif. Sonst nur die kleine Tasche kostenlos.",
+        "Priority + 2 Handgepäckstücke gebucht (jede:r 1 kleine Tasche + 1 Bordtrolley 55×40×20cm, 10kg).",
     },
     inbound: {
       date: "Fr 22.5.2026",
@@ -162,16 +167,21 @@ export const londonTrip: Trip = {
       // Tracking-Tools (AviationStack, Flightradar24) auffindbar.
       flightNumber: "FR1695",
       duration: "1h 55m",
-      // TODO Harald: PNR + Sitzplätze hier eintragen
-      // bookingReference: "ABCDEF",   // selber PNR wie outbound bei Round-Trip
-      // checkedIn: true,
-      // seats: { Andrea: "14A", Harald: "14B", Martin: "14C", Lukas: "14D", Judith: "14E" },
+      bookingReference: "H58R9R", // selber PNR wie outbound (Round-Trip-Buchung)
+      checkedIn: true,
+      seats: {
+        Martin: "18D",
+        Harald: "18E",
+        Andrea: "18F",
+        Lukas: "19E",
+        Judith: "19F",
+      },
       manageUrl: "https://www.ryanair.com/gb/en/check-in",
       airlineAppUrl: "ryanair://",
       airlineAppStoreUrl:
         "https://play.google.com/store/apps/details?id=com.ryanair.cheapflights",
       baggageNote:
-        "Hand-Carry: 1 Tasche max 40×25×20cm + 1 Bordtrolley max 55×40×20cm (10kg) bei Priority-Tarif. Sonst nur die kleine Tasche kostenlos.",
+        "Priority + 2 Handgepäckstücke gebucht (jede:r 1 kleine Tasche + 1 Bordtrolley 55×40×20cm, 10kg).",
     },
   },
 
