@@ -15,6 +15,11 @@ export interface Accommodation {
   phone?: string;
   /** Hint to find the front door / entrance (e.g. "neben Coco Nails"). */
   entranceHint?: string;
+  /** Path under /public to an annotated photo showing the entrance +
+   *  key-box location (typically what the host sent in WhatsApp). */
+  entranceImage?: string;
+  /** Alt text for the entrance image (accessibility). */
+  entranceImageAlt?: string;
   /** Floor / unit info (e.g. "Top Floor, Flat 3 — kein Lift"). */
   floorInfo?: string;
   /** Key collection: where the lockbox is + the code + scramble reminder. */

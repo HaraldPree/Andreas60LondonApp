@@ -146,14 +146,37 @@ export function AccommodationCard({ accommodation }: AccommodationCardProps) {
 
             {expanded && (
               <div className="space-y-3 pt-1">
-                {accommodation.entranceHint && (
+                {(accommodation.entranceHint ||
+                  accommodation.entranceImage) && (
                   <DetailRow
                     icon={<DoorOpen size={14} />}
                     label="Eingang finden"
                   >
-                    <p className="text-xs text-ink-dark leading-relaxed">
-                      {accommodation.entranceHint}
-                    </p>
+                    {accommodation.entranceHint && (
+                      <p className="text-xs text-ink-dark leading-relaxed mb-2">
+                        {accommodation.entranceHint}
+                      </p>
+                    )}
+                    {accommodation.entranceImage && (
+                      <a
+                        href={accommodation.entranceImage}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block rounded-lg overflow-hidden border border-cream-300 bg-cream-100 hover:opacity-90 transition"
+                        aria-label="Foto vom Eingang vergrößern"
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={accommodation.entranceImage}
+                          alt={
+                            accommodation.entranceImageAlt ??
+                            "Eingangsbereich der Unterkunft"
+                          }
+                          className="w-full h-auto block"
+                          loading="lazy"
+                        />
+                      </a>
+                    )}
                   </DetailRow>
                 )}
 

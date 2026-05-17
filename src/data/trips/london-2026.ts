@@ -77,7 +77,10 @@ export const londonTrip: Trip = {
     coordinates: { lat: 51.5219, lng: -0.1418 },
     mapUrl: "https://maps.google.com/?q=51.5219,-0.1418",
     notes: "5-Min-Fußweg zur Great Portland Street Tube Station. Sehr zentral zwischen Oxford Circus und Regent's Park.",
-    entranceHint: "Eingang direkt neben „Coco Nails“.",
+    entranceHint: "Eingang direkt neben „Coco Nails Club“ (Glas-Tür rechts).",
+    entranceImage: "/images/london-apartment-entrance.jpg",
+    entranceImageAlt:
+      "Hauseingang: links die Tür zum Coco Nails Club, rechts daneben die Glas-Tür mit Pfeil 'entrance'. Rechts im Bild die Lockbox-Wand mit 'Upper Keybox' (Code 0901).",
     floorInfo: "Top Floor · Flat 3 · KEIN LIFT (nur Treppen)",
     keyAccess: {
       location:
