@@ -189,6 +189,33 @@ export interface Reservation {
   phone?: string;
   address?: string;
   coordinates?: Coordinates;
+  /** Optional menu preview shown when the reservation is expanded. */
+  menu?: ReservationMenu;
+}
+
+export interface ReservationMenu {
+  /** Menu title, e.g. "goûtea — Afternoon Tea" */
+  title: string;
+  /** Optional subtitle (serving window, tagline). */
+  subtitle?: string;
+  /** Course list — ordered, displayed as the menu's main highlight. */
+  courses?: ReservationMenuCourse[];
+  /** Optional drink categories (Champagne, Coffee, Tea, etc). */
+  drinkCategories?: ReservationMenuDrinkCategory[];
+  /** Free-text footer, e.g. allergen advice / dress code reminder. */
+  footnote?: string;
+  /** Source URL or PDF for users wanting full detail. */
+  sourceUrl?: string;
+}
+
+export interface ReservationMenuCourse {
+  name: string;
+  description?: string;
+}
+
+export interface ReservationMenuDrinkCategory {
+  label: string;
+  items: string[];
 }
 
 export interface HiddenPlace {

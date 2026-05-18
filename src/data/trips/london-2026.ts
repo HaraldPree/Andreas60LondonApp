@@ -980,16 +980,101 @@ export const londonTrip: Trip = {
     {
       id: "cedric-grolet",
       name: "Cedric Grolet @ The Berkeley Cafe",
-      when: "Dienstag 13:00 (Lunch)",
+      when: "Dienstag 13:00 (goûtea Afternoon Tea, 12:00–16:30)",
       day: 1,
       status: "reserviert",
       priority: "hoch",
       icon: "🥐",
-      note: "FIXPUNKT – 5 Personen bestätigt · Reservierungs-Nr. 436JUJ35U7YV · Kontakt: Ashfa Shiyam, dining@the-berkeley.co.uk, +44 20 7107 8866. Welt-Pâtissier Nr. 1, berühmte Fruit-Sculptures.",
+      note: "FIXPUNKT – 5 Personen bestätigt · Reservierungs-Nr. 436JUJ35U7YV · Kontakt: Ashfa Shiyam, dining@the-berkeley.co.uk, +44 20 7107 8866. Smart casual. Welt-Pâtissier Nr. 1, berühmte Fruit-Sculptures.",
       address: "The Berkeley Cafe, Wilton Place, London SW1X 7RL",
       coordinates: { lat: 51.5014, lng: -0.1525 },
       bookingUrl: "https://www.the-berkeley.co.uk/restaurants-and-bars/cedric-grolet/",
       phone: "+442071078866",
+      // goûtea Afternoon-Tea-Menü laut Bestätigung vom Berkeley.
+      // Preise sind BEWUSST nicht angegeben — Andreas Überraschungsgeschenk.
+      menu: {
+        title: "goûtea — Cedric Grolets Afternoon Tea",
+        subtitle: "5 Gänge · Service 12:00 bis 16:30",
+        courses: [
+          {
+            name: "Sandwiches",
+            description: "Klassische englische Auswahl als süß-pikanter Auftakt",
+          },
+          {
+            name: "Scone",
+            description: "Frisch gebacken, traditionell mit Clotted Cream",
+          },
+          {
+            name: "Flowers",
+            description:
+              "Cedric Grolets ikonische Blüten-Pâtisserie — täuschend echt geformt",
+          },
+          {
+            name: "Sculpted Fruits",
+            description:
+              "Die weltberühmten Trompe-l’œil-Früchte — sieht aus wie Obst, ist aber feinste Pâtisserie. Kamera bereithalten!",
+          },
+          {
+            name: "Cookies",
+            description: "Süßer Abschluss",
+          },
+        ],
+        drinkCategories: [
+          {
+            label: "Champagner (optional)",
+            items: [
+              "Billecart-Salmon „La Réserve“",
+              "Billecart-Salmon „Le Rosé“",
+              "Billecart-Salmon „Le Blanc de Blancs“",
+              "Dom Pérignon 2013",
+              "Wild Idol (alkoholfrei)",
+            ],
+          },
+          {
+            label: "Kaffee",
+            items: [
+              "Espresso",
+              "Macchiato",
+              "Cortado / Flat White",
+              "Americano / Filter",
+              "Latte / Cappuccino",
+              "Cold Brew",
+              "Lavender Latte",
+              "Café Bombon",
+              "Mocha",
+            ],
+          },
+          {
+            label: "Heißgetränke",
+            items: ["Matcha Latte", "Heiße Schokolade", "Chai Latte"],
+          },
+          {
+            label: "Saisonal",
+            items: [
+              "Coconut Latte",
+              "Coconut Cold Brew",
+              "Mango & Ginger Cooler",
+            ],
+          },
+          {
+            label: "Frische Säfte",
+            items: ["Orange", "Karotte", "Pink Grapefruit"],
+          },
+          {
+            label: "Tees (JING Single Garden)",
+            items: [
+              "Schwarz: Assam Breakfast, Earl Grey, Decaf Ceylon, Chai, Darjeeling 2nd Flush, Red Dragon",
+              "Oolong: Wuyi, Phoenix Honey Orchid, Iron Buddha",
+              "Weiß: Jasmine Silver Needle",
+              "Grün: Jadesword, Dragonwell, Matcha, Sencha",
+              "Kräuter: Pfefferminze, Frische Minze, Kamille, Rooibos, Zitronengras-Ingwer, Cassis-Hibiskus",
+            ],
+          },
+        ],
+        footnote:
+          "Allergene: bei Bedarf das Team direkt ansprechen — die Küche kann keine 100%-allergenfreie Zubereitung garantieren. Service-Charge 15% optional automatisch auf der Rechnung.",
+        sourceUrl: "https://www.the-berkeley.co.uk/restaurants-and-bars/cedric-grolet/",
+      },
     },
     {
       id: "ronnie-scotts",
