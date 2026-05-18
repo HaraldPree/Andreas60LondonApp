@@ -25,7 +25,12 @@ export function PhotoUpload({
         type="file"
         accept="image/*"
         multiple
-        capture="environment"
+        // NB: capture="environment" was here originally. Some mobile
+        // browsers (notably Firefox Android, also Samsung Internet)
+        // interpret this strictly and force-open the camera with no
+        // gallery option — which broke "Fotos aus Galerie hinzufügen"
+        // for half the travelers. Removing the attribute gives the
+        // user the normal picker (Galerie / Kamera / Dateien).
         className="hidden"
         onChange={(e) => {
           if (e.target.files && e.target.files.length > 0) {

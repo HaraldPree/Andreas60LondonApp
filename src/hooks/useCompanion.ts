@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 export interface ChatMessage {
   id: string;
@@ -15,11 +15,66 @@ interface UseCompanionOptions {
   currentUserName?: string | null;
 }
 
+/** Max persisted history to keep localStorage size sane — last 40 messages
+ *  ≈ last 20 turns, enough context for follow-ups without bloating. */
+const MAX_PERSISTED_MESSAGES = 40;
+
+function storageKey(tripSlug: string, userName?: string | null): string {
+  return `rcmk:chat:${tripSlug}:${userName ?? "anon"}`;
+}
+
+function loadFromStorage(key: string): ChatMessage[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = window.localStorage.getItem(key);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw) as ChatMessage[];
+    if (!Array.isArray(parsed)) return [];
+    // Clear any "still streaming" flag from prior session — pages get
+    // reloaded between sessions so nothing is really mid-stream.
+    return parsed.map((m) => ({ ...m, isStreaming: false }));
+  } catch {
+    return [];
+  }
+}
+
+function saveToStorage(key: string, messages: ChatMessage[]): void {
+  if (typeof window === "undefined") return;
+  try {
+    // Only persist completed messages; trim to last N to keep size sane.
+    const persistable = messages
+      .filter((m) => !m.isStreaming && m.content.length > 0)
+      .slice(-MAX_PERSISTED_MESSAGES);
+    window.localStorage.setItem(key, JSON.stringify(persistable));
+  } catch {
+    // localStorage full or disabled — silently degrade. The chat still
+    // works in-memory until the next reload.
+  }
+}
+
 export function useCompanion({ tripSlug, currentUserName }: UseCompanionOptions) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [hydrated, setHydrated] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
+  const key = storageKey(tripSlug, currentUserName);
+
+  // Hydrate from localStorage on mount or when the scope changes (e.g.
+  // identity switched via the avatar picker). One-shot per scope —
+  // afterwards setMessages drives the state and the effect below persists.
+  useEffect(() => {
+    const stored = loadFromStorage(key);
+    setMessages(stored);
+    setHydrated(true);
+  }, [key]);
+
+  // Persist whenever messages change (but not before initial hydration
+  // — otherwise the empty-state would wipe the saved history on mount).
+  useEffect(() => {
+    if (!hydrated) return;
+    saveToStorage(key, messages);
+  }, [key, messages, hydrated]);
 
   const send = useCallback(
     async (text: string) => {
@@ -157,7 +212,14 @@ export function useCompanion({ tripSlug, currentUserName }: UseCompanionOptions)
     setMessages([]);
     setError(null);
     cancel();
-  }, [cancel]);
+    if (typeof window !== "undefined") {
+      try {
+        window.localStorage.removeItem(key);
+      } catch {
+        // ignore
+      }
+    }
+  }, [cancel, key]);
 
   return { messages, loading, error, send, cancel, reset };
 }
