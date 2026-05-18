@@ -74,8 +74,12 @@ export const londonTrip: Trip = {
     address: "126 Great Portland Street, Top Floor, Flat 3, London W1W 6PR",
     checkIn: "ab 15:00 (Schlüssel-Box am Eingang)",
     checkOut: "bis 11:00",
-    coordinates: { lat: 51.5219, lng: -0.1418 },
-    mapUrl: "https://maps.google.com/?q=51.5219,-0.1418",
+    coordinates: { lat: 51.5198, lng: -0.1424 },
+    // Address-based maps URL (more robust than raw coords — Google
+    // geocodes the postal code itself so we can't accidentally drift
+    // again like in the original "RK1695-era" data dump).
+    mapUrl:
+      "https://maps.google.com/?q=126+Great+Portland+Street+London+W1W+6PR",
     notes: "5-Min-Fußweg zur Great Portland Street Tube Station. Sehr zentral zwischen Oxford Circus und Regent's Park.",
     entranceHint: "Eingang direkt neben „Coco Nails Club“ (Glas-Tür rechts).",
     entranceImage: "/images/london-apartment-entrance.jpg",
@@ -292,7 +296,7 @@ export const londonTrip: Trip = {
           label: "Transfer Liverpool St → Apartment (3 Optionen)",
           type: "transport",
           icon: "🚇",
-          coordinates: { lat: 51.5219, lng: -0.1418 },
+          coordinates: { lat: 51.5198, lng: -0.1424 },
           note: "BESTE: Tube Hammersmith & City / Circle Line von Liverpool Street → Great Portland Street (4 Stationen, 12 Min) + 5 Min Fußweg. ALTERNATIVE 1: Bus 205 vom Liverpool Street Bus Stop H → Marylebone Rd (ca. 25 Min). ALTERNATIVE 2: Uber/Taxi ca. 20-25 Min, £18-25. Bei Tube-Streik ist der Bus die beste Wahl.",
         },
         {
@@ -301,7 +305,7 @@ export const londonTrip: Trip = {
           type: "accom",
           icon: "🏠",
           highlight: true,
-          coordinates: { lat: 51.5219, lng: -0.1418 },
+          coordinates: { lat: 51.5198, lng: -0.1424 },
           note: "Eingang neben 'Coco Nails'. Offizieller Check-in ab 15:00, Schlüssel-Box (Code 0901) rechts neben Haustür — bei früher Ankunft kurz den Hosts (Evie & Ronalyn) Bescheid geben. Wichtig: Top Floor, KEIN LIFT, nur Treppen. Türen-Trick: unten aufsperren, oben rechts drehen + Griff runterdrücken. WLAN: 'Welcome to Adjoin' / 'Welc0meH0me!' (Nullen!). Alle Details auf der Info-Seite.",
         },
         {
@@ -1418,9 +1422,9 @@ export const londonTrip: Trip = {
       difficulty: "moderate",
       surface: "park",
       loop: true,
-      startCoordinates: { lat: 51.5219, lng: -0.1418 },
+      startCoordinates: { lat: 51.5198, lng: -0.1424 },
       mapsUrl:
-        "https://www.google.com/maps/dir/51.5219,-0.1418/English+Gardens,+The+Broad+Walk,+London+NW1+4LL/Ready+Money+Drinking+Fountain,+Regents+Park,+The+Broad+Walk,+London+NW1+4HJ/51.5295683,-0.1571262/51.5294294,-0.1607398/51.5291018,-0.1617308/51.5240785,-0.1546256/51.5218487,-0.1419357/data=!4m2!4m1!3e2",
+        "https://www.google.com/maps/dir/51.5198,-0.1424/English+Gardens,+The+Broad+Walk,+London+NW1+4LL/Ready+Money+Drinking+Fountain,+Regents+Park,+The+Broad+Walk,+London+NW1+4HJ/51.5295683,-0.1571262/51.5294294,-0.1607398/51.5291018,-0.1617308/51.5240785,-0.1546256/51.5197873,-0.1424479/data=!4m2!4m1!3e2",
       highlights: ["English Gardens", "Broad Walk", "Primrose Hill Aussicht"],
       bestTime: "Früh morgens (vor 8:00) oder Abend",
       suggestedBy: "Lukas",
@@ -1436,9 +1440,9 @@ export const londonTrip: Trip = {
       difficulty: "easy",
       surface: "park",
       loop: true,
-      startCoordinates: { lat: 51.5219, lng: -0.1418 },
+      startCoordinates: { lat: 51.5198, lng: -0.1424 },
       mapsUrl:
-        "https://www.google.com/maps/dir/?api=1&origin=51.5219,-0.1418&destination=51.5219,-0.1418&waypoints=51.5267,-0.1565|51.5300,-0.1565|51.5300,-0.1430|51.5267,-0.1430&travelmode=walking",
+        "https://www.google.com/maps/dir/?api=1&origin=51.5198,-0.1424&destination=51.5198,-0.1424&waypoints=51.5267,-0.1565|51.5300,-0.1565|51.5300,-0.1430|51.5267,-0.1430&travelmode=walking",
       highlights: ["Queen Mary's Gardens", "Boating Lake", "Open Air Theatre"],
       bestTime: "Jederzeit",
       notes: "Ebenes Terrain, viele Bänke. Toilettenstops im Park (Hub Pavilion).",
@@ -1453,9 +1457,9 @@ export const londonTrip: Trip = {
       difficulty: "challenging",
       surface: "park",
       loop: true,
-      startCoordinates: { lat: 51.5219, lng: -0.1418 },
+      startCoordinates: { lat: 51.5198, lng: -0.1424 },
       mapsUrl:
-        "https://www.google.com/maps/dir/?api=1&origin=51.5219,-0.1418&destination=51.5219,-0.1418&waypoints=51.5097,-0.1655|51.5074,-0.1763|51.5054,-0.1843|51.5031,-0.1727|51.5076,-0.1625&travelmode=walking",
+        "https://www.google.com/maps/dir/?api=1&origin=51.5198,-0.1424&destination=51.5198,-0.1424&waypoints=51.5097,-0.1655|51.5074,-0.1763|51.5054,-0.1843|51.5031,-0.1727|51.5076,-0.1625&travelmode=walking",
       highlights: [
         "Serpentine",
         "Princess Diana Memorial",
