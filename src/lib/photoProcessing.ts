@@ -34,20 +34,88 @@ export async function extractExif(file: File): Promise<ExtractedExif> {
   }
 }
 
+/**
+ * Drawable image source — either ImageBitmap (preferred, decoded
+ * off-main-thread) or HTMLImageElement (legacy fallback).
+ */
+type DrawableImage =
+  | { kind: "bitmap"; image: ImageBitmap; width: number; height: number }
+  | { kind: "element"; image: HTMLImageElement; width: number; height: number };
+
+/**
+ * Decodes a File into a drawable image, trying the modern
+ * createImageBitmap API first. On Android (especially Samsung) modern
+ * camera files like 10-bit HDR JPEGs and some HEIF variants are
+ * decodable by createImageBitmap but trip up the legacy `new Image()`
+ * path with a generic "Bild konnte nicht geladen werden" error.
+ */
+async function decodeImage(file: File): Promise<DrawableImage> {
+  // Try createImageBitmap first — it has wider format support and
+  // doesn't depend on the legacy <img> decoder pipeline.
+  if (typeof createImageBitmap === "function") {
+    try {
+      const bitmap = await createImageBitmap(file);
+      return {
+        kind: "bitmap",
+        image: bitmap,
+        width: bitmap.width,
+        height: bitmap.height,
+      };
+    } catch (e) {
+      // Falls through to <img> fallback — log so we can see if this
+      // is the path that's failing in production.
+      console.warn(
+        `[photoProcessing] createImageBitmap failed for ${file.name} (${file.type}, ${file.size}b):`,
+        e,
+      );
+    }
+  }
+
+  // Fallback: HTMLImageElement via blob URL.
+  return new Promise<DrawableImage>((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      resolve({
+        kind: "element",
+        image: img,
+        width: img.naturalWidth || img.width,
+        height: img.naturalHeight || img.height,
+      });
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(
+        new Error(
+          `Bild konnte nicht geladen werden (${file.type || "unbekannter Typ"}, ${(file.size / 1024).toFixed(0)} KB). Falls dein Handy HDR/RAW-Fotos macht: in der Galerie als JPG teilen oder Kamera-Einstellungen auf "Standard"-Format umstellen.`,
+        ),
+      );
+    };
+    img.src = url;
+  });
+}
+
 export async function resizeImage(
   file: File,
   maxSize: number,
   quality: number,
 ): Promise<Blob> {
-  const img = await fileToImage(file);
-  const { width, height } = scaleToFit(img.width, img.height, maxSize);
+  const decoded = await decodeImage(file);
+  const { width, height } = scaleToFit(decoded.width, decoded.height, maxSize);
 
   const canvas = document.createElement("canvas");
   canvas.width = width;
   canvas.height = height;
   const ctx = canvas.getContext("2d");
-  if (!ctx) throw new Error("Canvas context nicht verfügbar");
-  ctx.drawImage(img, 0, 0, width, height);
+  if (!ctx) {
+    if (decoded.kind === "bitmap") decoded.image.close();
+    throw new Error("Canvas-Context nicht verfügbar");
+  }
+  // drawImage accepts both ImageBitmap and HTMLImageElement
+  ctx.drawImage(decoded.image, 0, 0, width, height);
+  // Free the underlying bitmap if applicable
+  if (decoded.kind === "bitmap") decoded.image.close();
 
   return new Promise((resolve, reject) => {
     canvas.toBlob(
@@ -65,27 +133,40 @@ export async function compressForStorage(file: File): Promise<{
   full: Blob;
   thumb: Blob;
 }> {
-  // Generate both in parallel
-  const [full, thumb] = await Promise.all([
-    resizeImage(file, FULL_MAX_SIZE, FULL_QUALITY),
-    resizeImage(file, THUMB_MAX_SIZE, THUMB_QUALITY),
-  ]);
-  return { full, thumb };
+  // Decode once, derive both sizes from the same canvas to halve the
+  // work versus two independent decodes. Important on mid-tier phones
+  // where decoding a 12MP HDR photo can take 2-3 seconds.
+  const decoded = await decodeImage(file);
+  try {
+    const full = await canvasToJpeg(decoded, FULL_MAX_SIZE, FULL_QUALITY);
+    const thumb = await canvasToJpeg(decoded, THUMB_MAX_SIZE, THUMB_QUALITY);
+    return { full, thumb };
+  } finally {
+    if (decoded.kind === "bitmap") decoded.image.close();
+  }
 }
 
-function fileToImage(file: File): Promise<HTMLImageElement> {
+async function canvasToJpeg(
+  decoded: DrawableImage,
+  maxSize: number,
+  quality: number,
+): Promise<Blob> {
+  const { width, height } = scaleToFit(decoded.width, decoded.height, maxSize);
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("Canvas-Context nicht verfügbar");
+  ctx.drawImage(decoded.image, 0, 0, width, height);
   return new Promise((resolve, reject) => {
-    const url = URL.createObjectURL(file);
-    const img = new Image();
-    img.onload = () => {
-      URL.revokeObjectURL(url);
-      resolve(img);
-    };
-    img.onerror = () => {
-      URL.revokeObjectURL(url);
-      reject(new Error("Bild konnte nicht geladen werden"));
-    };
-    img.src = url;
+    canvas.toBlob(
+      (blob) => {
+        if (!blob) return reject(new Error("Kompression fehlgeschlagen"));
+        resolve(blob);
+      },
+      "image/jpeg",
+      quality,
+    );
   });
 }
 
