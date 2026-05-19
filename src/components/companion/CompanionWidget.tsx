@@ -33,7 +33,9 @@ export function CompanionWidget({
 
   return (
     <>
-      {/* Floating Button — Apple-style: ruhig, ohne Pulse/Notification-Indicator */}
+      {/* Floating Button — mit lebendigem Pulse + grünem Live-Indicator
+          (Original-Version, in v1.3.1 kurz entfernt → in v1.5.1 nach
+          User-Feedback wieder eingeführt). */}
       <motion.button
         type="button"
         onClick={() => setOpen(true)}
@@ -45,6 +47,7 @@ export function CompanionWidget({
       >
         <Sparkles size={24} strokeWidth={2.2} />
         <span className="sr-only">KI-Reisebegleiter</span>
+        <span className="absolute -top-1 -right-1 w-3 h-3 bg-success rounded-full ring-2 ring-cream animate-pulse" />
       </motion.button>
 
       {/* Slide-up panel */}
