@@ -346,6 +346,38 @@ export interface Trip {
   accommodation: Accommodation;
   flights: { outbound: Flight; inbound: Flight };
   alerts: Alert[];
+
+  /**
+   * Optionale alternative Tage-Liste (z.B. vom KI-Companion aufgrund
+   * Wetter / Streik / spontaner Änderung erstellt).
+   *
+   * Array hat dieselbe Länge wie `days`. An Indizes wo nichts geändert
+   * werden soll: `null` einsetzen → fällt auf `days[i]` zurück.
+   *
+   * Aktiv/Inaktiv-Wahl liegt im Client (localStorage via useTripVariant).
+   */
+  alternativeDays?: Array<Day | null>;
+
+  /**
+   * Beschreibt die Alternative für den Variant-Switcher im UI.
+   * Nur relevant wenn `alternativeDays` gesetzt ist.
+   */
+  alternativeDaysMeta?: {
+    /** Kurzlabel für die Toggle-Pill (z.B. "Regen-Variante") */
+    label: string;
+    /** Erklärtext was geändert wurde + warum */
+    description: string;
+    /** Wer hat's vorgeschlagen (z.B. "KI-Companion, 21.05.2026") */
+    source: string;
+    /** Welche Day-Indizes sind tatsächlich anders (für UI-Anzeige) */
+    affectedDayIndices: number[];
+  };
+
+  /**
+   * Welche Variante new visitors als Default sehen (nur wenn noch keine
+   * localStorage-Wahl getroffen wurde). Standard: "original".
+   */
+  defaultVariant?: "original" | "alternative";
   /** Structured transport/service disruptions with exact 24h time windows */
   disruptions?: TransportDisruption[];
   days: Day[];

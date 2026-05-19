@@ -8,15 +8,23 @@ import { ForecastBar } from "@/components/weather/ForecastBar";
 import { AlertBanner } from "@/components/trip/AlertBanner";
 import { DayCard } from "@/components/trip/DayCard";
 import { TripHero } from "@/components/trip/TripHero";
+import { TripVariantSwitcher } from "@/components/trip/TripVariantSwitcher";
 import { useWeather } from "@/hooks/useWeather";
+import type { TripVariant } from "@/hooks/useTripVariant";
 import { getDisruptionsForDay } from "@/lib/disruptions";
 import { useUserPlaces } from "@/hooks/useUserPlaces";
 
 interface ProgrammTabProps {
   trip: Trip;
+  variant?: TripVariant;
+  onVariantChange?: (next: TripVariant) => void;
 }
 
-export function ProgrammTab({ trip }: ProgrammTabProps) {
+export function ProgrammTab({
+  trip,
+  variant = "original",
+  onVariantChange,
+}: ProgrammTabProps) {
   const { data: weather } = useWeather(
     trip.weatherLocation.lat,
     trip.weatherLocation.lng,
@@ -41,6 +49,14 @@ export function ProgrammTab({ trip }: ProgrammTabProps) {
       className="space-y-4"
     >
       <TripHero trip={trip} />
+
+      {trip.alternativeDays && onVariantChange && (
+        <TripVariantSwitcher
+          trip={trip}
+          variant={variant}
+          onChange={onVariantChange}
+        />
+      )}
 
       <WeatherWidget
         lat={trip.weatherLocation.lat}

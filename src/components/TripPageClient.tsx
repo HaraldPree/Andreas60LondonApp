@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import type { Trip } from "@/types/trip";
 import { Header } from "@/components/layout/Header";
@@ -17,6 +17,7 @@ import { CompanionWidget } from "@/components/companion/CompanionWidget";
 import { PersonPicker } from "@/components/identity/PersonPicker";
 import { UserAvatarButton } from "@/components/identity/UserAvatarButton";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useTripVariant } from "@/hooks/useTripVariant";
 import { UpdateBanner } from "@/components/pwa/UpdateBanner";
 
 interface TripPageClientProps {
@@ -30,6 +31,34 @@ export function TripPageClient({ trip }: TripPageClientProps) {
   );
   const [pickerOpen, setPickerOpen] = useState(false);
 
+  // Variante (Original vs. Alternative) — pro Gerät in localStorage.
+  // useTripVariant fällt auf trip.defaultVariant zurück wenn nichts
+  // gespeichert ist.
+  const { variant, setVariant } = useTripVariant(
+    trip.slug,
+    trip.defaultVariant ?? "original",
+  );
+
+  // effectiveTrip: bei aktiver Alternative die alternativen Tage
+  // einblenden, an null-Stellen das Original beibehalten. Alle Tabs
+  // (Programm, Karte, Companion-Kontext, KI-Prompt) sehen ab hier
+  // dieselbe Wahrheit.
+  const effectiveTrip: Trip = useMemo(() => {
+    if (
+      variant !== "alternative" ||
+      !trip.alternativeDays ||
+      trip.alternativeDays.length === 0
+    ) {
+      return trip;
+    }
+    return {
+      ...trip,
+      days: trip.days.map(
+        (originalDay, i) => trip.alternativeDays?.[i] ?? originalDay,
+      ),
+    };
+  }, [trip, variant]);
+
   // Auto-open picker on first visit (once hydrated)
   useEffect(() => {
     if (
@@ -38,26 +67,26 @@ export function TripPageClient({ trip }: TripPageClientProps) {
       !skipped &&
       (trip.participants?.length ?? 0) > 0
     ) {
-      // Slight delay to let the page render first
       const t = setTimeout(() => setPickerOpen(true), 600);
       return () => clearTimeout(t);
     }
+    // participants kommen aus dem rohen trip (Variante ändert sie nicht)
   }, [hydrated, currentUserName, skipped, trip.participants]);
 
   const currentUser =
-    trip.participants?.find((p) => p.name === currentUserName) ?? null;
+    effectiveTrip.participants?.find((p) => p.name === currentUserName) ?? null;
 
   return (
     <div className="min-h-screen bg-cream pb-20">
       <UpdateBanner />
       <Header
-        destination={trip.destination}
-        subtitle={trip.subtitle}
-        occasion={trip.occasion}
+        destination={effectiveTrip.destination}
+        subtitle={effectiveTrip.subtitle}
+        occasion={effectiveTrip.occasion}
         backHref="/"
         backLabel="Reisen"
         rightSlot={
-          (trip.participants?.length ?? 0) > 0 ? (
+          (effectiveTrip.participants?.length ?? 0) > 0 ? (
             <UserAvatarButton
               currentUser={currentUser}
               hydrated={hydrated}
@@ -70,22 +99,29 @@ export function TripPageClient({ trip }: TripPageClientProps) {
 
       <main className="mx-auto max-w-app px-4 py-4">
         <AnimatePresence mode="wait">
-          {tab === "programm" && <ProgrammTab key="programm" trip={trip} />}
-          {tab === "karte" && <KarteTab key="karte" trip={trip} />}
+          {tab === "programm" && (
+            <ProgrammTab
+              key="programm"
+              trip={effectiveTrip}
+              variant={variant}
+              onVariantChange={setVariant}
+            />
+          )}
+          {tab === "karte" && <KarteTab key="karte" trip={effectiveTrip} />}
           {tab === "fotos" && (
             <FotosTab
               key="fotos"
-              trip={trip}
+              trip={effectiveTrip}
               currentUserName={currentUserName}
             />
           )}
           {tab === "reservierungen" && (
-            <ReservierungenTab key="reservierungen" trip={trip} />
+            <ReservierungenTab key="reservierungen" trip={effectiveTrip} />
           )}
           {tab === "sos" && (
             <SOSTab
               key="sos"
-              trip={trip}
+              trip={effectiveTrip}
               currentUserName={currentUserName}
               onRequestIdentity={() => setPickerOpen(true)}
             />
@@ -93,7 +129,7 @@ export function TripPageClient({ trip }: TripPageClientProps) {
           {tab === "info" && (
             <InfoTab
               key="info"
-              trip={trip}
+              trip={effectiveTrip}
               currentUserName={currentUserName}
               onRequestIdentity={() => setPickerOpen(true)}
             />
@@ -105,16 +141,16 @@ export function TripPageClient({ trip }: TripPageClientProps) {
 
       <ScrollToTop />
       <CompanionWidget
-        tripSlug={trip.slug}
-        destination={trip.destination}
+        tripSlug={effectiveTrip.slug}
+        destination={effectiveTrip.destination}
         currentUserName={currentUserName}
       />
       <Navigation active={tab} onChange={setTab} />
 
       <PersonPicker
         open={pickerOpen}
-        destination={trip.destination}
-        participants={trip.participants ?? []}
+        destination={effectiveTrip.destination}
+        participants={effectiveTrip.participants ?? []}
         onPick={(name) => {
           setUser(name);
           setPickerOpen(false);
