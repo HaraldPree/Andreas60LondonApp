@@ -140,17 +140,26 @@ export async function POST(req: NextRequest) {
 }
 
 /**
- * PATCH /api/photos/share?id=... — Sichtbarkeit ändern.
- * Body: { visibility: "celebrant" | "group" | "private" (== widerrufen) }
+ * PATCH /api/photos/share?id=...&tripSlug=...
+ * Body: { visibility: "celebrant" | "group" | "private", requesterName }
+ *
+ * Im Blob-only-Modell (v1.1.3+) brauchen wir den tripSlug auch hier
+ * weil das Manifest pro Reise gespeichert ist — ohne den Hint können
+ * wir das Photo nicht effizient finden.
  */
 export async function PATCH(req: NextRequest) {
   if (!isStorageConfigured()) {
     return NextResponse.json(SERVICE_DISABLED_BODY, { status: 503 });
   }
 
-  const id = new URL(req.url).searchParams.get("id");
-  if (!id) {
-    return NextResponse.json({ error: "id-Parameter fehlt" }, { status: 400 });
+  const url = new URL(req.url);
+  const id = url.searchParams.get("id");
+  const tripSlug = url.searchParams.get("tripSlug");
+  if (!id || !tripSlug) {
+    return NextResponse.json(
+      { error: "id + tripSlug Parameter erforderlich" },
+      { status: 400 },
+    );
   }
 
   let body: { visibility?: SharedPhotoVisibility; requesterName?: string };
@@ -172,7 +181,7 @@ export async function PATCH(req: NextRequest) {
   }
 
   // Nur der Uploader darf seine Sichtbarkeit ändern
-  const existing = await getSharedPhoto(id);
+  const existing = await getSharedPhoto(id, tripSlug);
   if (!existing) {
     return NextResponse.json({ error: "Foto nicht gefunden" }, { status: 404 });
   }
@@ -183,12 +192,16 @@ export async function PATCH(req: NextRequest) {
     );
   }
 
-  const updated = await updateSharedPhotoVisibility(id, body.visibility);
+  const updated = await updateSharedPhotoVisibility(
+    id,
+    body.visibility,
+    tripSlug,
+  );
   return NextResponse.json({ ok: true, photo: updated });
 }
 
 /**
- * DELETE /api/photos/share?id=...&requesterName=...
+ * DELETE /api/photos/share?id=...&tripSlug=...&requesterName=...
  * Widerruft (löscht) ein geteiltes Foto. Nur der Uploader darf.
  */
 export async function DELETE(req: NextRequest) {
@@ -198,16 +211,17 @@ export async function DELETE(req: NextRequest) {
 
   const { searchParams } = new URL(req.url);
   const id = searchParams.get("id");
+  const tripSlug = searchParams.get("tripSlug");
   const requesterName = searchParams.get("requesterName");
 
-  if (!id || !requesterName) {
+  if (!id || !tripSlug || !requesterName) {
     return NextResponse.json(
-      { error: "id und requesterName Parameter erforderlich" },
+      { error: "id, tripSlug und requesterName Parameter erforderlich" },
       { status: 400 },
     );
   }
 
-  const existing = await getSharedPhoto(id);
+  const existing = await getSharedPhoto(id, tripSlug);
   if (!existing) {
     return NextResponse.json({ error: "Foto nicht gefunden" }, { status: 404 });
   }
@@ -218,6 +232,6 @@ export async function DELETE(req: NextRequest) {
     );
   }
 
-  await withdrawSharedPhoto(id);
+  await withdrawSharedPhoto(id, tripSlug);
   return NextResponse.json({ ok: true });
 }

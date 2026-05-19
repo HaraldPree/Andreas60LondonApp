@@ -142,18 +142,19 @@ export function useSharedPhotos({
   const changeVisibility = useCallback(
     async (photoId: string, next: SharedPhotoVisibility) => {
       if (!viewerName) throw new Error("Keine Viewer-Identität");
-      const res = await fetch(
-        `/api/photos/share?id=${encodeURIComponent(photoId)}`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({
-            visibility: next,
-            requesterName: viewerName,
-          }),
-        },
-      );
+      const params = new URLSearchParams({
+        id: photoId,
+        tripSlug,
+      });
+      const res = await fetch(`/api/photos/share?${params.toString()}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          visibility: next,
+          requesterName: viewerName,
+        }),
+      });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
         throw new Error(
@@ -162,7 +163,7 @@ export function useSharedPhotos({
       }
       await refresh();
     },
-    [viewerName, refresh],
+    [tripSlug, viewerName, refresh],
   );
 
   /**
@@ -174,6 +175,7 @@ export function useSharedPhotos({
       if (!viewerName) throw new Error("Keine Viewer-Identität");
       const params = new URLSearchParams({
         id: photoId,
+        tripSlug,
         requesterName: viewerName,
       });
       const res = await fetch(`/api/photos/share?${params.toString()}`, {
@@ -188,7 +190,7 @@ export function useSharedPhotos({
       }
       await refresh();
     },
-    [viewerName, refresh],
+    [tripSlug, viewerName, refresh],
   );
 
   return {

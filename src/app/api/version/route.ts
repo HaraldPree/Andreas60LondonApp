@@ -31,15 +31,16 @@ export async function GET() {
   ).trim();
   const anthropicConfigured = anthropicKey.length > 0;
 
-  // Foto-Sharing-Backend (siehe v1.0.1 / v1.1.0):
-  //   Blob → speichert die Foto-Dateien
-  //   KV   → speichert die Metadaten + Indizes
-  // Beides nötig damit "Gemeinsame Galerie" aktiv wird.
+  // Foto-Sharing-Backend (v1.1.3+: Blob-only Architektur).
+  // Metadaten werden in einer Manifest-JSON im Blob selbst gespeichert
+  // → KV ist nicht mehr nötig.
   const blobConfigured = !!process.env.BLOB_READ_WRITE_TOKEN?.trim();
+  // kvConfigured wird informationshalber noch ausgewiesen (falls KV
+  // doch noch parallel da ist), aber NICHT mehr als requirement gewertet.
   const kvConfigured =
     !!process.env.KV_REST_API_URL?.trim() &&
     !!process.env.KV_REST_API_TOKEN?.trim();
-  const photoSharingReady = blobConfigured && kvConfigured;
+  const photoSharingReady = blobConfigured; // KV nicht mehr nötig
 
   const hints: string[] = [];
   if (!pinConfigured) {
@@ -59,14 +60,10 @@ export async function GET() {
   }
   if (!blobConfigured) {
     hints.push(
-      "BLOB_READ_WRITE_TOKEN fehlt — Foto-Sharing kann keine Bilder speichern.",
+      "BLOB_READ_WRITE_TOKEN fehlt — Foto-Sharing nicht verfügbar.",
     );
   }
-  if (!kvConfigured) {
-    hints.push(
-      "KV_REST_API_URL/TOKEN fehlt — Foto-Sharing kann keine Metadaten speichern.",
-    );
-  }
+  // KV ist seit v1.1.3 optional — kein hint mehr
 
   return Response.json(
     {
