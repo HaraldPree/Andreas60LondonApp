@@ -49,6 +49,7 @@ Wenn ich (Claude) eine Code-Änderung mache:
 
 | Version | Datum | Titel | Status |
 |---|---|---|---|
+| [v1.0.1](./v1.0.1.md) | 21.05.2026 | Foto-Sharing Backend-Foundation | deployed |
 | [v1.0.0](./v1.0.0.md) | 21.05.2026 | Baseline — London-Reise Live-Phase | deployed |
 
 (Neue Releases werden hier oben eingefügt.)
