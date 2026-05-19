@@ -191,10 +191,10 @@ export const londonTrip: Trip = {
 
   alerts: [
     {
-      type: "warning",
-      icon: "🚇",
-      title: "Tube-Streik: Di 19.5. 12:00 → Fr 22.5. 11:59",
-      text: "Die Londoner U-Bahn ist durchgehend ~72h bestreikt. ENGLISCHE ZEIT-INFO: 12 PM = 12:00 (Mittag), 11:59 AM = 11:59 (Vormittag). ⚠️ Heißt: Bei eurer ABREISE Fr 22.5. um 09:30 ist der Streik NOCH AKTIV. Plant für Friday morning Bus 205 oder Uber statt Tube ein.",
+      type: "success",
+      icon: "✅",
+      title: "Tube-Streik abgesagt!",
+      text: "Gute Nachricht: Der für Di–Fr geplante Streik der Londoner U-Bahn wurde abgesagt. Tube fährt normal. Bus / Thames Clipper bleiben natürlich auch Optionen falls ihr Lust drauf habt.",
       validFrom: "2026-05-18",
       validUntil: "2026-05-22",
     },
@@ -207,27 +207,9 @@ export const londonTrip: Trip = {
     },
   ],
 
-  disruptions: [
-    {
-      id: "tube-strike-may-2026",
-      type: "strike",
-      service: "London Tube",
-      icon: "🚇",
-      // London is BST (UTC+1) im Mai
-      startIso: "2026-05-19T12:00:00+01:00",
-      endIso: "2026-05-22T11:59:00+01:00",
-      shortLabel: "Tube-Streik",
-      description:
-        "London Underground bestreikt von Di 19.5. 12:00 Uhr durchgehend bis Fr 22.5. 11:59 Uhr (rund 72 Stunden). Betrifft alle Tube-Linien.",
-      alternatives: [
-        "Bus 205 (Liverpool St ↔ Marylebone Rd)",
-        "Bus 11, 23, 24, 88 (Zone 1)",
-        "Uber Boat / Thames Clipper (Themse)",
-        "Uber / Bolt / FreeNow (Auto)",
-        "Zu Fuß (Zone 1 ist klein, alles in 30-45 Min erreichbar)",
-      ],
-    },
-  ],
+  // Tube-Streik wurde am 21.05.2026 abgesagt → keine aktiven Disruptions mehr.
+  // Wenn neue auftauchen: einfach hier wieder eintragen.
+  disruptions: [],
 
   days: [
     {
@@ -297,7 +279,7 @@ export const londonTrip: Trip = {
           type: "transport",
           icon: "🚇",
           coordinates: { lat: 51.5198, lng: -0.1424 },
-          note: "BESTE: Tube Hammersmith & City / Circle Line von Liverpool Street → Great Portland Street (4 Stationen, 12 Min) + 5 Min Fußweg. ALTERNATIVE 1: Bus 205 vom Liverpool Street Bus Stop H → Marylebone Rd (ca. 25 Min). ALTERNATIVE 2: Uber/Taxi ca. 20-25 Min, £18-25. Bei Tube-Streik ist der Bus die beste Wahl.",
+          note: "BESTE: Tube Hammersmith & City / Circle Line von Liverpool Street → Great Portland Street (4 Stationen, 12 Min) + 5 Min Fußweg. ALTERNATIVE 1: Bus 205 vom Liverpool Street Bus Stop H → Marylebone Rd (ca. 25 Min). ALTERNATIVE 2: Uber/Taxi ca. 20-25 Min, £18-25.",
         },
         {
           time: "ca. 14:00",
@@ -360,7 +342,7 @@ export const londonTrip: Trip = {
       tips: [
         "Stansted Express tickets online vorab buchen – spart Zeit & ist billiger als am Schalter.",
         "Vom Liverpool Street zum Apartment: Tube (Hammersmith & City oder Circle) ist am schnellsten – 12 Min + 5 Min Fußweg.",
-        "Bei Tube-Streik: Bus 205 (Liverpool St Stop H → Marylebone Rd) oder Uber (£18-25).",
+        "Falls Tube zu voll: Bus 205 (Liverpool St Stop H → Marylebone Rd) oder Uber (£18-25).",
         "Contactless Bankkarte funktioniert in allen Tubes & Bussen (kein Oyster nötig).",
         "Erste Nacht bewusst entspannt – ihr seid morgen früher fit.",
       ],
@@ -535,7 +517,7 @@ export const londonTrip: Trip = {
       ],
       tips: [
         "🎂 Cedric ist um 13:00 (goûtea Afternoon Tea, Service 12:00–16:30) – 5 Min vorher da, Reservierungs-Nr. 436JUJ35U7YV griffbereit.",
-        "Tube-Streik aktiv – Bus 11, 23, 24, 88 oder zu Fuß (alles Zone 1).",
+        "In Zone 1 sind Bus 11/23/24/88 oder zu Fuß oft schneller als Tube — Strecken sind kurz.",
         "Vormittag: Westminster Abbey innen würde 1-2h kosten – heute zu eng, lieber Außenfotos.",
         "Nach Cedric ist man satt – Hyde-Park-Spaziergang ist perfekt zum Verdauen.",
         "V&A Museum + Natural History sind beide gratis – Wahl je nach Stimmung.",
@@ -708,7 +690,7 @@ export const londonTrip: Trip = {
         { name: "Ronnie Scott's", coordinates: { lat: 51.5132, lng: -0.1311 }, category: "food", icon: "🎷" },
       ],
       tips: [
-        "Tube-Streik aktiv – Uber Boat (Thames Clipper) von Tower Pier ist die schönste Alternative!",
+        "Tipp: Uber Boat (Thames Clipper) von Tower Pier ist die schönste Art zwischen Tower und Tate Modern zu wechseln — Themse-Panorama statt U-Bahn-Tunnel.",
         "Voller Tag – plant Pausen ein. Tate Modern hat ein gemütliches Café mit Themse-Blick.",
         "Barbican Conservatory: nur an bestimmten Tagen offen – vorab unter barbican.org.uk prüfen.",
       ],
@@ -836,8 +818,8 @@ export const londonTrip: Trip = {
         { name: "Crossrail Roof Garden", coordinates: { lat: 51.5054, lng: -0.0186 }, category: "hidden", icon: "🌴" },
       ],
       tips: [
-        "🚇 Tube-Streik: heute GANZTÄGIG. Aber: DLR (Docklands Light Railway) ist KEIN Tube und fährt normal! Perfekt nach Greenwich + Canary Wharf.",
-        "Thames Clipper River Roamer Pass = £21/Tag unbegrenzt – ideal für Hin & Zurück, vom Streik nicht betroffen.",
+        "DLR (Docklands Light Railway) ist die schönste Anreise nach Greenwich — über die Themse-Loop, perfekte Aussicht.",
+        "Thames Clipper River Roamer Pass = £21/Tag unbegrenzt – noch malerischer als DLR, falls Lust auf Boot.",
         "Royal Observatory: 30 Min Aufstieg auf den Hügel, gute Schuhe!",
         "Painted Hall ist der Geheimtipp – die meisten Touristen übersehen ihn.",
       ],
@@ -904,11 +886,10 @@ export const londonTrip: Trip = {
         },
         {
           time: "09:35",
-          label: "⚠️ Tube-Streik bis 11:59 aktiv – Bus 205 oder Uber",
+          label: "Transport-Wahl zum Liverpool Street",
           type: "alternative",
-          icon: "🚌",
-          highlight: true,
-          note: "Tube fährt NICHT vor 11:59 (Streik). Empfohlene Reihenfolge: 1) Uber direkt vor Tür (~£20-25, 25 Min, am sichersten), 2) Bus 205 von Marylebone Rd (ca. 30 Min, alle 8-10 Min). Vermeidet jede U-Bahn-Linie.",
+          icon: "🚇",
+          note: "Optionen: 1) Tube Great Portland Street → Liverpool Street (Hammersmith & City / Circle, 12 Min) — funktioniert wieder, Streik abgesagt. 2) Bus 205 (ca. 25 Min) als gemütliche Alternative. 3) Uber für maximale Stress-Freiheit (~£20-25).",
         },
         {
           time: "09:40",
@@ -967,11 +948,11 @@ export const londonTrip: Trip = {
         { name: "Liverpool Street Station", coordinates: { lat: 51.5180, lng: -0.0815 }, category: "transport", icon: "🚆" },
       ],
       tips: [
-        "🚇 ACHTUNG TUBE-STREIK: Endet erst 11:59 Uhr – eure Abreise 09:30 ist NOCH IM STREIK. KEINE Tube nehmen, sondern Bus 205 (~30 Min) oder Uber (~25 Min, £20-25). Uber vorab im App fertig machen!",
+        "Tube zum Liverpool Street fährt wieder normal (Streik abgesagt). Bus 205 oder Uber bleiben als Alternativen.",
         "Großes Gepäck früh aufgeben – Ryanair ist streng (Online-Boarding-Pass am Handy parat!).",
-        "Stansted Security kann in Stoßzeiten lang sein – Puffer einkalkuliert (90 Min vor Abflug am Gate).",
+        "Stansted Security kann in Stoßzeiten lang sein – Puffer einkalkulieren (90 Min vor Abflug am Gate).",
         "Letzte Souvenirs gestern besorgen (Fortnum & Mason Tea, M&S) – Stansted-Preise sind höher.",
-        "Stansted Express fährt durchgehend (nicht von Tube-Streik betroffen) – falls verspätet, gibt es bei Ryanair keine Kulanz.",
+        "Stansted Express fährt alle 15 Min – falls verspätet, gibt es bei Ryanair keine Kulanz.",
       ],
     },
   ],
@@ -1089,7 +1070,7 @@ export const londonTrip: Trip = {
         "V&A ist gratis und riesig – nehmt euch mind. 2h.",
       ],
     },
-    // Index 2 (Mi, 20. Mai) — City Day, unverändert (Streik-Hinweise sind schon in disruptions)
+    // Index 2 (Mi, 20. Mai) — City Day, unverändert
     null,
     // Index 3 (Do, 21. Mai) — KOMBINIERT Greenwich + Notting Hill
     {
@@ -1099,7 +1080,7 @@ export const londonTrip: Trip = {
       icon: "☀️",
       color: "#2980B9",
       summary:
-        "Schönster Tag der Reise (bis 22°C, sonnig): Vormittag Greenwich via Thames Clipper (umgeht Tube-Streik!), Spätnachmittag Bus 23 nach Notting Hill für Portobello im Abendlicht.",
+        "Schönster Tag der Reise (bis 22°C, sonnig): Vormittag Greenwich via Thames Clipper für Themse-Panorama, Spätnachmittag Bus 23 nach Notting Hill für Portobello im Abendlicht.",
       weatherHint: "Bis 22°C sonnig — viel Outdoor",
       items: [
         {
@@ -1107,7 +1088,7 @@ export const londonTrip: Trip = {
           label: "Frühstück + Aufbruch Richtung Westminster Pier",
           type: "free",
           icon: "☕",
-          note: "Per Bus oder zu Fuß zur Themse – Tube-Streik umgangen.",
+          note: "Per Bus, Tube oder zu Fuß zur Themse — alle Optionen offen.",
         },
         {
           time: "10:30",
@@ -1116,7 +1097,7 @@ export const londonTrip: Trip = {
           icon: "⛵",
           coordinates: { lat: 51.5012, lng: -0.1227 },
           highlight: true,
-          note: "River Roamer £21/Person, ganztägig gültig. Tube-Streik betrifft das NICHT — und es ist die schönste Anreise: an Big Ben, London Eye, Tower Bridge vorbei.",
+          note: "River Roamer £21/Person, ganztägig gültig. Die schönste Anreise nach Greenwich — an Big Ben, London Eye, Tower Bridge vorbei.",
         },
         {
           time: "11:15",
@@ -1155,14 +1136,14 @@ export const londonTrip: Trip = {
           label: "DLR zurück Richtung London",
           type: "transport",
           icon: "🚆",
-          note: "DLR (Docklands Light Railway) fährt trotz Tube-Streik! Optional: kurzer Stopp in Canary Wharf für Crossrail Roof Garden (30 Min Stop-Over).",
+          note: "DLR (Docklands Light Railway) fährt durch die Skyline-Kulisse von Canary Wharf — schöner als Tube. Optional: kurzer Stopp in Canary Wharf für Crossrail Roof Garden (30 Min Stop-Over).",
         },
         {
           time: "ca. 16:30",
           label: "Bus 23 → Notting Hill / Portobello",
           type: "transport",
           icon: "🚌",
-          note: "~25 Min Fahrt durchs Westend. Streik betrifft Busse nicht.",
+          note: "~25 Min Fahrt durchs Westend. Doppeldecker — oben vorne sitzen für die Sicht.",
         },
         {
           time: "17:00",
@@ -1193,14 +1174,14 @@ export const londonTrip: Trip = {
       ],
       tips: [
         "☀️ Schönster Tag der Reise – Sonnencreme + Wasserflasche mit.",
-        "Thames Clipper umgeht den Tube-Streik komplett, ist die ANGENEHMSTE Anreise zu Greenwich.",
+        "Thames Clipper ist die schönste Anreise nach Greenwich — Themse-Panorama, Big Ben, Tower Bridge inklusive.",
         "River Roamer Ticket (£21) gilt ganztägig – könnt auch zwischendurch retour wenn's reicht.",
-        "DLR (Docklands Light Railway) fährt trotz Tube-Streik – legal Alternative.",
+        "DLR (Docklands Light Railway) fährt durch die Skyline-Kulisse von Canary Wharf — schönere Rückfahrt-Option.",
         "Notting Hill im Abendlicht ist magisch – plant 1.5h für entspanntes Schlendern.",
         "Bus 23 ist Doppeldecker – oben vorne sitzen für die beste Sicht.",
       ],
     },
-    // Index 4 (Fr, 22. Mai) — Abreise, kein Change (Streik-Hinweise schon in disruptions + day.tips)
+    // Index 4 (Fr, 22. Mai) — Abreise, kein Change
     null,
   ],
   alternativeDaysMeta: {
@@ -1847,7 +1828,7 @@ export const londonTrip: Trip = {
       icon: "🚖",
       label: "Uber",
       href: "https://m.uber.com/",
-      description: "Bei Tube-Streik Alternative",
+      description: "Falls die Tube zu voll oder zu langsam ist",
       color: "navy",
     },
   ],

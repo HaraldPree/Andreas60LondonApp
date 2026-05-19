@@ -3,7 +3,7 @@ export function TransportTips() {
     {
       icon: "🚌",
       title: "Bus",
-      text: "Während Tube-Streik beste Alternative. Linien 11, 24, 88 decken die Innenstadt ab.",
+      text: "Doppeldecker fahren überall hin. Linien 11, 24, 88 decken die Innenstadt schön ab — oben sitzen für die beste Sicht.",
     },
     {
       icon: "⛴️",
@@ -18,7 +18,7 @@ export function TransportTips() {
     {
       icon: "🚖",
       title: "Uber / Bolt",
-      text: "Beide Apps funktionieren. Bei Streik etwas teurer durch erhöhte Nachfrage.",
+      text: "Beide Apps funktionieren in ganz London. Zu Stoßzeiten etwas teurer durch erhöhte Nachfrage.",
     },
     {
       icon: "💳",
@@ -30,7 +30,7 @@ export function TransportTips() {
   return (
     <div className="rounded-2xl bg-white shadow-card border border-cream-200/50 p-4">
       <h3 className="font-display text-base font-semibold text-navy mb-1">
-        Transport-Tipps bei Tube-Streik
+        Transport-Tipps für London
       </h3>
       <p className="text-xs text-ink-mid mb-3">
         Praktische Alternativen für entspanntes Reisen in London.
