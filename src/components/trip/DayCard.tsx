@@ -1,14 +1,26 @@
 "use client";
 
-import { useState } from "react";
-import { ChevronDown, Lightbulb, CloudRain, Sparkles, MapPin, Trash2 } from "lucide-react";
+import { useMemo, useState } from "react";
+import {
+  ChevronDown,
+  Lightbulb,
+  CloudRain,
+  Sparkles,
+  MapPin,
+  Trash2,
+  Check,
+  CircleSlash,
+  RotateCcw,
+} from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import type { Day } from "@/types/trip";
 import type { UserPlace } from "@/types/userPlace";
 import type { DayDisruptionWindow } from "@/lib/disruptions";
+import type { ItemMark, ItemState } from "@/types/itemState";
 import { classNames, mapsUrl } from "@/lib/formatters";
 import { TimelineItem } from "./TimelineItem";
 import { DisruptionPill } from "./DisruptionPill";
+import { ItemActionSheet } from "./ItemActionSheet";
 import { TransportButtons } from "@/components/ui/TransportButtons";
 
 interface DayCardProps {
@@ -23,6 +35,21 @@ interface DayCardProps {
   userPlaces?: UserPlace[];
   /** Called when user wants to remove an own discovery */
   onRemoveUserPlace?: (id: string) => void;
+
+  /**
+   * v1.3.0 — In-App-Editor (Phase 1).
+   * Wenn diese Props gesetzt sind, zeigt jedes TimelineItem die
+   * State-Controls (Circle + Menu), und der DayCard-Header bekommt
+   * ein Stats-Badge + Reset-Day-Option.
+   */
+  itemStateFor?: (itemIndex: number) => ItemState | undefined;
+  onToggleItemDone?: (itemIndex: number) => void;
+  onCommitItemState?: (
+    itemIndex: number,
+    next: { mark: ItemMark | null; note: string },
+  ) => void;
+  onClearItem?: (itemIndex: number) => void;
+  onClearDay?: () => void;
 }
 
 export function DayCard({
@@ -33,9 +60,36 @@ export function DayCard({
   disruptions = [],
   userPlaces = [],
   onRemoveUserPlace,
+  itemStateFor,
+  onToggleItemDone,
+  onCommitItemState,
+  onClearItem,
+  onClearDay,
 }: DayCardProps) {
   const [open, setOpen] = useState(defaultOpen);
   const [showRainy, setShowRainy] = useState(false);
+
+  // Action-Sheet-State: welcher Item-Index ist gerade offen?
+  const [sheetIndex, setSheetIndex] = useState<number | null>(null);
+  const sheetItem = sheetIndex !== null ? day.items[sheetIndex] : null;
+  const sheetState =
+    sheetIndex !== null && itemStateFor ? itemStateFor(sheetIndex) : undefined;
+
+  // Stats für den Header-Badge
+  const stats = useMemo(() => {
+    if (!itemStateFor) return null;
+    let done = 0;
+    let skipped = 0;
+    let touched = 0;
+    for (let i = 0; i < day.items.length; i += 1) {
+      const s = itemStateFor(i);
+      if (!s) continue;
+      touched += 1;
+      if (s.mark === "done") done += 1;
+      else if (s.mark === "skipped") skipped += 1;
+    }
+    return { done, skipped, touched, total: day.items.length };
+  }, [day.items, itemStateFor]);
 
   const rainLikely =
     typeof rainProbability === "number" && rainProbability >= 40;
@@ -79,6 +133,26 @@ export function DayCard({
               <DisruptionPill windows={disruptions} />
             </div>
           )}
+          {/* v1.3.0 Stats-Badge — nur sichtbar wenn mind. 1 Item markiert */}
+          {stats && stats.touched > 0 && (
+            <div className="mt-1.5 inline-flex items-center gap-2 text-[10px] font-mono">
+              {stats.done > 0 && (
+                <span className="inline-flex items-center gap-0.5 text-success">
+                  <Check size={10} strokeWidth={3} />
+                  {stats.done}
+                </span>
+              )}
+              {stats.skipped > 0 && (
+                <span className="inline-flex items-center gap-0.5 text-ink-mid">
+                  <CircleSlash size={10} strokeWidth={2.5} />
+                  {stats.skipped}
+                </span>
+              )}
+              <span className="text-ink-light">
+                / {stats.total} Punkte
+              </span>
+            </div>
+          )}
         </div>
         <ChevronDown
           size={20}
@@ -108,9 +182,38 @@ export function DayCard({
                     key={i}
                     item={item}
                     isLast={i === day.items.length - 1}
+                    state={itemStateFor ? itemStateFor(i) : undefined}
+                    onToggleDone={
+                      onToggleItemDone ? () => onToggleItemDone(i) : undefined
+                    }
+                    onOpenMenu={
+                      onCommitItemState ? () => setSheetIndex(i) : undefined
+                    }
                   />
                 ))}
               </div>
+
+              {/* v1.3.0 — Day-Reset wenn Items markiert sind */}
+              {stats && stats.touched > 0 && onClearDay && (
+                <div className="mt-3 -mb-1 flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (
+                        confirm(
+                          `Alle ${stats.touched} Markierung(en) und Notizen für „${day.title}" zurücksetzen?`,
+                        )
+                      ) {
+                        onClearDay();
+                      }
+                    }}
+                    className="inline-flex items-center gap-1 text-[11px] text-ink-light hover:text-warning transition-colors"
+                  >
+                    <RotateCcw size={11} />
+                    Tag zurücksetzen
+                  </button>
+                </div>
+              )}
 
               {/* User-added discoveries */}
               {userPlaces.length > 0 && (
@@ -297,6 +400,19 @@ export function DayCard({
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* v1.3.0 — Action-Sheet pro Item */}
+      {sheetItem && onCommitItemState && sheetIndex !== null && (
+        <ItemActionSheet
+          open={sheetIndex !== null}
+          itemTime={sheetItem.time}
+          itemLabel={sheetItem.label}
+          currentState={sheetState}
+          onClose={() => setSheetIndex(null)}
+          onCommit={(next) => onCommitItemState(sheetIndex, next)}
+          onClearAll={() => onClearItem?.(sheetIndex)}
+        />
+      )}
     </div>
   );
 }

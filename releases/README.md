@@ -49,6 +49,7 @@ Wenn ich (Claude) eine Code-Änderung mache:
 
 | Version | Datum | Titel | Status |
 |---|---|---|---|
+| [v1.3.0](./v1.3.0.md) | 19.05.2026 | In-App-Editor für Tagesprogramm (Phase 1: Done/Skip/Notiz) | deployed |
 | [v1.2.4](./v1.2.4.md) | 19.05.2026 | PWA-Retour-UX (Sentinel-History für Direkt-Open) | deployed |
 | [v1.2.3](./v1.2.3.md) | 19.05.2026 | Live-Bug-Fixes: Back-Geste, Galerie-Cache, iOS-Hint | deployed |
 | [v1.2.2](./v1.2.2.md) | 19.05.2026 | Dienstag live-angepasst (Royal Walk + Cedric, Rest offen) | deployed |

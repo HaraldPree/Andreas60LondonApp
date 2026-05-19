@@ -1,10 +1,12 @@
 # In-App-Editor für Tagesprogramm (Selbstbedienung statt Claude pingen)
 
-**Status**: proposed
+**Status**: **Phase 1 done** (v1.3.0 — siehe `releases/v1.3.0.md`)
+**Phase 2**: proposed (Tag-Cut-off, ~0.5 Tag)
+**Phase 3**: proposed (Gruppen-Sync, ~1 Tag)
 **Priorität**: mittel
-**Aufwand**: ~2-3 Tage
 **Vorgeschlagen am**: 19.05.2026
 **Vorgeschlagen von**: Harald (live während London-Reise, Di Nachmittag)
+**Umgesetzt am**: 19.05.2026 (Phase 1)
 **Betrifft**: UI / UX / Datenmodell / Sync
 
 ## Problem

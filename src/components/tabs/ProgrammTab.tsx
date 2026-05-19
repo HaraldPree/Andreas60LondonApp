@@ -11,6 +11,7 @@ import { TripHero } from "@/components/trip/TripHero";
 import { TripVariantSwitcher } from "@/components/trip/TripVariantSwitcher";
 import { useWeather } from "@/hooks/useWeather";
 import type { TripVariant } from "@/hooks/useTripVariant";
+import { useItemState } from "@/hooks/useItemState";
 import { getDisruptionsForDay } from "@/lib/disruptions";
 import { useUserPlaces } from "@/hooks/useUserPlaces";
 
@@ -31,6 +32,9 @@ export function ProgrammTab({
     trip.weatherLocation.timezone,
   );
   const { listForDay, remove: removeUserPlace } = useUserPlaces(trip.slug);
+
+  // v1.3.0 — In-App-Editor: pro Item Done/Skipped/Note
+  const itemState = useItemState(trip.slug, variant);
 
   const precipByDate = useMemo(() => {
     const map = new Map<string, number>();
@@ -99,6 +103,19 @@ export function ProgrammTab({
               }
               userPlaces={listForDay(i)}
               onRemoveUserPlace={removeUserPlace}
+              // v1.3.0 — In-App-Editor Wiring
+              itemStateFor={(itemIndex) => itemState.get(i, itemIndex)}
+              onToggleItemDone={(itemIndex) => {
+                const current = itemState.get(i, itemIndex);
+                const nextMark = current?.mark === "done" ? null : "done";
+                itemState.setMark(i, itemIndex, nextMark);
+              }}
+              onCommitItemState={(itemIndex, next) => {
+                itemState.setMark(i, itemIndex, next.mark);
+                itemState.setNote(i, itemIndex, next.note);
+              }}
+              onClearItem={(itemIndex) => itemState.clearItem(i, itemIndex)}
+              onClearDay={() => itemState.clearDay(i)}
             />
           ))}
         </div>
