@@ -29,14 +29,22 @@ export function UpdateBanner() {
     <AnimatePresence>
       {visible && (
         <motion.div
-          initial={{ y: -40, opacity: 0 }}
+          // Bottom-positioned: avoids iPhone Dynamic Island / notch
+          // overlap where a top banner was hard to tap. Sits clearly
+          // ABOVE the bottom navigation tab bar (which is ~64-72px tall
+          // at bottom-0), with extra room for the iOS home indicator.
+          initial={{ y: 40, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          exit={{ y: -40, opacity: 0 }}
+          exit={{ y: 40, opacity: 0 }}
           transition={{ type: "spring", damping: 22, stiffness: 280 }}
-          className="fixed top-0 left-0 right-0 z-[60]"
+          className="fixed bottom-20 left-0 right-0 z-[60] pointer-events-none"
+          style={{
+            // Stack above the iOS home-indicator safe area too
+            paddingBottom: "env(safe-area-inset-bottom, 0px)",
+          }}
         >
-          <div className="mx-auto max-w-app px-3 pt-2">
-            <div className="rounded-xl bg-gradient-to-r from-gold to-gold-400 text-navy shadow-elevated px-3 py-2 flex items-center gap-2">
+          <div className="mx-auto max-w-app px-3 pointer-events-auto">
+            <div className="rounded-xl bg-gradient-to-r from-gold to-gold-400 text-navy shadow-elevated px-3 py-2.5 flex items-center gap-2">
               <button
                 type="button"
                 onClick={reload}
