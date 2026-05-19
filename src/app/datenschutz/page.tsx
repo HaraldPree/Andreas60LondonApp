@@ -63,12 +63,86 @@ export default function PrivacyPage() {
             <Li>Ausgaben + Aufteilung</Li>
             <Li>Eigene Entdeckungen (zum Reiseablauf hinzugefügte Orte)</Li>
             <Li>Erkennungs-History der Foto-Location-KI (max 20)</Li>
-            <Li>Hochgeladene Fotos + KI-Erzählungen</Li>
+            <Li>
+              Hochgeladene Fotos die du als{" "}
+              <strong>🔒 Privat</strong> markiert hast
+            </Li>
             <Li>UI-Präferenzen (Sprachausgabe ein/aus, Hinweise verworfen)</Li>
           </ul>
           <p className="text-[11px] text-ink-mid italic mt-2">
-            Browser-Cache leeren = alle deine Daten weg. Es gibt kein Backup.
-            Wenn du das Gerät wechselst, beginnst du frisch.
+            Browser-Cache leeren = alle deine lokalen Daten weg. Es gibt kein
+            Backup. Wenn du das Gerät wechselst, beginnst du frisch.
+          </p>
+        </Section>
+
+        <Section icon={<Database />} title="Foto-Sharing (Sichtbarkeitsstufen)">
+          <p className="text-sm text-ink-dark leading-relaxed mb-3">
+            Für JEDES Foto entscheidest DU selbst, wer es sehen darf — pro
+            Foto, jederzeit änderbar:
+          </p>
+
+          <div className="space-y-2.5">
+            <div className="rounded-xl bg-cream-50 border border-cream-200 p-3">
+              <p className="text-xs font-semibold text-navy">
+                🔒 Privat <span className="text-ink-light">(Default)</span>
+              </p>
+              <p className="text-[11px] text-ink-mid mt-1 leading-relaxed">
+                Bleibt ausschließlich auf deinem Gerät (Browser-Storage).
+                Verlässt nie unsere Server, niemand sonst hat Zugriff.
+              </p>
+            </div>
+            <div className="rounded-xl bg-gold/10 border border-gold/30 p-3">
+              <p className="text-xs font-semibold text-navy">
+                🎂 Mit Geburtstagskind teilen
+              </p>
+              <p className="text-[11px] text-ink-mid mt-1 leading-relaxed">
+                Foto wird verschlüsselt auf Vercel Blob Storage (EU/USA)
+                gespeichert und ist NUR für die gefeierte Person sichtbar —
+                kein anderes Gruppenmitglied. Du kannst es jederzeit
+                zurückziehen, dann wird es sofort gelöscht.
+              </p>
+            </div>
+            <div className="rounded-xl bg-info/10 border border-info/30 p-3">
+              <p className="text-xs font-semibold text-navy">
+                🌐 Mit ganzer Reisegruppe teilen
+              </p>
+              <p className="text-[11px] text-ink-mid mt-1 leading-relaxed">
+                Foto wird verschlüsselt auf Vercel Blob Storage gespeichert
+                und ist für alle Mitglieder DEINER Reisegruppe sichtbar
+                (Reisegruppe = wer mit derselben PIN angemeldet ist). Du
+                kannst es jederzeit zurückziehen, dann wird es sofort
+                gelöscht.
+              </p>
+            </div>
+          </div>
+
+          <p className="text-xs text-ink-dark mt-3 leading-relaxed">
+            <strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. a DSGVO
+            (Einwilligung). Mit der Sichtbarkeits-Wahl im Upload-Dialog
+            erteilst du uns die Einwilligung zur Speicherung im jeweiligen
+            Kreis. Default ist immer „Privat" (Privacy by Default,
+            Art.&nbsp;25 Abs.&nbsp;2 DSGVO).
+          </p>
+
+          <p className="text-xs text-ink-dark mt-3 leading-relaxed">
+            <strong>Speicherort:</strong> Vercel Blob Storage (Edge-Network
+            mit EU-Regionen) für die Foto-Daten + Vercel KV (Redis-
+            kompatibel) für Metadaten (wer wann was geteilt hat).
+            Verschlüsselung at-rest (AES-256) und in-transit (HTTPS/TLS).
+          </p>
+
+          <p className="text-xs text-ink-dark mt-3 leading-relaxed">
+            <strong>Speicherdauer:</strong> bis zu deinem Widerruf oder bis
+            zur Löschung der Reisegruppe (üblicherweise einige Wochen nach
+            Reise-Ende). Privat markierte Fotos werden nie auf unsere
+            Server geladen.
+          </p>
+
+          <p className="text-xs text-ink-dark mt-3 leading-relaxed">
+            <strong>Profilbilder (Avatare)</strong> sind durch die
+            Mitglieder-Auswahl Funktion bestimmungsgemäß innerhalb der
+            Reisegruppe sichtbar — auch dies wird beim ersten Setzen
+            transparent erklärt.
           </p>
         </Section>
 
@@ -87,6 +161,14 @@ export default function PrivacyPage() {
               purpose="Hosting der App (statische Seiten + serverlose Funktionen)"
               data="IP-Adresse (zum Ausliefern), keine Inhalte"
               link="https://vercel.com/legal/privacy-policy"
+            />
+            <Subprocessor
+              name="Vercel Blob Storage + KV"
+              region="EU (primär) / USA (Failover)"
+              purpose="Speicherung von Fotos die du EXPLIZIT mit Geburtstagskind oder Gruppe teilst (Privacy by Default: nur nach aktiver Wahl)"
+              data="Foto-Datei + Metadaten (Sichtbarkeitsstufe, Uploader, Zeitpunkt)"
+              link="https://vercel.com/legal/privacy-policy"
+              consent
             />
             <Subprocessor
               name="Anthropic (Claude)"

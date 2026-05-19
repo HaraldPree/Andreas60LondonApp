@@ -26,7 +26,7 @@ export function Footer() {
 
         {/* Footer links — own row, well-spaced, block-level so they
             don't sit next to the heart line. */}
-        <nav className="flex items-center justify-center gap-3 text-[11px] flex-wrap">
+        <nav className="flex items-center justify-center gap-x-3 gap-y-1 text-[11px] flex-wrap">
           <Link
             href="/anleitung"
             className="text-ink-light hover:text-navy underline"
@@ -37,10 +37,10 @@ export function Footer() {
             ·
           </span>
           <Link
-            href="/impressum"
+            href="/agb"
             className="text-ink-light hover:text-navy underline"
           >
-            Impressum
+            AGB
           </Link>
           <span className="text-ink-light/40" aria-hidden="true">
             ·
@@ -50,6 +50,15 @@ export function Footer() {
             className="text-ink-light hover:text-navy underline"
           >
             Datenschutz
+          </Link>
+          <span className="text-ink-light/40" aria-hidden="true">
+            ·
+          </span>
+          <Link
+            href="/impressum"
+            className="text-ink-light hover:text-navy underline"
+          >
+            Impressum
           </Link>
         </nav>
       </div>
