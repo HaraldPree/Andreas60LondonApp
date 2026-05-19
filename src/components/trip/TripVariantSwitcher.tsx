@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Cloud, CloudRain, Sun, ChevronDown, Info } from "lucide-react";
+import { Leaf, Map, ChevronDown, Info } from "lucide-react";
 import type { Trip } from "@/types/trip";
 import type { TripVariant } from "@/hooks/useTripVariant";
 import { classNames } from "@/lib/formatters";
@@ -13,15 +13,18 @@ interface Props {
 }
 
 /**
- * Switcher zwischen Original-Programm und Alternative.
+ * Switcher zwischen zwei Programm-Varianten (z.B. Leger vs. Original,
+ * oder Original vs. Wetter-Anpassung).
  *
  * Erscheint nur wenn `trip.alternativeDays` + `alternativeDaysMeta`
  * gesetzt sind. Ansonsten nichts rendern.
  *
- * Design: prominente Pill am Anfang des Programm-Tabs damit die
- * 4 Mitreisenden klar sehen welche Version sie gerade lesen — vor
- * allem wichtig damit niemand versehentlich nach dem alten Programm
- * geht obwohl das geänderte aktiv ist.
+ * Labels für die beiden Pills kommen aus `alternativeDaysMeta`:
+ *  - `originalLabel` (Default „Original") für variant.original (trip.days)
+ *  - `label` für variant.alternative (trip.alternativeDays)
+ *
+ * v1.6.0 — generisch gemacht: Icons (vorher Wolke/Sonne wetter-spezifisch)
+ * durch Leaf + Map ersetzt, Pill-Labels beide aus Meta steuerbar.
  */
 export function TripVariantSwitcher({ trip, variant, onChange }: Props) {
   const [detailsOpen, setDetailsOpen] = useState(false);
@@ -29,6 +32,12 @@ export function TripVariantSwitcher({ trip, variant, onChange }: Props) {
   if (!meta || !trip.alternativeDays) return null;
 
   const alternativeActive = variant === "alternative";
+  const originalLabel = meta.originalLabel ?? "Original";
+  const originalSubtitle =
+    meta.originalSubtitle ?? "Standard-Programm";
+  const alternativeSubtitle =
+    meta.alternativeSubtitle ??
+    `${meta.affectedDayIndices.length} Tag(e) angepasst`;
 
   return (
     <div
@@ -43,22 +52,22 @@ export function TripVariantSwitcher({ trip, variant, onChange }: Props) {
         <div
           className={classNames(
             "w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0",
-            alternativeActive ? "bg-info/15 text-info" : "bg-cream-200 text-ink-mid",
+            alternativeActive
+              ? "bg-info/15 text-info"
+              : "bg-success/15 text-success",
           )}
         >
-          {alternativeActive ? <CloudRain size={18} /> : <Sun size={18} />}
+          {alternativeActive ? <Map size={18} /> : <Leaf size={18} />}
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-[10px] uppercase tracking-wider text-ink-mid font-semibold">
             Aktive Programm-Version
           </p>
           <p className="font-display text-sm font-semibold text-navy leading-tight">
-            {alternativeActive ? meta.label : "Original-Programm"}
+            {alternativeActive ? meta.label : originalLabel}
           </p>
           <p className="text-[11px] text-ink-mid mt-0.5">
-            {alternativeActive
-              ? `${meta.affectedDayIndices.length} Tag(e) angepasst`
-              : "Ursprüngliche Planung — keine Wetter-Anpassung"}
+            {alternativeActive ? alternativeSubtitle : originalSubtitle}
           </p>
         </div>
       </div>
@@ -69,26 +78,26 @@ export function TripVariantSwitcher({ trip, variant, onChange }: Props) {
           type="button"
           onClick={() => onChange("original")}
           className={classNames(
-            "flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-[11px] font-semibold transition",
+            "flex-1 inline-flex items-center justify-center gap-1.5 px-3 min-h-[44px] rounded-lg text-[11px] font-semibold transition",
             !alternativeActive
-              ? "bg-navy text-cream shadow-sm"
+              ? "bg-success text-white shadow-sm"
               : "bg-cream-200 text-ink-mid hover:bg-cream-300",
           )}
         >
-          <Cloud size={12} />
-          Original
+          <Leaf size={12} />
+          {originalLabel}
         </button>
         <button
           type="button"
           onClick={() => onChange("alternative")}
           className={classNames(
-            "flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-[11px] font-semibold transition",
+            "flex-1 inline-flex items-center justify-center gap-1.5 px-3 min-h-[44px] rounded-lg text-[11px] font-semibold transition",
             alternativeActive
               ? "bg-info text-white shadow-sm"
               : "bg-cream-200 text-ink-mid hover:bg-cream-300",
           )}
         >
-          <CloudRain size={12} />
+          <Map size={12} />
           {meta.label}
         </button>
       </div>
@@ -97,7 +106,7 @@ export function TripVariantSwitcher({ trip, variant, onChange }: Props) {
       <button
         type="button"
         onClick={() => setDetailsOpen((v) => !v)}
-        className="w-full px-3 py-2 border-t border-cream-200 inline-flex items-center justify-center gap-1.5 text-[11px] text-ink-mid hover:text-navy transition"
+        className="w-full px-3 py-2 min-h-[44px] border-t border-cream-200 inline-flex items-center justify-center gap-1.5 text-[11px] text-ink-mid hover:text-navy transition"
       >
         <Info size={11} />
         Was wurde geändert?
@@ -130,7 +139,9 @@ export function TripVariantSwitcher({ trip, variant, onChange }: Props) {
                   return (
                     <li key={i} className="text-[11px] text-ink-mid">
                       <strong>Tag {i + 1} ({orig?.date}):</strong>{" "}
-                      <span className="text-ink-dark">{alt.title}</span>
+                      <span className="text-ink-dark">
+                        {alternativeActive ? alt.title : orig.title}
+                      </span>
                     </li>
                   );
                 })}

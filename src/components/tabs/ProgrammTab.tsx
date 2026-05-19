@@ -11,7 +11,6 @@ import { TripHero } from "@/components/trip/TripHero";
 import { TripVariantSwitcher } from "@/components/trip/TripVariantSwitcher";
 import { useWeather } from "@/hooks/useWeather";
 import type { TripVariant } from "@/hooks/useTripVariant";
-import { useItemState } from "@/hooks/useItemState";
 import { getDisruptionsForDay } from "@/lib/disruptions";
 import { useUserPlaces } from "@/hooks/useUserPlaces";
 
@@ -33,8 +32,12 @@ export function ProgrammTab({
   );
   const { listForDay, remove: removeUserPlace } = useUserPlaces(trip.slug);
 
-  // v1.3.0 — In-App-Editor: pro Item Done/Skipped/Note
-  const itemState = useItemState(trip.slug, variant);
+  // v1.6.0 — In-App-Editor (Phase 1+2) deaktiviert auf User-Wunsch:
+  // "Phase 1 und 2 kannst du momentan deaktivieren — das werden wir in
+  // der Neufassung anders machen". Hook + Komponenten bleiben im Code,
+  // werden nur nicht mehr verdrahtet. Reaktivierung später (vermutlich
+  // mit Gruppen-Sync = Phase 3) durch erneutes Einhängen der Callbacks
+  // an DayCard.
 
   const precipByDate = useMemo(() => {
     const map = new Map<string, number>();
@@ -103,38 +106,10 @@ export function ProgrammTab({
               }
               userPlaces={listForDay(i)}
               onRemoveUserPlace={removeUserPlace}
-              // v1.3.0 — In-App-Editor Wiring (Phase 1)
-              itemStateFor={(itemIndex) => itemState.get(i, itemIndex)}
-              onToggleItemDone={(itemIndex) => {
-                const current = itemState.get(i, itemIndex);
-                const nextMark = current?.mark === "done" ? null : "done";
-                itemState.setMark(i, itemIndex, nextMark);
-              }}
-              onCommitItemState={(itemIndex, next) => {
-                itemState.setMark(i, itemIndex, next.mark);
-                itemState.setNote(i, itemIndex, next.note);
-              }}
-              onClearItem={(itemIndex) => itemState.clearItem(i, itemIndex)}
-              onClearDay={() => itemState.clearDay(i)}
-              // v1.4.0 — Phase 2: „Ab hier Rest offen"
-              onRestOfDayOpen={(fromItemIndex) => {
-                // Bulk-Skip aller Items von hier bis Ende des Tages
-                itemState.setRangeMark(
-                  i,
-                  fromItemIndex,
-                  day.items.length - 1,
-                  "skipped",
-                );
-                // Auto-Notiz auf das erste Item (wenn noch keine eigene da)
-                const currentNote = itemState.get(i, fromItemIndex)?.note;
-                if (!currentNote) {
-                  itemState.setNote(
-                    i,
-                    fromItemIndex,
-                    "Rest des Tages offen — entspannte Pause",
-                  );
-                }
-              }}
+              // v1.6.0: In-App-Editor (Phase 1+2) deaktiviert — keine
+              // itemStateFor/onToggleItemDone/onCommitItemState/etc.
+              // Props mehr durchgereicht. DayCard rendert ohne Circle-
+              // Button, ohne Action-Menu und ohne Stats-Badge.
             />
           ))}
         </div>

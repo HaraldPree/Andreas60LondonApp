@@ -363,8 +363,18 @@ export interface Trip {
    * Nur relevant wenn `alternativeDays` gesetzt ist.
    */
   alternativeDaysMeta?: {
-    /** Kurzlabel für die Toggle-Pill (z.B. "Regen-Variante") */
+    /** Kurzlabel für die Toggle-Pill der ALTERNATIVE-Variante
+     *  (z.B. "Original-Programm", "Regen-Variante") */
     label: string;
+    /** Kurzlabel für die Toggle-Pill der ORIGINAL-Variante.
+     *  Default: "Original". Wenn `days` die "Leger"-Version enthält
+     *  und `alternativeDays` das ursprünglich Geplante, kann man hier
+     *  z.B. "Leger" setzen damit der Switcher sinnvolle Labels zeigt. */
+    originalLabel?: string;
+    /** Sub-Text wenn ORIGINAL-Variante aktiv (was bedeutet das) */
+    originalSubtitle?: string;
+    /** Sub-Text wenn ALTERNATIVE-Variante aktiv */
+    alternativeSubtitle?: string;
     /** Erklärtext was geändert wurde + warum */
     description: string;
     /** Wer hat's vorgeschlagen (z.B. "KI-Companion, 21.05.2026") */
