@@ -29,7 +29,14 @@ export function Header({
   backLabel = "Reisen",
 }: HeaderProps) {
   return (
-    <header className="sticky top-0 z-40 bg-navy text-cream shadow-lg">
+    <header
+      className="sticky top-0 z-40 bg-navy text-cream shadow-lg"
+      // iOS Notch/Dynamic-Island: ohne safe-area-inset rutscht die
+      // ganze obere Zeile (inkl. "← REISEN"-Back-Link) unter den Notch
+      // und ist für Lukas (iPhone 12 mini, iOS) unsichtbar/untappbar.
+      // Mit env() bekommt der Header oben Padding so groß wie der Notch.
+      style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
+    >
       <div className="mx-auto max-w-app">
         {/* Brand bar – back link (or destination label) on left, app name on right */}
         <div className="px-4 pt-3 pb-2 flex items-center justify-between">
