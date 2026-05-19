@@ -1,8 +1,10 @@
 "use client";
 
+import { useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ShieldAlert, X, Globe, Lock, Brain } from "lucide-react";
 import type { ConsentChoice } from "@/hooks/useAiConsent";
+import { useDismissOnBack } from "@/hooks/useDismissOnBack";
 
 interface AiConsentModalProps {
   open: boolean;
@@ -24,6 +26,11 @@ export function AiConsentModal({
   dataSent,
   onDecide,
 }: AiConsentModalProps) {
+  // Swipe-back / Browser-back ablehnen — gleiche Semantik wie Backdrop-
+  // Click (ConsentChoice unterstützt aktuell nur once/always/never).
+  const handleBackDismiss = useCallback(() => onDecide("never"), [onDecide]);
+  useDismissOnBack(open, handleBackDismiss);
+
   return (
     <AnimatePresence>
       {open && (

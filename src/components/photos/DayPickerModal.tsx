@@ -4,6 +4,7 @@ import { useState } from "react";
 import { X, Calendar, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Trip } from "@/types/trip";
+import { useDismissOnBack } from "@/hooks/useDismissOnBack";
 
 interface DayPickerModalProps {
   open: boolean;
@@ -27,6 +28,8 @@ export function DayPickerModal({
 }: DayPickerModalProps) {
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [time, setTime] = useState<string>(defaultTime ?? "");
+
+  useDismissOnBack(open, onClose);
 
   return (
     <AnimatePresence>

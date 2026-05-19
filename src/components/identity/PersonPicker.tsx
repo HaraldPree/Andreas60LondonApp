@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles } from "lucide-react";
 import type { TripParticipant } from "@/types/trip";
 import { GoldDivider } from "@/components/ui/GoldDivider";
+import { useDismissOnBack } from "@/hooks/useDismissOnBack";
 
 interface PersonPickerProps {
   open: boolean;
@@ -20,6 +21,9 @@ export function PersonPicker({
   onPick,
   onSkip,
 }: PersonPickerProps) {
+  // Swipe-back / Browser-back schließt = "Skip" (= als Gast weiter)
+  useDismissOnBack(open, onSkip);
+
   return (
     <AnimatePresence>
       {open && (

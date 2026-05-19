@@ -17,6 +17,7 @@ import { getFullBlob } from "@/lib/photoStorage";
 import { blobToDataUrl } from "@/lib/photoProcessing";
 import { mapsUrl } from "@/lib/formatters";
 import { useAiConsent } from "@/hooks/useAiConsent";
+import { useDismissOnBack } from "@/hooks/useDismissOnBack";
 import { AiConsentModal } from "@/components/ai/AiConsentModal";
 import { PhotoShareSection } from "./PhotoShareSection";
 
@@ -52,6 +53,8 @@ export function PhotoDetail({
   const [consentOpen, setConsentOpen] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
   const consent = useAiConsent("photo-narration");
+
+  useDismissOnBack(true, onClose);
 
   useEffect(() => {
     return () => {

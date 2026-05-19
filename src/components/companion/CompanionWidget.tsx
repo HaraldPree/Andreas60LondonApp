@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { Sparkles, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChatPanel } from "./ChatPanel";
+import { useDismissOnBack } from "@/hooks/useDismissOnBack";
 
 interface CompanionWidgetProps {
   tripSlug: string;
@@ -17,6 +18,7 @@ export function CompanionWidget({
   currentUserName,
 }: CompanionWidgetProps) {
   const [open, setOpen] = useState(false);
+  const close = useCallback(() => setOpen(false), []);
 
   // Close on Escape
   useEffect(() => {
@@ -25,6 +27,9 @@ export function CompanionWidget({
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
+
+  // Close on iOS swipe-back / browser back
+  useDismissOnBack(open, close);
 
   return (
     <>

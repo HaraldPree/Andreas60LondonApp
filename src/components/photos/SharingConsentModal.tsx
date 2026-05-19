@@ -9,6 +9,7 @@ import {
   CURRENT_DATENSCHUTZ_VERSION,
   acceptCurrentVersions,
 } from "@/lib/consentStorage";
+import { useDismissOnBack } from "@/hooks/useDismissOnBack";
 
 interface Props {
   open: boolean;
@@ -39,6 +40,8 @@ export function SharingConsentModal({
   const [agbChecked, setAgbChecked] = useState(false);
   const [datenschutzChecked, setDatenschutzChecked] = useState(false);
   const bothChecked = agbChecked && datenschutzChecked;
+
+  useDismissOnBack(open, onCancel);
 
   const handleAccept = () => {
     if (!bothChecked) return;

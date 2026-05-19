@@ -11,6 +11,8 @@ import {
   Loader2,
   ImageOff,
   Cake,
+  RefreshCw,
+  WifiOff,
 } from "lucide-react";
 import type { Trip } from "@/types/trip";
 import type {
@@ -45,6 +47,8 @@ export function SharedGallery({ trip, currentUserName }: Props) {
     error,
     serviceConfigured,
     viewerIsCelebrant,
+    lastUpdatedAt,
+    refresh,
     withdraw,
     changeVisibility,
   } = useSharedPhotos({
@@ -99,7 +103,8 @@ export function SharedGallery({ trip, currentUserName }: Props) {
     );
   }
 
-  if (loading && photos.length === 0) {
+  // Loading-State nur wenn wir NICHTS haben (auch keinen Cache)
+  if (loading && photos.length === 0 && !error) {
     return (
       <div className="rounded-2xl bg-white shadow-card border border-cream-200/50 p-4 flex items-center gap-2">
         <Loader2 size={14} className="text-ink-light animate-spin" />
@@ -108,19 +113,69 @@ export function SharedGallery({ trip, currentUserName }: Props) {
     );
   }
 
-  if (error) {
+  // Hard-Fehler nur wenn weder Cache noch frische Daten — sonst Cache
+  // anzeigen und Fehler als sanften Banner oben drüber.
+  if (error && photos.length === 0) {
     return (
       <div className="rounded-2xl bg-warning/10 border border-warning/30 p-4">
-        <p className="text-xs text-warning font-semibold">
-          ⚠️ Fehler beim Laden
-        </p>
-        <p className="text-[11px] text-ink-mid mt-1">{error}</p>
+        <div className="flex items-start gap-2.5">
+          <WifiOff
+            size={16}
+            className="text-warning flex-shrink-0 mt-0.5"
+          />
+          <div className="flex-1 min-w-0">
+            <p className="text-xs text-warning font-semibold">
+              Geteilte Fotos konnten nicht geladen werden
+            </p>
+            <p className="text-[11px] text-ink-mid mt-1 leading-relaxed">
+              {error}
+            </p>
+            <button
+              type="button"
+              onClick={() => void refresh()}
+              disabled={loading}
+              className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-warning/20 hover:bg-warning/30 text-[11px] font-semibold text-warning transition disabled:opacity-50"
+            >
+              <RefreshCw
+                size={11}
+                className={loading ? "animate-spin" : ""}
+              />
+              Erneut versuchen
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="space-y-3">
+      {/* Sanfter Banner wenn Refresh fehlschlug aber wir cached photos zeigen */}
+      {error && photos.length > 0 && (
+        <div className="rounded-xl bg-warning/10 border border-warning/30 px-3 py-2 flex items-center gap-2">
+          <WifiOff
+            size={12}
+            className="text-warning flex-shrink-0"
+          />
+          <p className="text-[11px] text-ink-mid leading-relaxed flex-1 min-w-0">
+            Letzter Stand wird angezeigt — Aktualisieren hat nicht geklappt.
+          </p>
+          <button
+            type="button"
+            onClick={() => void refresh()}
+            disabled={loading}
+            className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-warning/20 hover:bg-warning/30 text-[10px] font-semibold text-warning transition disabled:opacity-50 flex-shrink-0"
+            aria-label="Erneut laden"
+          >
+            <RefreshCw
+              size={10}
+              className={loading ? "animate-spin" : ""}
+            />
+            Neu
+          </button>
+        </div>
+      )}
+
       {/* Tab-Wahl nur für Geburtstagskind */}
       {viewerIsCelebrant && (
         <div className="flex gap-1.5">

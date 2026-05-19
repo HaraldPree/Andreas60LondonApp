@@ -136,7 +136,8 @@ export function PhotoUpload({
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-navy">Datei wählen</p>
               <p className="text-[11px] text-ink-mid">
-                Falls Galerie oben nicht erscheint (Samsung, OnePlus)
+                Falls Galerie oben nicht erscheint (Samsung, OnePlus, iPhone-
+                Foto-Berechtigung deaktiviert)
               </p>
             </div>
           </button>
@@ -154,6 +155,20 @@ export function PhotoUpload({
               <p className="text-[11px] text-ink-mid">Kamera direkt öffnen</p>
             </div>
           </button>
+
+          {/* iPhone-Hilfe-Hinweis für User die nur "Datei" angeboten bekommen
+              statt "Fotos / Galerie". Häufige Ursache: Safari hat keinen
+              Foto-Zugriff (iOS Einstellungen). */}
+          <div className="border-t border-cream-200 bg-cream-50 px-4 py-2.5">
+            <p className="text-[10px] text-ink-mid leading-relaxed">
+              <strong className="text-ink-dark">iPhone-Tipp:</strong> Wenn beim
+              Tap auf „Aus Galerie" kein Foto-Picker erscheint, prüfe iOS-
+              Einstellungen → Safari → „Erweitert / Datenschutz" oder
+              Einstellungen → Datenschutz → Fotos → Safari → „Voller Zugriff".
+              Alternativ funktioniert „Datei wählen" oben — dort kannst du
+              auch in die Fotos-App navigieren.
+            </p>
+          </div>
         </div>
       )}
     </div>
