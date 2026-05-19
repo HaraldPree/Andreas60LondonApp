@@ -68,8 +68,49 @@ Interaktive Reise-Companion-Webapp für Kunden des ReiseCenter Mader-Kuoni. Mobi
 5. Wetter-Daten **alle 30 Min** auto-refresh
 6. **Tailwind Custom Colors** verwenden (nicht Hex hardcoden)
 7. Alle Texte auf **Deutsch**
-8. Google Maps Links im Format: `https://maps.google.com/?q=LAT,LNG`
+8. Google Maps Links: bevorzugt Adress-String (`?q=126+Great+Portland+Street...`) statt rohe Koordinaten, damit Geocoding nicht driftet
 9. **Architektur muss generisch sein** — jede Reise ist eine eigene Datei in `src/data/trips/`, die App ist nicht reise-spezifisch
+10. **KEINE ERFUNDENEN INFOS** ⚠️ (Anti-Halluzinations-Regel — siehe unten)
+
+## Anti-Halluzinations-Regel (KRITISCH)
+
+**Niemals Restaurant-/Hotel-Policies, Dresscodes, Preise, Öffnungszeiten,
+Hausregeln oder andere User-bindende Informationen erfinden — auch nicht
+als "sichere" Schätzung.**
+
+❌ FALSCH (real passiert in Mai 2026):
+- Reservation-Note erfunden: "Smart casual, keine Sneakers"
+  → Echter Mitreisender verunsichert, hat Outfit gewechselt obwohl nicht nötig
+- Bestätigungsmail vom Restaurant erwähnt keinen Dresscode → also DARF
+  die App auch keinen behaupten
+
+✅ RICHTIG:
+- Nur Infos aufnehmen die aus **kuratierten Quellen** kommen:
+  - Bestätigungsmails von Hotel/Restaurant
+  - Offizielle Website
+  - Vom User explizit übergebene Daten
+  - Im Code mit Quelle markieren wenn nicht offensichtlich
+- Bei Unsicherheit: **weglassen** oder explizit "nicht publiziert" /
+  "laut [Quelle XYZ]" markieren
+- "Vorbeugende" oder "sichere" Tipps wie 'smart casual zur Sicherheit'
+  sind genauso schlimm wie freie Halluzination — beides verursacht
+  User-Verhalten ohne reale Grundlage
+
+### Betroffene Felder in Trip-Daten
+- `Reservation.note` — keine Dresscodes / Vorschriften / Preise erfinden
+- `ProgramItem.note` — keine Restriktionen / Hausregeln erfinden
+- `Accommodation.notes` — nur was vom Host bestätigt ist
+- `Day.tips` — kuratiert, nicht halluziniert
+
+### KI-Companion (System-Prompt)
+Hat eine eigene `# Verbote`-Sektion in `src/lib/companionPrompt.ts`.
+Diese Sektion **immer aktuell halten** wenn neue Halluzinations-Klassen
+beobachtet werden.
+
+### Wenn ich (Claude) eine Information NICHT habe
+1. Weglassen — "Information nicht verfügbar"
+2. ODER: User fragen statt raten ("Bitte vom Host die Info nachreichen")
+3. NIEMALS eine "sichere Annahme" treffen die User-Verhalten beeinflusst
 
 ## Neue Reise hinzufügen
 1. Neue Datei `src/data/trips/[slug].ts` erstellen

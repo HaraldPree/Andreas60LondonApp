@@ -397,18 +397,18 @@ export const londonTrip: Trip = {
     {
       date: "Di, 19. Mai",
       isoDate: "2026-05-19",
-      title: "Royal London, Cedric Grolet (Lunch) & Notting Hill",
+      title: "Royal London, Cedric Grolet (goûtea) & Notting Hill",
       icon: "👑",
       color: "#E5A00D",
-      summary: "Royal-Walk am Vormittag, 13:00 das süße Herzstück bei Cedric Grolet (Lunch!), Nachmittag Hyde Park + Notting Hill.",
+      summary: "Royal-Walk am Vormittag, 13:00 das süße Herzstück bei Cedric Grolet (goûtea Afternoon Tea), Nachmittag Hyde Park + Notting Hill.",
       weatherHint: "freundlich",
       items: [
         {
           time: "09:00",
-          label: "Frühstück + smart casual anziehen",
+          label: "Frühstück im Apartment",
           type: "free",
           icon: "☕",
-          note: "Für Berkeley smart casual (kein Hoodie, keine Sportschuhe).",
+          note: "The Berkeley Cafe ist tagsüber lockeres Café — kein offizieller Dresscode publiziert. Zieht an womit ihr euch wohlfühlt.",
         },
         {
           time: "09:30",
@@ -466,12 +466,12 @@ export const londonTrip: Trip = {
         },
         {
           time: "13:00",
-          label: "🎂 FIXPUNKT: Cedric Grolet @ The Berkeley Cafe (Lunch)",
+          label: "🎂 FIXPUNKT: Cedric Grolet @ The Berkeley Cafe (goûtea)",
           type: "food",
           icon: "🥐",
           highlight: true,
           coordinates: { lat: 51.5014, lng: -0.1525 },
-          note: "Reserviert für 5 (Conf. 436JUJ35U7YV). Smart casual. Die Fruit-Sculpture-Pastries sind weltberühmt – Kamera bereit!",
+          note: "Reserviert für 5 (Conf. 436JUJ35U7YV). Die Fruit-Sculpture-Pastries sind weltberühmt – Kamera bereit!",
           bookingUrl: "https://www.the-berkeley.co.uk/restaurants-and-bars/cedric-grolet/",
         },
         {
@@ -534,7 +534,7 @@ export const londonTrip: Trip = {
         { name: "Notting Hill", coordinates: { lat: 51.5093, lng: -0.1957 }, category: "sight", icon: "🌈" },
       ],
       tips: [
-        "🎂 Cedric ist um 13:00 (LUNCH, nicht Tea-Time) – 5 Min vorher da, smart casual, Reservierungs-Nr. 436JUJ35U7YV griffbereit.",
+        "🎂 Cedric ist um 13:00 (goûtea Afternoon Tea, Service 12:00–16:30) – 5 Min vorher da, Reservierungs-Nr. 436JUJ35U7YV griffbereit.",
         "Tube-Streik aktiv – Bus 11, 23, 24, 88 oder zu Fuß (alles Zone 1).",
         "Vormittag: Westminster Abbey innen würde 1-2h kosten – heute zu eng, lieber Außenfotos.",
         "Nach Cedric ist man satt – Hyde-Park-Spaziergang ist perfekt zum Verdauen.",
@@ -985,7 +985,7 @@ export const londonTrip: Trip = {
       status: "reserviert",
       priority: "hoch",
       icon: "🥐",
-      note: "FIXPUNKT – 5 Personen bestätigt · Reservierungs-Nr. 436JUJ35U7YV · Kontakt: Ashfa Shiyam, dining@the-berkeley.co.uk, +44 20 7107 8866. Smart casual. Welt-Pâtissier Nr. 1, berühmte Fruit-Sculptures.",
+      note: "FIXPUNKT – 5 Personen bestätigt · Reservierungs-Nr. 436JUJ35U7YV · Kontakt: Ashfa Shiyam, dining@the-berkeley.co.uk, +44 20 7107 8866. Cedric Grolet wurde mehrfach zum 'World's Best Pastry Chef' gewählt (Worlds 50 Best, 2018/2019).",
       address: "The Berkeley Cafe, Wilton Place, London SW1X 7RL",
       coordinates: { lat: 51.5014, lng: -0.1525 },
       bookingUrl: "https://www.the-berkeley.co.uk/restaurants-and-bars/cedric-grolet/",
@@ -1313,7 +1313,7 @@ export const londonTrip: Trip = {
       bookingPlatform: "thefork",
       bookingUrl: "https://www.thefork.co.uk/restaurant/bocca-di-lupo-r39265",
       phone: "+442077342223",
-      note: "Reservierung empfohlen, vor allem Abend.",
+      note: "Buchung via TheFork möglich (Link oben).",
       recommendedForDay: 2,
       description:
         "Kreuz und quer durch alle italienischen Regionen. Hand-cut Pasta, gegrillte Sardinen, beste Carbonara der Stadt.",
@@ -1360,7 +1360,7 @@ export const londonTrip: Trip = {
       address: "41-43 Mount St, London W1K 2RX",
       bookingPlatform: "thefork",
       bookingUrl: "https://www.thefork.co.uk/restaurant/the-audley-r703284",
-      note: "Reservierung empfohlen für Dinner.",
+      note: "Buchung via TheFork möglich (Link oben).",
       recommendedFor: "Eleganter Lunch / Dinner",
       description:
         "Frisch renoviertes Mayfair-Pub. Bunte Patterns, hochwertige Pub-Klassiker, schicke Atmosphäre.",
@@ -1425,7 +1425,7 @@ export const londonTrip: Trip = {
       address: "1 Stoney St, London SE1 9AA",
       bookingPlatform: "walkin",
       bookingUrl: "https://kappacasein.com/",
-      note: "Lunch-Spot, oft mit Anstellen. Bargeld bevorzugt.",
+      note: "Klassischer Borough-Market-Stand — Sandwich-Klassiker im Stehen.",
       recommendedForDay: 2,
       description:
         "Legendäres Grilled Cheese aus Sauerteig + 3 Käsesorten + Zwiebeln. Vegetarisch, sättigend.",
