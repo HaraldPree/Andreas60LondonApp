@@ -1,23 +1,42 @@
 import type { Coordinates } from "@/types/trip";
 
-export function googleDirectionsTransit(coords: Coordinates, label?: string): string {
-  const dest = label
-    ? `${encodeURIComponent(label)}/@${coords.lat},${coords.lng}`
-    : `${coords.lat},${coords.lng}`;
-  return `https://www.google.com/maps/dir/?api=1&destination=${dest}&travelmode=transit`;
+/**
+ * Google Maps direction URLs.
+ *
+ * IMPORTANT — destination format choice:
+ *   Original implementation used `${label}/@${lat},${lng}` as the
+ *   destination, hoping Google would treat the label as a display
+ *   hint and the coords as the truth. In practice (May 2026 trip
+ *   anecdote) Google's parser sometimes IGNORED the coords and
+ *   geocoded the label literally — so "Duplex Flat near Oxford
+ *   Street" got routed to Oxford Street instead of the actual
+ *   apartment 200m away on Great Portland Street.
+ *
+ *   Fix: send ONLY the coordinates. They're unambiguous and Google
+ *   never mis-geocodes them. The label still controls the button
+ *   text in the UI (purely visual) but never enters the URL.
+ */
+
+export function googleDirectionsTransit(
+  coords: Coordinates,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _label?: string,
+): string {
+  return `https://www.google.com/maps/dir/?api=1&destination=${coords.lat},${coords.lng}&travelmode=transit`;
 }
 
-export function googleDirectionsWalking(coords: Coordinates, label?: string): string {
-  const dest = label
-    ? `${encodeURIComponent(label)}/@${coords.lat},${coords.lng}`
-    : `${coords.lat},${coords.lng}`;
-  return `https://www.google.com/maps/dir/?api=1&destination=${dest}&travelmode=walking`;
+export function googleDirectionsWalking(
+  coords: Coordinates,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _label?: string,
+): string {
+  return `https://www.google.com/maps/dir/?api=1&destination=${coords.lat},${coords.lng}&travelmode=walking`;
 }
 
 export function uberDeepLink(coords: Coordinates, label?: string): string {
   const params = new URLSearchParams({
     action: "setPickup",
-    "pickup": "my_location",
+    pickup: "my_location",
     "dropoff[latitude]": coords.lat.toString(),
     "dropoff[longitude]": coords.lng.toString(),
   });
@@ -25,11 +44,18 @@ export function uberDeepLink(coords: Coordinates, label?: string): string {
   return `https://m.uber.com/ul/?${params.toString()}`;
 }
 
-export function appleMapsDirections(coords: Coordinates, label?: string): string {
+export function appleMapsDirections(
+  coords: Coordinates,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _label?: string,
+): string {
+  // Apple Maps `daddr` (destination address) accepts plain "lat,lng".
+  // We deliberately drop the `q` (name) param — same reason as the
+  // Google fix above: Apple sometimes prefers the q-name and routes
+  // wrong if the name resolves to a different known place.
   const params = new URLSearchParams();
   params.set("daddr", `${coords.lat},${coords.lng}`);
   params.set("dirflg", "r"); // r = transit
-  if (label) params.set("q", label);
   return `https://maps.apple.com/?${params.toString()}`;
 }
 

@@ -1,14 +1,38 @@
-export function mapsUrl(lat: number, lng: number, label?: string): string {
-  const query = label
-    ? `${encodeURIComponent(label)}@${lat},${lng}`
-    : `${lat},${lng}`;
-  return `https://maps.google.com/?q=${query}`;
+/**
+ * Google Maps "?q=..." URL.
+ *
+ * IMPORTANT — we deliberately DROP the label even if passed.
+ * The original implementation used `${label}@${lat},${lng}` which is
+ * an undocumented format — Google sometimes ignored the coords and
+ * geocoded the label literally. Concrete real-world failure: with
+ * `label="Duplex Flat near Oxford Street"` Google routed users to
+ * Oxford Street instead of the actual flat 200m north on Great
+ * Portland Street. Pure coordinates are unambiguous and always work.
+ *
+ * The `label` parameter is kept for API compatibility (and might be
+ * used by callers for ARIA labels / display text) but never enters
+ * the URL.
+ */
+export function mapsUrl(
+  lat: number,
+  lng: number,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _label?: string,
+): string {
+  return `https://maps.google.com/?q=${lat},${lng}`;
 }
 
-export function appleMapsUrl(lat: number, lng: number, label?: string): string {
+export function appleMapsUrl(
+  lat: number,
+  lng: number,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _label?: string,
+): string {
+  // Apple Maps: `ll` (lat,lng) is the truth; we deliberately do NOT
+  // set `q` (name) for the same geocoder-confusion reason as the
+  // Google fix above.
   const params = new URLSearchParams();
   params.set("ll", `${lat},${lng}`);
-  if (label) params.set("q", label);
   return `https://maps.apple.com/?${params.toString()}`;
 }
 
