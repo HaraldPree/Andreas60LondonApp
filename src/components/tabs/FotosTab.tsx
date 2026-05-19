@@ -173,25 +173,41 @@ export function FotosTab({ trip, currentUserName = null }: FotosTabProps) {
               else setSelectionMode(true);
             }}
             className={classNames(
-              "text-[11px] font-semibold inline-flex items-center gap-1 px-3 min-h-[36px] rounded-md transition",
+              "text-[11px] font-semibold inline-flex items-center gap-1.5 px-3 min-h-[36px] rounded-md transition",
               selectionMode
                 ? "bg-navy text-cream"
-                : "text-ink-mid hover:text-navy",
+                : "text-navy hover:bg-cream-200 bg-cream-100",
             )}
           >
             {selectionMode ? <Check size={12} /> : <CheckSquare size={12} />}
-            {selectionMode ? "Fertig" : "Auswählen"}
+            {selectionMode ? "Fertig" : "Mehrere auswählen"}
           </button>
         )}
       </div>
 
-      {/* v1.5.0 — Sticky-Action-Bar im Selection-Mode (iOS Photos pattern) */}
+      {/* v1.6.1 — Permanente Hilfe-Zeile damit das Multi-Share-Feature
+          entdeckt wird. Vorher hat niemand verstanden was „Auswählen"
+          tut. Diese Zeile macht's discoverable ohne aufdringlich zu sein. */}
+      {photos.length > 0 && !selectionMode && (
+        <div className="rounded-xl bg-gold/8 border border-gold/30 px-3 py-2 flex items-start gap-2">
+          <span className="text-base flex-shrink-0 mt-[-1px]">💡</span>
+          <p className="text-[11px] text-ink-dark leading-relaxed">
+            <strong>Mehrere Fotos auf einmal teilen oder löschen?</strong>{" "}
+            Tippe oben auf „Mehrere auswählen", dann die Fotos antippen
+            die du teilen willst (Häkchen erscheint), unten dann „Teilen"
+            oder „Löschen".
+          </p>
+        </div>
+      )}
+
+      {/* v1.5.0 — Sticky-Action-Bar im Selection-Mode (iOS Photos pattern)
+          v1.6.1 — klarerer Hint-Text wenn 0 ausgewählt */}
       {selectionMode && (
         <div className="sticky top-[88px] z-30 -mx-4 px-4">
           <div className="rounded-2xl bg-navy text-cream shadow-elevated px-3 py-2.5 flex items-center gap-2">
-            <span className="text-xs font-mono">
+            <span className="text-xs">
               {selectedIds.size === 0
-                ? "Tipp Fotos zum Auswählen"
+                ? "👆 Fotos antippen zum Auswählen"
                 : `${selectedIds.size} ausgewählt`}
             </span>
             <div className="flex-1" />

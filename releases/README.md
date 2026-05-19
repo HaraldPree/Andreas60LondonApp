@@ -49,6 +49,7 @@ Wenn ich (Claude) eine Code-Änderung mache:
 
 | Version | Datum | Titel | Status |
 |---|---|---|---|
+| [v1.6.1](./v1.6.1.md) | 20.05.2026 | Multi-Photo-Share entdeckbar machen (Button + Hilfe-Zeile) | deployed |
 | [v1.6.0](./v1.6.0.md) | 20.05.2026 | Leger vs. Original-Programm umschalten + Editor deaktiviert | deployed |
 | [v1.5.1](./v1.5.1.md) | 19.05.2026 | KI-Companion Sparkle wieder mit Pulse + Live-Punkt (Revert) | deployed |
 | [v1.5.0](./v1.5.0.md) | 19.05.2026 | Mehrere Fotos auf einmal teilen (iOS-Photos Selection-Mode) | deployed |
