@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Share2,
+  Users,
   Loader2,
   X,
   CheckCircle2,
@@ -209,7 +209,7 @@ export function BulkShareSheet({
                 <div className="flex items-start justify-between gap-3 mb-3">
                   <div className="flex-1 min-w-0">
                     <p className="text-[10px] uppercase tracking-wider text-ink-light font-semibold">
-                      {done ? "Fertig" : uploading ? "Wird hochgeladen…" : "Mehrere Fotos teilen"}
+                      {done ? "Fertig" : uploading ? "Wird hochgeladen…" : "Mehrere Fotos freigeben"}
                     </p>
                     <h2 className="font-display text-base font-semibold text-navy leading-tight mt-0.5">
                       {photoCountLabel}
@@ -246,10 +246,10 @@ export function BulkShareSheet({
                       disabled={visibility === "private"}
                       className="w-full min-h-[44px] mt-3 px-3 py-2.5 rounded-xl bg-navy text-cream text-sm font-semibold hover:bg-navy-700 disabled:opacity-40 disabled:cursor-not-allowed transition inline-flex items-center justify-center gap-2"
                     >
-                      <Share2 size={14} />
+                      <Users size={14} />
                       {visibility === "private"
                         ? "Wähle eine Sichtbarkeit"
-                        : `${photoCountLabel} jetzt teilen`}
+                        : `${photoCountLabel} jetzt freigeben`}
                     </button>
                     <button
                       type="button"
@@ -261,7 +261,7 @@ export function BulkShareSheet({
 
                     {!consentGiven && (
                       <p className="text-[10px] text-ink-light italic text-center mt-2 leading-relaxed">
-                        Beim Klick auf „jetzt teilen" wirst du einmalig
+                        Beim Klick auf „jetzt freigeben" wirst du einmalig
                         nach AGB/Datenschutz-Einwilligung gefragt.
                       </p>
                     )}
@@ -310,7 +310,7 @@ export function BulkShareSheet({
                     {done && progress.error === 0 && (
                       <div className="flex items-center gap-2 text-sm text-success font-semibold">
                         <CheckCircle2 size={16} />
-                        Alle {progress.ok} Fotos geteilt
+                        Alle {progress.ok} Fotos freigegeben
                       </div>
                     )}
 

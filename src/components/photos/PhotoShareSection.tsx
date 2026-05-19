@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Share2, Loader2, CheckCircle2, Lock, AlertCircle } from "lucide-react";
+import { Users, Loader2, CheckCircle2, Lock, AlertCircle } from "lucide-react";
 import type { PhotoMeta } from "@/types/photo";
 import type { SharedPhotoVisibility } from "@/types/sharedPhoto";
 import { getFullBlob, getThumbnailBlob } from "@/lib/photoStorage";
@@ -68,7 +68,7 @@ export function PhotoShareSection({
     return (
       <SectionShell>
         <p className="text-xs text-ink-mid italic">
-          Wähle erst deinen Avatar oben rechts, um Fotos teilen zu können.
+          Wähle erst deinen Avatar oben rechts, um Fotos freigeben zu können.
         </p>
       </SectionShell>
     );
@@ -80,8 +80,8 @@ export function PhotoShareSection({
         <div className="flex items-start gap-2">
           <AlertCircle size={14} className="text-info flex-shrink-0 mt-0.5" />
           <p className="text-[11px] text-ink-mid leading-relaxed">
-            Foto-Sharing-Service wird gerade eingerichtet. Solange das
-            Foto nur auf deinem Handy.
+            Foto-Freigabe wird gerade eingerichtet. Solange bleibt
+            das Foto nur auf deinem Handy.
           </p>
         </div>
       </SectionShell>
@@ -156,7 +156,7 @@ export function PhotoShareSection({
         : "Bleibt privat"
       : existing
         ? "Sichtbarkeit aktualisieren"
-        : "Jetzt teilen";
+        : "Jetzt freigeben";
 
   const buttonDisabled =
     uploading ||
@@ -167,9 +167,9 @@ export function PhotoShareSection({
     <>
       <SectionShell>
         <div className="flex items-center gap-2 mb-2">
-          <Share2 size={14} className="text-gold-600" />
+          <Users size={14} className="text-gold-600" />
           <p className="text-[10px] uppercase tracking-wider text-gold-600 font-bold">
-            Mit anderen teilen
+            Für die Gruppe freigeben
           </p>
           {existing && (
             <span className="ml-auto inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-success/15 text-success text-[9px] font-bold">
@@ -210,14 +210,14 @@ export function PhotoShareSection({
             </>
           ) : (
             <>
-              <Share2 size={12} /> {buttonLabel}
+              <Users size={12} /> {buttonLabel}
             </>
           )}
         </button>
 
         {!consentGiven && pendingVisibility !== "private" && (
           <p className="text-[10px] text-ink-light italic text-center mt-1.5 leading-relaxed">
-            Beim Klick auf „Jetzt teilen" wirst du einmalig nach
+            Beim Klick auf „Jetzt freigeben" wirst du einmalig nach
             AGB/Datenschutz-Einwilligung gefragt.
           </p>
         )}

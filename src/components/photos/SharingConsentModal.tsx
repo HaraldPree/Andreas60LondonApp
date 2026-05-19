@@ -77,7 +77,7 @@ export function SharingConsentModal({
                   Einmalige Einwilligung — DSGVO Art. 6 Abs. 1 lit. a
                 </p>
                 <h3 className="font-display text-lg font-semibold leading-tight">
-                  Foto-Sharing aktivieren
+                  Foto-Freigabe aktivieren
                 </h3>
               </div>
               <button
@@ -94,7 +94,7 @@ export function SharingConsentModal({
             <div className="p-4 space-y-3 overflow-y-auto flex-1 min-h-0">
               <p className="text-sm text-ink-dark leading-relaxed">
                 Du möchtest gerade ein Foto mit dem Geburtstagskind oder
-                der ganzen Reisegruppe teilen. Bevor wir das tun, brauchen
+                der ganzen Reisegruppe freigeben. Bevor wir das tun, brauchen
                 wir deine bewusste Einwilligung:
               </p>
 
@@ -154,7 +154,7 @@ export function SharingConsentModal({
                   <p className="text-[11px] text-ink-mid leading-relaxed">
                     <strong>Privacy by Default:</strong> Standardmäßig
                     bleiben deine Fotos privat. Pro Foto entscheidest du,
-                    ob du teilen möchtest — dies hier ist nur die einmalige
+                    ob du freigeben möchtest — dies hier ist nur die einmalige
                     Grund-Einwilligung dafür.
                   </p>
                 </div>
@@ -162,7 +162,7 @@ export function SharingConsentModal({
 
               <p className="text-[11px] text-ink-mid italic leading-relaxed">
                 Du kannst die Einwilligung jederzeit widerrufen unter
-                Info-Tab → Profil → „Foto-Sharing Einwilligung widerrufen".
+                Info-Tab → Profil → „Foto-Freigabe Einwilligung widerrufen".
               </p>
             </div>
 
@@ -174,7 +174,7 @@ export function SharingConsentModal({
                 disabled={!bothChecked}
                 className="w-full px-3 py-2.5 rounded-xl bg-navy text-cream text-sm font-semibold hover:bg-navy-700 disabled:opacity-40 disabled:cursor-not-allowed transition"
               >
-                Einwilligung erteilen &amp; Foto teilen
+                Einwilligung erteilen &amp; Foto freigeben
               </button>
               <button
                 type="button"

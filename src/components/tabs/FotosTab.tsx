@@ -8,7 +8,7 @@ import {
   Trash2,
   X,
   AlertCircle,
-  Share2,
+  Users,
   CheckSquare,
 } from "lucide-react";
 import type { Trip } from "@/types/trip";
@@ -156,7 +156,7 @@ export function FotosTab({ trip, currentUserName = null }: FotosTabProps) {
           Gemeinsame Galerie
         </p>
         <p className="text-[11px] text-ink-mid mt-0.5">
-          Was andere Mitreisende geteilt haben
+          Was andere Mitreisende freigegeben haben
         </p>
       </div>
       <SharedGallery trip={trip} currentUserName={currentUserName} />
@@ -186,16 +186,16 @@ export function FotosTab({ trip, currentUserName = null }: FotosTabProps) {
       </div>
 
       {/* v1.6.1 — Permanente Hilfe-Zeile damit das Multi-Share-Feature
-          entdeckt wird. Vorher hat niemand verstanden was „Auswählen"
-          tut. Diese Zeile macht's discoverable ohne aufdringlich zu sein. */}
+          entdeckt wird. v1.6.2 — Wording: "Teilen" konnotiert iOS-Share-
+          Sheet (extern), wir meinen aber "für die Gruppe freigeben". */}
       {photos.length > 0 && !selectionMode && (
         <div className="rounded-xl bg-gold/8 border border-gold/30 px-3 py-2 flex items-start gap-2">
           <span className="text-base flex-shrink-0 mt-[-1px]">💡</span>
           <p className="text-[11px] text-ink-dark leading-relaxed">
-            <strong>Mehrere Fotos auf einmal teilen oder löschen?</strong>{" "}
+            <strong>Mehrere Fotos der Gruppe freigeben oder löschen?</strong>{" "}
             Tippe oben auf „Mehrere auswählen", dann die Fotos antippen
-            die du teilen willst (Häkchen erscheint), unten dann „Teilen"
-            oder „Löschen".
+            die du freigeben willst (Häkchen erscheint), unten dann
+            „Freigeben" oder „Löschen".
           </p>
         </div>
       )}
@@ -216,10 +216,10 @@ export function FotosTab({ trip, currentUserName = null }: FotosTabProps) {
               onClick={() => setBulkShareOpen(true)}
               disabled={selectedIds.size === 0 || !currentUserName}
               className="inline-flex items-center gap-1 px-3 min-h-[36px] rounded-lg bg-cream/15 text-cream text-xs font-semibold hover:bg-cream/25 disabled:opacity-40 disabled:cursor-not-allowed transition"
-              aria-label={`${selectedIds.size} Fotos teilen`}
+              aria-label={`${selectedIds.size} Fotos freigeben`}
             >
-              <Share2 size={13} />
-              Teilen
+              <Users size={13} />
+              Freigeben
             </button>
             <button
               type="button"
@@ -234,7 +234,7 @@ export function FotosTab({ trip, currentUserName = null }: FotosTabProps) {
           </div>
           {selectionMode && !currentUserName && selectedIds.size > 0 && (
             <p className="text-[10px] text-warning mt-1.5 text-center italic">
-              Wähle erst deinen Avatar oben rechts, um teilen zu können.
+              Wähle erst deinen Avatar oben rechts, um freigeben zu können.
             </p>
           )}
         </div>

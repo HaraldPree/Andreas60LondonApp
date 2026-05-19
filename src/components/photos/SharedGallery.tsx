@@ -89,12 +89,12 @@ export function SharedGallery({ trip, currentUserName }: Props) {
           <AlertCircle size={16} className="text-info flex-shrink-0 mt-0.5" />
           <div>
             <p className="text-sm font-semibold text-info">
-              Foto-Sharing bald aktiv
+              Foto-Freigabe bald aktiv
             </p>
             <p className="text-xs text-ink-mid mt-1 leading-relaxed">
               Der gemeinsame Foto-Speicher wird gerade eingerichtet
               (Vercel Blob + KV). Sobald aktiviert, erscheinen hier
-              Fotos die andere Mitreisende mit dir / der Gruppe geteilt
+              Fotos die andere Mitreisende für dich / die Gruppe freigegeben
               haben.
             </p>
           </div>
@@ -108,7 +108,7 @@ export function SharedGallery({ trip, currentUserName }: Props) {
     return (
       <div className="rounded-2xl bg-white shadow-card border border-cream-200/50 p-4 flex items-center gap-2">
         <Loader2 size={14} className="text-ink-light animate-spin" />
-        <p className="text-xs text-ink-mid">Lade geteilte Fotos…</p>
+        <p className="text-xs text-ink-mid">Lade freigegebene Fotos…</p>
       </div>
     );
   }
@@ -125,7 +125,7 @@ export function SharedGallery({ trip, currentUserName }: Props) {
           />
           <div className="flex-1 min-w-0">
             <p className="text-xs text-warning font-semibold">
-              Geteilte Fotos konnten nicht geladen werden
+              Freigegebene Fotos konnten nicht geladen werden
             </p>
             <p className="text-[11px] text-ink-mid mt-1 leading-relaxed">
               {error}
@@ -202,7 +202,7 @@ export function SharedGallery({ trip, currentUserName }: Props) {
           <p className="text-sm text-ink-dark font-semibold">
             {viewerIsCelebrant && tab === "celebrant-only"
               ? "Noch keine Foto-Geschenke 🎁"
-              : "Noch keine geteilten Fotos"}
+              : "Noch keine freigegebenen Fotos"}
           </p>
           <p className="text-xs text-ink-mid mt-1 leading-relaxed max-w-[280px] mx-auto">
             {viewerIsCelebrant && tab === "celebrant-only"
@@ -243,7 +243,7 @@ export function SharedGallery({ trip, currentUserName }: Props) {
           </p>
         )}
         <p className="text-[10px] text-ink-light italic leading-relaxed">
-          💡 Geteilte Fotos liegen verschlüsselt auf Vercel Blob (EU).
+          💡 Freigegebene Fotos liegen verschlüsselt auf Vercel Blob (EU).
           Du kannst eigene Fotos jederzeit zurückziehen.
         </p>
       </div>
