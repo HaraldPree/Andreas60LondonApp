@@ -31,6 +31,16 @@ export async function GET() {
   ).trim();
   const anthropicConfigured = anthropicKey.length > 0;
 
+  // Foto-Sharing-Backend (siehe v1.0.1 / v1.1.0):
+  //   Blob → speichert die Foto-Dateien
+  //   KV   → speichert die Metadaten + Indizes
+  // Beides nötig damit "Gemeinsame Galerie" aktiv wird.
+  const blobConfigured = !!process.env.BLOB_READ_WRITE_TOKEN?.trim();
+  const kvConfigured =
+    !!process.env.KV_REST_API_URL?.trim() &&
+    !!process.env.KV_REST_API_TOKEN?.trim();
+  const photoSharingReady = blobConfigured && kvConfigured;
+
   const hints: string[] = [];
   if (!pinConfigured) {
     hints.push(
@@ -47,6 +57,16 @@ export async function GET() {
       "APP_ANTHROPIC_KEY fehlt — KI-Chat liefert 500-Fehler.",
     );
   }
+  if (!blobConfigured) {
+    hints.push(
+      "BLOB_READ_WRITE_TOKEN fehlt — Foto-Sharing kann keine Bilder speichern.",
+    );
+  }
+  if (!kvConfigured) {
+    hints.push(
+      "KV_REST_API_URL/TOKEN fehlt — Foto-Sharing kann keine Metadaten speichern.",
+    );
+  }
 
   return Response.json(
     {
@@ -60,6 +80,10 @@ export async function GET() {
       // Integration diagnostics
       aviationstackConfigured,
       anthropicConfigured,
+      // Foto-Sharing Storage (v1.0.1+)
+      blobConfigured,
+      kvConfigured,
+      photoSharingReady,
       hints: hints.length > 0 ? hints : undefined,
     },
     {

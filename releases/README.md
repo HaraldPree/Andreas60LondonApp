@@ -49,6 +49,7 @@ Wenn ich (Claude) eine Code-Änderung mache:
 
 | Version | Datum | Titel | Status |
 |---|---|---|---|
+| [v1.1.2](./v1.1.2.md) | 21.05.2026 | Foto-Sharing Storage-Diagnose im /api/version | deployed |
 | [v1.1.1](./v1.1.1.md) | 21.05.2026 | Todo-Ordner für Verbesserungsvorschläge | deployed (Doku-only) |
 | [v1.1.0](./v1.1.0.md) | 21.05.2026 | Foto-Sharing Frontend (Phase 1 komplett) | deployed (wartet auf Storage-Aktivierung) |
 | [v1.0.1](./v1.0.1.md) | 21.05.2026 | Foto-Sharing Backend-Foundation | deployed |
