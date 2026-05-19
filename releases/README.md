@@ -49,6 +49,7 @@ Wenn ich (Claude) eine Code-Änderung mache:
 
 | Version | Datum | Titel | Status |
 |---|---|---|---|
+| [v1.2.2](./v1.2.2.md) | 19.05.2026 | Dienstag live-angepasst (Royal Walk + Cedric, Rest offen) | deployed |
 | [v1.2.1](./v1.2.1.md) | 21.05.2026 | Tube-Streik abgesagt (Content-Update) | deployed |
 | [v1.2.0](./v1.2.0.md) | 21.05.2026 | Programm-Varianten-Switch (Wetter-Anpassung) | deployed |
 | [v1.1.3](./v1.1.3.md) | 21.05.2026 | Foto-Sharing Blob-only (KV nicht mehr nötig) | deployed |

@@ -49,6 +49,7 @@ Wann + von wem entschieden → on / off / wann implementieren.
 
 | Datei | Titel | Status | Priorität |
 |---|---|---|---|
+| [in-app-day-editor.md](./in-app-day-editor.md) | In-App-Editor für Tagesprogramm (live anpassen statt Claude pingen) | proposed | mittel |
 | [v1.1.0-ux-audit.md](./v1.1.0-ux-audit.md) | UX-Audit Apple-Style / Cross-Platform | proposed | mittel |
 | [firefox-mic-fallback.md](./firefox-mic-fallback.md) | Mikrofon-Fallback für Firefox (Web Speech nicht da) | proposed | nice-to-have |
 
