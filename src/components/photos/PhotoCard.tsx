@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Sparkles, MapPin, AlertTriangle, Trash2 } from "lucide-react";
+import { Sparkles, MapPin, AlertTriangle, Trash2, Check } from "lucide-react";
 import type { PhotoMeta } from "@/types/photo";
 import { useBlobUrlState } from "@/hooks/useBlobUrl";
 import { getThumbnailBlob } from "@/lib/photoStorage";
@@ -11,9 +11,23 @@ interface PhotoCardProps {
   onClick: () => void;
   /** Optional self-delete handler — shown only when the image fails. */
   onSelfDelete?: (id: string) => void;
+  /**
+   * v1.5.0 — Selection-Mode (iOS Photos pattern).
+   * Wenn `selectionMode` true ist, ändert sich onClick zu Toggle-
+   * Selection (statt Photo-Detail öffnen). `selected` steuert das
+   * Checkmark-Overlay.
+   */
+  selectionMode?: boolean;
+  selected?: boolean;
 }
 
-export function PhotoCard({ photo, onClick, onSelfDelete }: PhotoCardProps) {
+export function PhotoCard({
+  photo,
+  onClick,
+  onSelfDelete,
+  selectionMode = false,
+  selected = false,
+}: PhotoCardProps) {
   const blobState = useBlobUrlState(photo.id, getThumbnailBlob);
   const [imgFailed, setImgFailed] = useState(false);
 
@@ -81,15 +95,22 @@ export function PhotoCard({ photo, onClick, onSelfDelete }: PhotoCardProps) {
       // absolutely positioned (img, badges, "Lade…" overlay), the
       // intrinsic content width is 0, so aspect-square collapses the
       // whole card to 0×0 and the user sees no thumbnail at all.
-      className="relative block w-full aspect-square rounded-lg overflow-hidden bg-cream-200 group"
-      aria-label={`Foto ${photo.fileName}`}
+      className={`relative block w-full aspect-square rounded-lg overflow-hidden bg-cream-200 group transition ${
+        selectionMode && selected
+          ? "ring-2 ring-navy ring-offset-2 ring-offset-cream"
+          : ""
+      }`}
+      aria-label={`Foto ${photo.fileName}${selected ? " (ausgewählt)" : ""}`}
+      aria-pressed={selectionMode ? selected : undefined}
     >
       {hasValidUrl ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={blobState.url}
           alt={photo.caption ?? photo.fileName}
-          className="absolute inset-0 w-full h-full object-cover transition-transform group-hover:scale-105"
+          className={`absolute inset-0 w-full h-full object-cover transition-transform group-hover:scale-105 ${
+            selectionMode && selected ? "scale-95 brightness-90" : ""
+          }`}
           onError={() => {
             if (typeof window !== "undefined") {
               // eslint-disable-next-line no-console
@@ -105,6 +126,19 @@ export function PhotoCard({ photo, onClick, onSelfDelete }: PhotoCardProps) {
           <div className="text-[9px] text-ink-light animate-pulse">
             Lade…
           </div>
+        </div>
+      )}
+
+      {/* v1.5.0 — Selection-Indikator (iOS Photos style) */}
+      {selectionMode && (
+        <div
+          className={`absolute bottom-1.5 right-1.5 w-6 h-6 rounded-full flex items-center justify-center shadow-elevated transition ${
+            selected
+              ? "bg-navy text-white"
+              : "bg-white/85 text-transparent border border-ink-light/40"
+          }`}
+        >
+          <Check size={14} strokeWidth={3} />
         </div>
       )}
 

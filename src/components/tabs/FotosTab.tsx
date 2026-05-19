@@ -2,10 +2,19 @@
 
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { Camera, Pencil, Check, Trash2, X, AlertCircle } from "lucide-react";
+import {
+  Camera,
+  Check,
+  Trash2,
+  X,
+  AlertCircle,
+  Share2,
+  CheckSquare,
+} from "lucide-react";
 import type { Trip } from "@/types/trip";
 import type { PhotoMeta } from "@/types/photo";
 import { usePhotos } from "@/hooks/usePhotos";
+import { useSharedPhotos } from "@/hooks/useSharedPhotos";
 import { PhotoUpload } from "@/components/photos/PhotoUpload";
 import { PhotoCard } from "@/components/photos/PhotoCard";
 import { PhotoDetail } from "@/components/photos/PhotoDetail";
@@ -13,6 +22,7 @@ import { LocationIdentifier } from "@/components/photos/LocationIdentifier";
 import { PhotoBookExportButton } from "@/components/photos/PhotoBookExportButton";
 import { PdfBookExportButton } from "@/components/photos/PdfBookExportButton";
 import { SharedGallery } from "@/components/photos/SharedGallery";
+import { BulkShareSheet } from "@/components/photos/BulkShareSheet";
 import { classNames } from "@/lib/formatters";
 
 interface FotosTabProps {
@@ -36,7 +46,56 @@ export function FotosTab({ trip, currentUserName = null }: FotosTabProps) {
     setNarrative,
   } = usePhotos({ tripSlug: trip.slug, days: trip.days });
   const [openId, setOpenId] = useState<string | null>(null);
-  const [editMode, setEditMode] = useState(false);
+
+  // v1.5.0 — Selection-Mode (iOS-Photos pattern)
+  // Eine Mode für Bulk-Teilen UND Bulk-Löschen. Ersetzt den früheren
+  // X-pro-Foto „Bearbeiten"-Mode.
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkShareOpen, setBulkShareOpen] = useState(false);
+
+  // Für Bulk-Share-Sheet brauchen wir die existierenden Shared-Photos
+  // (damit Photos die schon online sind nur Visibility ändern, nicht
+  // neu hochladen).
+  const {
+    photos: sharedPhotos,
+    share: shareOne,
+    changeVisibility,
+  } = useSharedPhotos({
+    tripSlug: trip.slug,
+    viewerName: currentUserName,
+  });
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const exitSelectionMode = () => {
+    setSelectionMode(false);
+    setSelectedIds(new Set());
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.size === 0) return;
+    if (
+      confirm(
+        `${selectedIds.size} ausgewählte ${selectedIds.size === 1 ? "Foto" : "Fotos"} löschen?`,
+      )
+    ) {
+      await removeMany(Array.from(selectedIds));
+      exitSelectionMode();
+    }
+  };
+
+  const selectedPhotos = useMemo(
+    () => photos.filter((p) => selectedIds.has(p.id)),
+    [photos, selectedIds],
+  );
 
   const grouped = useMemo(() => {
     const map = new Map<number | "unsorted", PhotoMeta[]>();
@@ -67,7 +126,7 @@ export function FotosTab({ trip, currentUserName = null }: FotosTabProps) {
       )
     ) {
       await removeMany(photos.map((p) => p.id));
-      setEditMode(false);
+      exitSelectionMode();
     }
   };
 
@@ -109,19 +168,61 @@ export function FotosTab({ trip, currentUserName = null }: FotosTabProps) {
         {photos.length > 0 && (
           <button
             type="button"
-            onClick={() => setEditMode((e) => !e)}
+            onClick={() => {
+              if (selectionMode) exitSelectionMode();
+              else setSelectionMode(true);
+            }}
             className={classNames(
-              "text-[11px] font-semibold inline-flex items-center gap-1 px-2 py-1 rounded-md transition",
-              editMode
+              "text-[11px] font-semibold inline-flex items-center gap-1 px-3 min-h-[36px] rounded-md transition",
+              selectionMode
                 ? "bg-navy text-cream"
                 : "text-ink-mid hover:text-navy",
             )}
           >
-            {editMode ? <Check size={11} /> : <Pencil size={11} />}
-            {editMode ? "Fertig" : "Bearbeiten"}
+            {selectionMode ? <Check size={12} /> : <CheckSquare size={12} />}
+            {selectionMode ? "Fertig" : "Auswählen"}
           </button>
         )}
       </div>
+
+      {/* v1.5.0 — Sticky-Action-Bar im Selection-Mode (iOS Photos pattern) */}
+      {selectionMode && (
+        <div className="sticky top-[88px] z-30 -mx-4 px-4">
+          <div className="rounded-2xl bg-navy text-cream shadow-elevated px-3 py-2.5 flex items-center gap-2">
+            <span className="text-xs font-mono">
+              {selectedIds.size === 0
+                ? "Tipp Fotos zum Auswählen"
+                : `${selectedIds.size} ausgewählt`}
+            </span>
+            <div className="flex-1" />
+            <button
+              type="button"
+              onClick={() => setBulkShareOpen(true)}
+              disabled={selectedIds.size === 0 || !currentUserName}
+              className="inline-flex items-center gap-1 px-3 min-h-[36px] rounded-lg bg-cream/15 text-cream text-xs font-semibold hover:bg-cream/25 disabled:opacity-40 disabled:cursor-not-allowed transition"
+              aria-label={`${selectedIds.size} Fotos teilen`}
+            >
+              <Share2 size={13} />
+              Teilen
+            </button>
+            <button
+              type="button"
+              onClick={handleBulkDelete}
+              disabled={selectedIds.size === 0}
+              className="inline-flex items-center gap-1 px-3 min-h-[36px] rounded-lg bg-warning/80 text-white text-xs font-semibold hover:bg-warning disabled:opacity-40 disabled:cursor-not-allowed transition"
+              aria-label={`${selectedIds.size} Fotos löschen`}
+            >
+              <Trash2 size={13} />
+              Löschen
+            </button>
+          </div>
+          {selectionMode && !currentUserName && selectedIds.size > 0 && (
+            <p className="text-[10px] text-warning mt-1.5 text-center italic">
+              Wähle erst deinen Avatar oben rechts, um teilen zu können.
+            </p>
+          )}
+        </div>
+      )}
 
       <PhotoUpload onFiles={upload} uploadProgress={uploadProgress} />
 
@@ -185,8 +286,10 @@ export function FotosTab({ trip, currentUserName = null }: FotosTabProps) {
                 color={day.color}
                 photos={list}
                 onOpen={setOpenId}
-                editMode={editMode}
                 onDelete={handleDelete}
+                selectionMode={selectionMode}
+                selectedIds={selectedIds}
+                onToggleSelect={toggleSelect}
               />
             );
           })}
@@ -200,8 +303,10 @@ export function FotosTab({ trip, currentUserName = null }: FotosTabProps) {
                 color="#7A7A8A"
                 photos={unsorted}
                 onOpen={setOpenId}
-                editMode={editMode}
                 onDelete={handleDelete}
+                selectionMode={selectionMode}
+                selectedIds={selectedIds}
+                onToggleSelect={toggleSelect}
               />
             );
           })()}
@@ -209,11 +314,11 @@ export function FotosTab({ trip, currentUserName = null }: FotosTabProps) {
           <PdfBookExportButton trip={trip} photos={photos} />
           <PhotoBookExportButton trip={trip} photos={photos} />
 
-          {editMode && (
+          {selectionMode && (
             <button
               type="button"
               onClick={handleDeleteAll}
-              className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-warning/10 text-warning text-xs font-semibold hover:bg-warning/20 transition border border-warning/30"
+              className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2.5 min-h-[44px] rounded-xl bg-warning/10 text-warning text-xs font-semibold hover:bg-warning/20 transition border border-warning/30"
             >
               <Trash2 size={12} /> Alle Fotos dieser Reise löschen
             </button>
@@ -226,7 +331,7 @@ export function FotosTab({ trip, currentUserName = null }: FotosTabProps) {
         Servern.
       </p>
 
-      {openPhoto && (
+      {openPhoto && !selectionMode && (
         <PhotoDetail
           photo={openPhoto}
           tripSlug={trip.slug}
@@ -239,6 +344,27 @@ export function FotosTab({ trip, currentUserName = null }: FotosTabProps) {
           onNarrativeChange={(id, n) => setNarrative(id, n)}
         />
       )}
+
+      {/* v1.5.0 — Bulk-Share-Sheet */}
+      {currentUserName && (
+        <BulkShareSheet
+          open={bulkShareOpen}
+          photos={selectedPhotos}
+          tripSlug={trip.slug}
+          currentUserName={currentUserName}
+          celebrantName={celebrantName}
+          alreadyShared={sharedPhotos}
+          onClose={() => {
+            setBulkShareOpen(false);
+            // Wenn alles erfolgreich war, Selection-Mode beenden
+            // (BulkShareSheet macht auto-close bei Erfolg, daher hier
+            // einfach immer aufräumen)
+            exitSelectionMode();
+          }}
+          onShareOne={shareOne}
+          onChangeVisibility={changeVisibility}
+        />
+      )}
     </motion.div>
   );
 }
@@ -249,16 +375,20 @@ function DaySection({
   color,
   photos,
   onOpen,
-  editMode,
   onDelete,
+  selectionMode,
+  selectedIds,
+  onToggleSelect,
 }: {
   title: string;
   subtitle: string;
   color: string;
   photos: PhotoMeta[];
   onOpen: (id: string) => void;
-  editMode: boolean;
   onDelete: (id: string) => void;
+  selectionMode: boolean;
+  selectedIds: Set<string>;
+  onToggleSelect: (id: string) => void;
 }) {
   return (
     <div className="rounded-2xl bg-white shadow-card border border-cream-200/50 overflow-hidden">
@@ -278,24 +408,16 @@ function DaySection({
             <div key={p.id} className="relative">
               <PhotoCard
                 photo={p}
-                onClick={() => onOpen(p.id)}
+                onClick={() => {
+                  if (selectionMode) onToggleSelect(p.id);
+                  else onOpen(p.id);
+                }}
+                selectionMode={selectionMode}
+                selected={selectedIds.has(p.id)}
                 // Broken photos can always be removed even without
-                // entering edit mode — they're useless to the user.
+                // entering selection mode — they're useless to the user.
                 onSelfDelete={onDelete}
               />
-              {editMode && (
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDelete(p.id);
-                  }}
-                  className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-warning text-white shadow-elevated flex items-center justify-center hover:scale-110 transition"
-                  aria-label="Foto löschen"
-                >
-                  <X size={14} strokeWidth={3} />
-                </button>
-              )}
             </div>
           ))}
         </div>

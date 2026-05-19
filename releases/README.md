@@ -49,6 +49,7 @@ Wenn ich (Claude) eine Code-Änderung mache:
 
 | Version | Datum | Titel | Status |
 |---|---|---|---|
+| [v1.5.0](./v1.5.0.md) | 19.05.2026 | Mehrere Fotos auf einmal teilen (iOS-Photos Selection-Mode) | deployed |
 | [v1.4.0](./v1.4.0.md) | 19.05.2026 | In-App-Editor Phase 2: „Ab hier Rest des Tages offen" | deployed |
 | [v1.3.1](./v1.3.1.md) | 19.05.2026 | Apple-Way Polish-Bundle (Sparkle ruhig, Touch-Targets, Reservation-Sheet, Firefox-Hint) | deployed |
 | [v1.3.0](./v1.3.0.md) | 19.05.2026 | In-App-Editor für Tagesprogramm (Phase 1: Done/Skip/Notiz) | deployed |
