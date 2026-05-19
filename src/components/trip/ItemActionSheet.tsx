@@ -2,7 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, X, CircleSlash, Pencil, Trash2 } from "lucide-react";
+import {
+  Check,
+  X,
+  CircleSlash,
+  Pencil,
+  Trash2,
+  SkipForward,
+} from "lucide-react";
 import type { ItemMark, ItemState } from "@/types/itemState";
 import { useDismissOnBack } from "@/hooks/useDismissOnBack";
 
@@ -15,6 +22,14 @@ interface ItemActionSheetProps {
   onClose: () => void;
   onCommit: (next: { mark: ItemMark | null; note: string }) => void;
   onClearAll: () => void;
+  /**
+   * v1.4.0 Phase 2 — „Ab hier Rest des Tages offen lassen".
+   * Wenn gesetzt, erscheint im Sheet ein zusätzlicher Schnell-Action-Button.
+   * Wird disabled wenn der Item das letzte des Tages ist (kein Sinn).
+   */
+  onRestOfDayOpen?: () => void;
+  hasSubsequentItems?: boolean;
+  subsequentCount?: number;
 }
 
 /**
@@ -40,6 +55,9 @@ export function ItemActionSheet({
   onClose,
   onCommit,
   onClearAll,
+  onRestOfDayOpen,
+  hasSubsequentItems = false,
+  subsequentCount = 0,
 }: ItemActionSheetProps) {
   // Lokaler Form-State, wird mit dem currentState gesynct wenn das
   // Sheet öffnet — so kann der User mehrmals toggeln ohne dass jeder
@@ -161,7 +179,7 @@ export function ItemActionSheet({
                 <button
                   type="button"
                   onClick={handleSave}
-                  className="w-full px-3 py-2.5 rounded-xl bg-navy text-cream text-sm font-semibold hover:bg-navy-700 transition"
+                  className="w-full min-h-[44px] px-3 py-2.5 rounded-xl bg-navy text-cream text-sm font-semibold hover:bg-navy-700 transition"
                 >
                   Speichern
                 </button>
@@ -169,20 +187,50 @@ export function ItemActionSheet({
                   <button
                     type="button"
                     onClick={handleClearAll}
-                    className="w-full px-3 py-2 rounded-xl bg-warning/10 text-warning text-xs font-semibold border border-warning/30 hover:bg-warning/15 transition inline-flex items-center justify-center gap-1.5"
+                    className="w-full min-h-[44px] px-3 py-2 rounded-xl bg-warning/10 text-warning text-xs font-semibold border border-warning/30 hover:bg-warning/15 transition inline-flex items-center justify-center gap-1.5"
                   >
                     <Trash2 size={12} />
                     Markierung &amp; Notiz entfernen
                   </button>
                 )}
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="w-full px-3 py-2 rounded-xl bg-cream-200 text-ink-mid text-xs font-semibold hover:bg-cream-300 transition"
-                >
-                  Abbrechen
-                </button>
               </div>
+
+              {/* v1.4.0 Phase 2 — Schnell-Aktion: Ab hier Rest des Tages offen */}
+              {onRestOfDayOpen && hasSubsequentItems && (
+                <>
+                  <div className="my-3 flex items-center gap-2 text-[10px] uppercase tracking-wider text-ink-light">
+                    <div className="flex-1 h-px bg-cream-200" />
+                    <span>Schnell-Aktion</span>
+                    <div className="flex-1 h-px bg-cream-200" />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onRestOfDayOpen();
+                      onClose();
+                    }}
+                    className="w-full min-h-[44px] px-3 py-2.5 rounded-xl bg-gold/15 text-gold-600 text-sm font-semibold border border-gold/40 hover:bg-gold/20 transition inline-flex items-center justify-center gap-2"
+                  >
+                    <SkipForward size={14} strokeWidth={2.5} />
+                    Ab hier Rest des Tages offen lassen
+                    <span className="text-[10px] font-normal opacity-80">
+                      ({subsequentCount + 1} Items)
+                    </span>
+                  </button>
+                  <p className="text-[10px] text-ink-light italic text-center mt-1.5 leading-relaxed">
+                    Markiert dieses Item + alle danach als ausgelassen.
+                    Einzeln rückgängig machbar.
+                  </p>
+                </>
+              )}
+
+              <button
+                type="button"
+                onClick={onClose}
+                className="w-full min-h-[44px] mt-3 px-3 py-2 rounded-xl bg-cream-200 text-ink-mid text-xs font-semibold hover:bg-cream-300 transition"
+              >
+                Abbrechen
+              </button>
             </div>
           </motion.div>
         </>

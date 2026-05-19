@@ -133,6 +133,57 @@ export function useItemState(tripSlug: string, variant: TripVariant) {
     [states, variant, persist],
   );
 
+  /**
+   * v1.4.0 — Bulk-Operation: Range von Items in einem Tag markieren.
+   *
+   * Verwendet von „Ab hier Rest des Tages offen lassen" — markiert
+   * alle Items von `fromItemIndex` bis `toItemIndex` (inklusive) mit
+   * derselben Markierung. Atomares persist am Ende statt N einzelner
+   * localStorage-Writes.
+   */
+  const setRangeMark = useCallback(
+    (
+      dayIndex: number,
+      fromItemIndex: number,
+      toItemIndex: number,
+      mark: ItemMark | null,
+    ) => {
+      const next: ItemStateMap = { ...states };
+      let changed = false;
+      const ts = Date.now();
+      for (let i = fromItemIndex; i <= toItemIndex; i += 1) {
+        const id = itemIdFor(variant, dayIndex, i);
+        const existing = next[id];
+        const note = existing?.note;
+
+        if (mark === null && !note) {
+          if (id in next) {
+            delete next[id];
+            changed = true;
+          }
+          continue;
+        }
+
+        const newState: ItemState = {
+          ...(note ? { note } : {}),
+          ...(mark ? { mark } : {}),
+          updatedAt: ts,
+        };
+        // Nur als geändert zählen wenn tatsächlich anders
+        if (
+          !existing ||
+          existing.mark !== newState.mark ||
+          existing.note !== newState.note
+        ) {
+          next[id] = newState;
+          changed = true;
+        }
+      }
+      if (changed) persist(next);
+    },
+    [states, variant, persist],
+  );
+
   /** Alles für ein Item entfernen (Markierung + Notiz). */
   const clearItem = useCallback(
     (dayIndex: number, itemIndex: number) => {
@@ -188,6 +239,7 @@ export function useItemState(tripSlug: string, variant: TripVariant) {
     get,
     setMark,
     setNote,
+    setRangeMark,
     clearItem,
     clearDay,
     dayStats,

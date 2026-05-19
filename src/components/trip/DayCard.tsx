@@ -50,6 +50,10 @@ interface DayCardProps {
   ) => void;
   onClearItem?: (itemIndex: number) => void;
   onClearDay?: () => void;
+  /**
+   * v1.4.0 — Phase 2: „Ab hier Rest des Tages offen lassen".
+   */
+  onRestOfDayOpen?: (fromItemIndex: number) => void;
 }
 
 export function DayCard({
@@ -65,6 +69,7 @@ export function DayCard({
   onCommitItemState,
   onClearItem,
   onClearDay,
+  onRestOfDayOpen,
 }: DayCardProps) {
   const [open, setOpen] = useState(defaultOpen);
   const [showRainy, setShowRainy] = useState(false);
@@ -401,7 +406,8 @@ export function DayCard({
         )}
       </AnimatePresence>
 
-      {/* v1.3.0 — Action-Sheet pro Item */}
+      {/* v1.3.0 — Action-Sheet pro Item (Phase 1)
+          v1.4.0 — + Schnell-Aktion „Ab hier Rest offen" (Phase 2) */}
       {sheetItem && onCommitItemState && sheetIndex !== null && (
         <ItemActionSheet
           open={sheetIndex !== null}
@@ -411,6 +417,11 @@ export function DayCard({
           onClose={() => setSheetIndex(null)}
           onCommit={(next) => onCommitItemState(sheetIndex, next)}
           onClearAll={() => onClearItem?.(sheetIndex)}
+          onRestOfDayOpen={
+            onRestOfDayOpen ? () => onRestOfDayOpen(sheetIndex) : undefined
+          }
+          hasSubsequentItems={sheetIndex < day.items.length - 1}
+          subsequentCount={day.items.length - 1 - sheetIndex}
         />
       )}
     </div>

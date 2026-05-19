@@ -103,7 +103,7 @@ export function ProgrammTab({
               }
               userPlaces={listForDay(i)}
               onRemoveUserPlace={removeUserPlace}
-              // v1.3.0 — In-App-Editor Wiring
+              // v1.3.0 — In-App-Editor Wiring (Phase 1)
               itemStateFor={(itemIndex) => itemState.get(i, itemIndex)}
               onToggleItemDone={(itemIndex) => {
                 const current = itemState.get(i, itemIndex);
@@ -116,6 +116,25 @@ export function ProgrammTab({
               }}
               onClearItem={(itemIndex) => itemState.clearItem(i, itemIndex)}
               onClearDay={() => itemState.clearDay(i)}
+              // v1.4.0 — Phase 2: „Ab hier Rest offen"
+              onRestOfDayOpen={(fromItemIndex) => {
+                // Bulk-Skip aller Items von hier bis Ende des Tages
+                itemState.setRangeMark(
+                  i,
+                  fromItemIndex,
+                  day.items.length - 1,
+                  "skipped",
+                );
+                // Auto-Notiz auf das erste Item (wenn noch keine eigene da)
+                const currentNote = itemState.get(i, fromItemIndex)?.note;
+                if (!currentNote) {
+                  itemState.setNote(
+                    i,
+                    fromItemIndex,
+                    "Rest des Tages offen — entspannte Pause",
+                  );
+                }
+              }}
             />
           ))}
         </div>
