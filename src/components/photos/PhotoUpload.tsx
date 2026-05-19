@@ -8,6 +8,7 @@ import {
   FolderOpen,
   Camera,
   ChevronDown,
+  HelpCircle,
 } from "lucide-react";
 
 interface PhotoUploadProps {
@@ -45,6 +46,7 @@ export function PhotoUpload({
   const filesRef = useRef<HTMLInputElement>(null);
   const cameraRef = useRef<HTMLInputElement>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -136,8 +138,7 @@ export function PhotoUpload({
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-navy">Datei wählen</p>
               <p className="text-[11px] text-ink-mid">
-                Falls Galerie oben nicht erscheint (Samsung, OnePlus, iPhone-
-                Foto-Berechtigung deaktiviert)
+                Falls Galerie oben nicht erscheint (Samsung, OnePlus, iPhone)
               </p>
             </div>
           </button>
@@ -156,18 +157,37 @@ export function PhotoUpload({
             </div>
           </button>
 
-          {/* iPhone-Hilfe-Hinweis für User die nur "Datei" angeboten bekommen
-              statt "Fotos / Galerie". Häufige Ursache: Safari hat keinen
-              Foto-Zugriff (iOS Einstellungen). */}
-          <div className="border-t border-cream-200 bg-cream-50 px-4 py-2.5">
-            <p className="text-[10px] text-ink-mid leading-relaxed">
-              <strong className="text-ink-dark">iPhone-Tipp:</strong> Wenn beim
-              Tap auf „Aus Galerie" kein Foto-Picker erscheint, prüfe iOS-
-              Einstellungen → Safari → „Erweitert / Datenschutz" oder
-              Einstellungen → Datenschutz → Fotos → Safari → „Voller Zugriff".
-              Alternativ funktioniert „Datei wählen" oben — dort kannst du
-              auch in die Fotos-App navigieren.
-            </p>
+          {/* iPhone-Hilfe-Hinweis ausklappbar — versteckt by default,
+              damit das Menü auf kleinen Screens nicht zu lang wird.
+              Apple-Way: Hilfe diskret zugänglich, nicht aufdringlich. */}
+          <div className="border-t border-cream-200">
+            <button
+              type="button"
+              onClick={() => setHelpOpen((v) => !v)}
+              className="w-full px-4 py-2.5 flex items-center gap-2 text-[11px] text-ink-mid hover:bg-cream-50 transition"
+            >
+              <HelpCircle size={12} className="text-ink-light flex-shrink-0" />
+              <span className="flex-1 text-left">
+                Galerie erscheint nicht? Hilfe für iPhone
+              </span>
+              <ChevronDown
+                size={12}
+                className={`transition-transform text-ink-light ${
+                  helpOpen ? "rotate-180" : ""
+                }`}
+              />
+            </button>
+            {helpOpen && (
+              <div className="px-4 pb-3 bg-cream-50">
+                <p className="text-[10px] text-ink-mid leading-relaxed">
+                  Wenn beim Tap auf „Aus Galerie" kein Foto-Picker erscheint,
+                  prüfe in den iOS-Einstellungen → Datenschutz &amp;
+                  Sicherheit → Fotos → Safari → „Voller Zugriff". Alternativ
+                  funktioniert „Datei wählen" oben — von dort kannst du auch
+                  in die Fotos-App navigieren.
+                </p>
+              </div>
+            )}
           </div>
         </div>
       )}

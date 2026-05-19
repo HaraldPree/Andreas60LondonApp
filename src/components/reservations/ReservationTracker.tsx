@@ -1,9 +1,10 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import type { Reservation } from "@/types/trip";
 import { useReservations } from "@/hooks/useReservations";
 import { ReservationCard } from "./ReservationCard";
+import { ReservationStatusSheet } from "./ReservationStatusSheet";
 
 interface ReservationTrackerProps {
   tripSlug: string;
@@ -13,10 +14,14 @@ interface ReservationTrackerProps {
 const STATUS_ORDER = { offen: 0, reserviert: 1, erledigt: 2 } as const;
 
 export function ReservationTracker({ tripSlug, reservations }: ReservationTrackerProps) {
-  const { reservations: live, cycleStatus, hydrated } = useReservations(
+  const { reservations: live, setStatus, hydrated } = useReservations(
     tripSlug,
     reservations,
   );
+
+  // Welche Reservation hat gerade ihr Status-Sheet offen?
+  const [pickerForId, setPickerForId] = useState<string | null>(null);
+  const pickerReservation = live.find((r) => r.id === pickerForId);
 
   const sorted = useMemo(
     () =>
@@ -85,7 +90,7 @@ export function ReservationTracker({ tripSlug, reservations }: ReservationTracke
           <ReservationCard
             key={reservation.id}
             reservation={reservation}
-            onToggleStatus={() => cycleStatus(reservation.id, reservation.status)}
+            onOpenStatusPicker={() => setPickerForId(reservation.id)}
           />
         ))}
       </div>
@@ -93,6 +98,17 @@ export function ReservationTracker({ tripSlug, reservations }: ReservationTracke
       <p className="text-[11px] text-center text-ink-light italic px-4">
         Status wird auf eurem Gerät gespeichert und bleibt nach Neuladen erhalten.
       </p>
+
+      {/* Status-Picker (Apple-Way Action-Sheet) */}
+      {pickerReservation && (
+        <ReservationStatusSheet
+          open={pickerForId !== null}
+          reservationName={pickerReservation.name}
+          currentStatus={pickerReservation.status}
+          onPick={(next) => setStatus(pickerReservation.id, next)}
+          onClose={() => setPickerForId(null)}
+        />
+      )}
     </div>
   );
 }

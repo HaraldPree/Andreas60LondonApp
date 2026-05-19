@@ -50,8 +50,8 @@ Wann + von wem entschieden → on / off / wann implementieren.
 | Datei | Titel | Status | Priorität |
 |---|---|---|---|
 | [in-app-day-editor.md](./in-app-day-editor.md) | In-App-Editor für Tagesprogramm (Phase 1 = v1.3.0 ✓; Phase 2/3 offen) | Phase 1 done, Phase 2/3 proposed | mittel |
-| [v1.1.0-ux-audit.md](./v1.1.0-ux-audit.md) | UX-Audit Apple-Style / Cross-Platform | proposed | mittel |
-| [firefox-mic-fallback.md](./firefox-mic-fallback.md) | Mikrofon-Fallback für Firefox (Web Speech nicht da) | proposed | nice-to-have |
+| [v1.1.0-ux-audit.md](./v1.1.0-ux-audit.md) | UX-Audit Apple-Style / Cross-Platform (Quick-Wins teilweise in v1.3.1 ✓) | partly done | mittel |
+| [firefox-mic-fallback.md](./firefox-mic-fallback.md) | Mikrofon-Fallback für Firefox (Variante A = v1.3.1 ✓) | Variante A done | nice-to-have |
 
 (Neue Einträge oben einfügen oder nach Priorität sortieren.)
 

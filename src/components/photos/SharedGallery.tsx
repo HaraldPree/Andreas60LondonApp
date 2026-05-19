@@ -232,10 +232,21 @@ export function SharedGallery({ trip, currentUserName }: Props) {
         </div>
       )}
 
-      <p className="text-[10px] text-center text-ink-light italic leading-relaxed">
-        💡 Geteilte Fotos liegen verschlüsselt auf Vercel Blob (EU).
-        Du kannst eigene Fotos jederzeit zurückziehen.
-      </p>
+      <div className="text-center space-y-0.5">
+        {lastUpdatedAt && (
+          <p className="text-[10px] text-ink-light font-mono">
+            Stand:{" "}
+            {new Date(lastUpdatedAt).toLocaleTimeString("de-DE", {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+          </p>
+        )}
+        <p className="text-[10px] text-ink-light italic leading-relaxed">
+          💡 Geteilte Fotos liegen verschlüsselt auf Vercel Blob (EU).
+          Du kannst eigene Fotos jederzeit zurückziehen.
+        </p>
+      </div>
     </div>
   );
 }

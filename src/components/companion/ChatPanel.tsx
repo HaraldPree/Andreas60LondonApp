@@ -45,6 +45,9 @@ export function ChatPanel({
 
   const speech = useSpeechRecognition({ lang: "de-DE" });
   const tts = useSpeechSynthesis({ lang: "de-DE" });
+  // Firefox / Browser ohne Web Speech API: einmaliger Hint dass die
+  // Tastatur-Mikro-Taste als Alternative funktioniert.
+  const [showMicHint, setShowMicHint] = useState(false);
 
   // Auto-scroll to bottom on new content
   useEffect(() => {
@@ -177,13 +180,13 @@ export function ChatPanel({
             />
           </div>
 
-          {speech.supported && (
+          {speech.supported ? (
             <button
               type="button"
               onClick={handleMic}
               disabled={loading}
               className={classNames(
-                "w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 transition",
+                "w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 transition",
                 speech.listening
                   ? "bg-warning text-white animate-pulse"
                   : "bg-navy/10 text-navy hover:bg-navy/15",
@@ -191,6 +194,27 @@ export function ChatPanel({
               aria-label={speech.listening ? "Stop" : "Mikrofon"}
             >
               {speech.listening ? <MicOff size={16} /> : <Mic size={16} />}
+            </button>
+          ) : (
+            // Browser ohne Web Speech API (Firefox Android/Desktop):
+            // dezenter Hinweis-Button statt nichts. Tap zeigt eine
+            // kurze Tooltip-Erklärung dass die Tastatur-Mikro-Taste
+            // funktioniert.
+            <button
+              type="button"
+              onClick={() => setShowMicHint((v) => !v)}
+              className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 bg-cream-100 text-ink-light hover:bg-cream-200 transition relative"
+              aria-label="Hinweis zur Spracheingabe"
+            >
+              <Mic size={16} className="opacity-50" />
+              {showMicHint && (
+                <div className="absolute bottom-full right-0 mb-2 w-56 p-2.5 rounded-lg bg-navy text-cream text-[11px] leading-relaxed shadow-elevated text-left z-10">
+                  Spracheingabe ist in diesem Browser nicht verfügbar.
+                  Tipp: 🎤 auf deiner Handy-Tastatur drücken — das
+                  funktioniert überall.
+                  <span className="absolute top-full right-3 w-0 h-0 border-l-4 border-l-transparent border-r-4 border-r-transparent border-t-4 border-t-navy" />
+                </div>
+              )}
             </button>
           )}
 

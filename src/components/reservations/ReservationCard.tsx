@@ -18,7 +18,7 @@ import { TransportButtons } from "@/components/ui/TransportButtons";
 
 interface ReservationCardProps {
   reservation: Reservation;
-  onToggleStatus: () => void;
+  onOpenStatusPicker: () => void;
 }
 
 const STATUS_LABELS: Record<ReservationStatus, string> = {
@@ -36,7 +36,10 @@ const STATUS_CONFIG: Record<
   erledigt: { bg: "bg-success/10", text: "text-success", icon: Check },
 };
 
-export function ReservationCard({ reservation, onToggleStatus }: ReservationCardProps) {
+export function ReservationCard({
+  reservation,
+  onOpenStatusPicker,
+}: ReservationCardProps) {
   const statusConfig = STATUS_CONFIG[reservation.status];
   const StatusIcon = statusConfig.icon;
   const isPriority = reservation.priority === "hoch";
@@ -241,21 +244,21 @@ export function ReservationCard({ reservation, onToggleStatus }: ReservationCard
         )}
       </div>
 
-      {/* Status toggle bar */}
+      {/* Status bar — Apple-Way: Tap öffnet Action-Sheet,
+          kein "(tippen zum Ändern)"-Hint mehr nötig */}
       <button
         type="button"
-        onClick={onToggleStatus}
+        onClick={onOpenStatusPicker}
         className={classNames(
-          "w-full px-4 py-2.5 text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors",
+          "w-full px-4 py-3 min-h-[44px] text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors active:opacity-80",
           statusConfig.bg,
           statusConfig.text,
         )}
+        aria-label={`Status ändern (aktuell: ${STATUS_LABELS[reservation.status]})`}
       >
         <StatusIcon size={14} />
         {STATUS_LABELS[reservation.status]}
-        <span className="opacity-50 ml-1 normal-case font-normal tracking-normal text-[10px]">
-          (tippen zum Ändern)
-        </span>
+        <ChevronDown size={12} className="opacity-50 ml-0.5" />
       </button>
     </div>
   );

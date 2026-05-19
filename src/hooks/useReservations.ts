@@ -53,6 +53,21 @@ export function useReservations(tripSlug: string, defaults: Reservation[]) {
     [tripSlug],
   );
 
+  /**
+   * Status direkt setzen (Apple-Way: Action-Sheet statt Cycle-Tap).
+   * Eingeführt in v1.3.1 für ReservationStatusSheet.
+   */
+  const setStatus = useCallback(
+    (id: string, next: ReservationStatus) => {
+      setStatusMap((prev) => {
+        const updated = { ...prev, [id]: next };
+        saveToStorage(tripSlug, updated);
+        return updated;
+      });
+    },
+    [tripSlug],
+  );
+
   const getStatus = useCallback(
     (reservation: Reservation): ReservationStatus => {
       if (!hydrated) return reservation.status;
@@ -66,5 +81,5 @@ export function useReservations(tripSlug: string, defaults: Reservation[]) {
     status: getStatus(r),
   }));
 
-  return { reservations, cycleStatus, hydrated };
+  return { reservations, cycleStatus, setStatus, hydrated };
 }

@@ -1,9 +1,10 @@
 # Mikrofon-Fallback für Firefox (Web Speech API nicht da)
 
-**Status**: proposed
+**Status**: **Variante A done** (v1.3.1 — siehe `releases/v1.3.1.md`)
+**Variante B/C**: proposed (Browser-Empfehlung / MediaRecorder+Whisper)
 **Priorität**: nice-to-have
-**Aufwand**: 15 Min (Tooltip) bis 5 Std (echtes Voice-to-Text)
 **Vorgeschlagen am**: 21.05.2026
+**Umgesetzt am**: 19.05.2026 (Variante A — Tooltip-Fallback)
 **Vorgeschlagen von**: Harald
 **Betrifft**: KI-Companion / Sprach-Eingabe
 

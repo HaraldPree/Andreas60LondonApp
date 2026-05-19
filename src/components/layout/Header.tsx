@@ -43,10 +43,13 @@ export function Header({
           {backHref ? (
             <Link
               href={backHref}
-              className="inline-flex items-center gap-0.5 -ml-1 px-2 py-1 rounded-md text-cream/80 hover:text-cream hover:bg-white/10 active:bg-white/15 transition"
+              // Apple HIG: 44pt minimum Touch-Target. Visuelles Padding +
+              // negativer Margin damit das größere Tap-Feld die Optik
+              // nicht aufbläht.
+              className="inline-flex items-center gap-1 -ml-2 px-3 min-h-[44px] rounded-md text-cream/80 hover:text-cream hover:bg-white/10 active:bg-white/15 transition"
               aria-label={`Zurück zu ${backLabel}`}
             >
-              <ChevronLeft size={14} strokeWidth={2.5} />
+              <ChevronLeft size={16} strokeWidth={2.5} />
               <span className="font-display text-[11px] tracking-[0.2em] text-gold font-semibold uppercase">
                 {backLabel}
               </span>
