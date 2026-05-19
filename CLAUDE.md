@@ -78,6 +78,17 @@ Interaktive Reise-Companion-Webapp für Kunden des ReiseCenter Mader-Kuoni. Mobi
 Matrizen) gehört in `releases/workshop/` oder `releases/internal/` — beide sind
 in `.gitignore`. Diese Dokumente NIE auf GitHub oder Vercel deployen.
 
+**Verbesserungsvorschläge / Audits / "Soll ich später machen"-Ideen** gehören in
+den `todo/` Ordner — eine MD-Datei pro Vorschlag mit Template aus
+`todo/README.md`. Diese sind git-tracked (nicht intern) damit der Plan für alle
+sichtbar bleibt. Wenn Vorschlag umgesetzt wird: Status auf `done` setzen +
+Verweis auf die Release-Version eintragen.
+
+Beziehung der drei Ordner:
+- `releases/`        → was tatsächlich deployed wurde (versioniert)
+- `todo/`            → was wir machen könnten (mit Priorität + Aufwand)
+- `releases/internal/` + `releases/workshop/` → interne Strategiepapiere (gitignored)
+
 ## Wichtige Regeln
 1. **Mobile-first** (max-width 480px zentriert)
 2. **Keine kostenpflichtigen APIs** (Open-Meteo + OpenStreetMap = gratis)
