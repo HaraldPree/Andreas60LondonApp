@@ -34,3 +34,10 @@ yarn-error.log*
 # TypeScript
 *.tsbuildinfo
 next-env.d.ts
+
+# Internal workshop / production-readiness docs — never push
+releases/workshop/
+releases/internal/
+
+# Claude Code session state
+.claude/

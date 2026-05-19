@@ -60,6 +60,24 @@ Interaktive Reise-Companion-Webapp für Kunden des ReiseCenter Mader-Kuoni. Mobi
 - Voice Output: Browser SpeechSynthesis (toggle in UI, persistiert in localStorage)
 - Wenn du die Trip-Daten erweiterst: System Prompt in `src/lib/companionPrompt.ts` updaten falls neue Felder relevant sind
 
+## Release-Workflow (ab v1.0.0)
+
+**Jede Code-Änderung bekommt eine Versions-Nummer + Release-Doc.**
+
+1. **Vor dem Push**: Versions-Bump in `package.json` nach Semver-light:
+   - PATCH (1.0.0 → 1.0.1) für Bug-Fix / kleine UX
+   - MINOR (1.0.x → 1.1.0) für neue Features
+   - MAJOR (1.x → 2.0) für architektonische Brüche
+2. **Vor dem Push**: neue Datei `releases/vX.Y.Z.md` anlegen mit Standard-Format
+   (siehe `releases/README.md`)
+3. **Index aktualisieren**: neuen Eintrag in `releases/README.md` ganz oben einfügen
+4. **Commit-Message**: erste Zeile referenziert Version, z.B. `v1.0.1: fix iOS safe-area`
+5. Nicht für Releases erforderlich: Git-Tag pushen (kann später nachgezogen werden)
+
+**Interne Doku** (Workshop-Notizen, Produkt-Architektur-Analysen, Kompatibilitäts-
+Matrizen) gehört in `releases/workshop/` oder `releases/internal/` — beide sind
+in `.gitignore`. Diese Dokumente NIE auf GitHub oder Vercel deployen.
+
 ## Wichtige Regeln
 1. **Mobile-first** (max-width 480px zentriert)
 2. **Keine kostenpflichtigen APIs** (Open-Meteo + OpenStreetMap = gratis)

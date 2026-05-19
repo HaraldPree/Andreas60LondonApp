@@ -1,0 +1,63 @@
+# Releases & Änderungs-Historie
+
+Pro Release-Eintrag eine eigene Markdown-Datei nach Schema `vMAJOR.MINOR.PATCH.md`,
+damit wir jederzeit nachvollziehen können was wann warum geändert wurde.
+
+## Versionierungs-Schema (Semver-light)
+
+| Komponente | Wann erhöhen | Beispiel |
+|---|---|---|
+| **MAJOR** | Architektonische Änderungen (z.B. Backend dazu, Auth-Konzept, Datenmodell-Bruch) | 1.x → 2.0 |
+| **MINOR** | Neue Features die abwärtskompatibel sind (z.B. Foto-Buch, Diagnose-Seite, Phrasebook) | 1.0 → 1.1 |
+| **PATCH** | Bug-Fixes, kleine UX-Verbesserungen, Copy-Updates ohne neue Features | 1.1.0 → 1.1.1 |
+
+Bei mehreren Themen in einem Release: das **höchste** wirkt (1 Feature + 5 Bugfixes = MINOR-Bump).
+
+## Format pro Release-Doc
+
+Jede `vX.Y.Z.md` enthält:
+
+```markdown
+# vX.Y.Z — Kurzer Titel
+
+**Datum**: TT.MM.JJJJ
+**Status**: deployed / pending / rollback
+**Git Tag**: vX.Y.Z
+
+## Was ist neu / fixed
+- … (mit Commit-Hash falls praktisch)
+
+## Was funktioniert NICHT
+- … (bekannte offene Probleme)
+
+## Migrations-Hinweise
+- … (z.B. "Cache leeren nötig", "neue Env-Var XYZ erforderlich")
+
+## User-Kommunikation
+- … (was wurde der Reisegruppe / Kunden mitgeteilt)
+```
+
+## Workflow ab v1.0.0
+
+Wenn ich (Claude) eine Code-Änderung mache:
+1. **Vor dem Push**: `package.json` Version hochsetzen (Semver-Regel oben)
+2. **Vor dem Push**: neue Datei `releases/vX.Y.Z.md` mit Format oben anlegen
+3. **Commit-Message** referenziert die Version: z.B. `chore: bump to v1.0.1`
+4. **Optional Git-Tag**: `git tag vX.Y.Z && git push --tags` — macht Releases auf GitHub sichtbar
+
+## Index
+
+| Version | Datum | Titel | Status |
+|---|---|---|---|
+| [v1.0.0](./v1.0.0.md) | 21.05.2026 | Baseline — London-Reise Live-Phase | deployed |
+
+(Neue Releases werden hier oben eingefügt.)
+
+## Workshop & Produkt-Doku
+
+Geht in `releases/workshop/` (eigener Unterordner). Diese Doku ist:
+- nicht für Endbenutzer
+- nicht öffentlich sichtbar
+- in `.gitignore` enthalten (separate Workshop-Notizen, Produkt-Architektur, Kompatibilitäts-Matrizen)
+
+Wird beim Erstellen separat angelegt.
