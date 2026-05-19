@@ -12,13 +12,17 @@ import { PhotoDetail } from "@/components/photos/PhotoDetail";
 import { LocationIdentifier } from "@/components/photos/LocationIdentifier";
 import { PhotoBookExportButton } from "@/components/photos/PhotoBookExportButton";
 import { PdfBookExportButton } from "@/components/photos/PdfBookExportButton";
+import { SharedGallery } from "@/components/photos/SharedGallery";
 import { classNames } from "@/lib/formatters";
 
 interface FotosTabProps {
   trip: Trip;
+  currentUserName?: string | null;
 }
 
-export function FotosTab({ trip }: FotosTabProps) {
+export function FotosTab({ trip, currentUserName = null }: FotosTabProps) {
+  const celebrantName =
+    trip.participants?.find((p) => p.role === "celebrant")?.name ?? null;
   const {
     photos,
     loading,
@@ -86,6 +90,17 @@ export function FotosTab({ trip }: FotosTabProps) {
 
       {/* Location-Erkennung: prominent oben für "Foto vom Freund – wo ist das?" */}
       <LocationIdentifier trip={trip} />
+
+      {/* Gemeinsame Galerie — Fotos die andere mit dir / der Gruppe geteilt haben */}
+      <div className="px-1 pt-2">
+        <p className="font-display text-[11px] uppercase tracking-[0.2em] text-gold-600 font-bold">
+          Gemeinsame Galerie
+        </p>
+        <p className="text-[11px] text-ink-mid mt-0.5">
+          Was andere Mitreisende geteilt haben
+        </p>
+      </div>
+      <SharedGallery trip={trip} currentUserName={currentUserName} />
 
       <div className="px-1 pt-2 flex items-baseline justify-between">
         <p className="font-display text-[11px] uppercase tracking-[0.2em] text-gold-600 font-bold">
@@ -216,6 +231,8 @@ export function FotosTab({ trip }: FotosTabProps) {
           photo={openPhoto}
           tripSlug={trip.slug}
           dayLabel={openDayLabel}
+          currentUserName={currentUserName}
+          celebrantName={celebrantName}
           onClose={() => setOpenId(null)}
           onDelete={(id) => remove(id)}
           onCaptionChange={(id, c) => setCaption(id, c)}

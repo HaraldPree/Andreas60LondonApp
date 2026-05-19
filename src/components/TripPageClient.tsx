@@ -72,7 +72,13 @@ export function TripPageClient({ trip }: TripPageClientProps) {
         <AnimatePresence mode="wait">
           {tab === "programm" && <ProgrammTab key="programm" trip={trip} />}
           {tab === "karte" && <KarteTab key="karte" trip={trip} />}
-          {tab === "fotos" && <FotosTab key="fotos" trip={trip} />}
+          {tab === "fotos" && (
+            <FotosTab
+              key="fotos"
+              trip={trip}
+              currentUserName={currentUserName}
+            />
+          )}
           {tab === "reservierungen" && (
             <ReservierungenTab key="reservierungen" trip={trip} />
           )}

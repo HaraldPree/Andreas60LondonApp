@@ -18,11 +18,14 @@ import { blobToDataUrl } from "@/lib/photoProcessing";
 import { mapsUrl } from "@/lib/formatters";
 import { useAiConsent } from "@/hooks/useAiConsent";
 import { AiConsentModal } from "@/components/ai/AiConsentModal";
+import { PhotoShareSection } from "./PhotoShareSection";
 
 interface PhotoDetailProps {
   photo: PhotoMeta;
   tripSlug: string;
   dayLabel?: string;
+  currentUserName?: string | null;
+  celebrantName?: string | null;
   onClose: () => void;
   onDelete: (id: string) => void;
   onCaptionChange: (id: string, caption: string) => void;
@@ -33,6 +36,8 @@ export function PhotoDetail({
   photo,
   tripSlug,
   dayLabel,
+  currentUserName,
+  celebrantName,
   onClose,
   onDelete,
   onCaptionChange,
@@ -268,6 +273,16 @@ export function PhotoDetail({
                 <MapPin size={11} /> Auf Karte
               </a>
             )}
+          </div>
+
+          {/* Share section */}
+          <div className="bg-cream px-4 pt-3">
+            <PhotoShareSection
+              photo={photo}
+              tripSlug={tripSlug}
+              currentUserName={currentUserName ?? null}
+              celebrantName={celebrantName}
+            />
           </div>
 
           {/* AI Narrator */}
