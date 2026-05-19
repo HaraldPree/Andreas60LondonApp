@@ -18,6 +18,7 @@ import { PersonPicker } from "@/components/identity/PersonPicker";
 import { UserAvatarButton } from "@/components/identity/UserAvatarButton";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useTripVariant } from "@/hooks/useTripVariant";
+import { useTripPageBackToHome } from "@/hooks/useTripPageBackToHome";
 import { UpdateBanner } from "@/components/pwa/UpdateBanner";
 
 interface TripPageClientProps {
@@ -38,6 +39,13 @@ export function TripPageClient({ trip }: TripPageClientProps) {
     trip.slug,
     trip.defaultVariant ?? "original",
   );
+
+  // PWA-Retour-UX: wenn die App via Home-Screen-Shortcut direkt hier
+  // landet (history.length === 1), pusht der Hook einen Sentinel der
+  // bei popstate zur Übersicht "/" navigiert. Damit funktioniert die
+  // iOS-Swipe-Back / Android-System-Back-Geste auch im PWA-Direct-
+  // Mode konsistent (sonst grauer Bildschirm).
+  useTripPageBackToHome();
 
   // effectiveTrip: bei aktiver Alternative die alternativen Tage
   // einblenden, an null-Stellen das Original beibehalten. Alle Tabs
