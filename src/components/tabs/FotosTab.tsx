@@ -10,6 +10,7 @@ import {
   AlertCircle,
   Users,
   CheckSquare,
+  ChevronDown,
 } from "lucide-react";
 import type { Trip } from "@/types/trip";
 import type { PhotoMeta } from "@/types/photo";
@@ -28,6 +29,15 @@ import { classNames } from "@/lib/formatters";
 interface FotosTabProps {
   trip: Trip;
   currentUserName?: string | null;
+}
+
+/** Heutiges Datum als ISO-String (YYYY-MM-DD) für Tag-Matching. */
+function todayIso(): string {
+  const d = new Date();
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
 }
 
 export function FotosTab({ trip, currentUserName = null }: FotosTabProps) {
@@ -53,6 +63,10 @@ export function FotosTab({ trip, currentUserName = null }: FotosTabProps) {
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkShareOpen, setBulkShareOpen] = useState(false);
+
+  // v1.7.6 — Collapsible-States gegen Endlos-Scroll (Lukas-Feedback)
+  const today = todayIso();
+  const [sharedGalleryOpen, setSharedGalleryOpen] = useState(true);
 
   // Für Bulk-Share-Sheet brauchen wir die existierenden Shared-Photos
   // (damit Photos die schon online sind nur Visibility ändern, nicht
@@ -150,16 +164,37 @@ export function FotosTab({ trip, currentUserName = null }: FotosTabProps) {
       {/* Location-Erkennung: prominent oben für "Foto vom Freund – wo ist das?" */}
       <LocationIdentifier trip={trip} />
 
-      {/* Gemeinsame Galerie — Fotos die andere mit dir / der Gruppe geteilt haben */}
-      <div className="px-1 pt-2">
-        <p className="font-display text-[11px] uppercase tracking-[0.2em] text-gold-600 font-bold">
-          Gemeinsame Galerie
-        </p>
-        <p className="text-[11px] text-ink-mid mt-0.5">
-          Was andere Mitreisende freigegeben haben
-        </p>
+      {/* v1.7.6 — Gemeinsame Galerie als ausklappbare Sektion
+          (Lukas-Feedback: zu viel Scrollen wenn alle Sections offen) */}
+      <div className="rounded-2xl bg-white shadow-card border border-cream-200/50 overflow-hidden">
+        <button
+          type="button"
+          onClick={() => setSharedGalleryOpen((v) => !v)}
+          className="w-full px-4 py-3 flex items-center gap-3 text-left hover:bg-cream-50 transition"
+        >
+          <Users size={18} className="text-gold-600 flex-shrink-0" />
+          <div className="flex-1 min-w-0">
+            <p className="font-display text-[11px] uppercase tracking-[0.2em] text-gold-600 font-bold">
+              Gemeinsame Galerie
+            </p>
+            <p className="text-[11px] text-ink-mid mt-0.5">
+              Was andere Mitreisende freigegeben haben
+            </p>
+          </div>
+          <ChevronDown
+            size={16}
+            className={classNames(
+              "text-ink-light transition-transform flex-shrink-0",
+              !sharedGalleryOpen && "rotate-[-90deg]",
+            )}
+          />
+        </button>
+        {sharedGalleryOpen && (
+          <div className="px-3 pb-3 pt-1 border-t border-cream-100">
+            <SharedGallery trip={trip} currentUserName={currentUserName} />
+          </div>
+        )}
       </div>
-      <SharedGallery trip={trip} currentUserName={currentUserName} />
 
       <div className="px-1 pt-2 flex items-baseline justify-between">
         <p className="font-display text-[11px] uppercase tracking-[0.2em] text-gold-600 font-bold">
@@ -294,6 +329,9 @@ export function FotosTab({ trip, currentUserName = null }: FotosTabProps) {
           {trip.days.map((day, i) => {
             const list = grouped.get(i);
             if (!list || list.length === 0) return null;
+            // v1.7.6 — Default-open nur für heutigen Tag (isoDate === today).
+            // Andere Tage sind collapsed → kein Endlos-Scroll.
+            const isToday = day.isoDate === today;
             return (
               <DaySection
                 key={day.date}
@@ -306,6 +344,7 @@ export function FotosTab({ trip, currentUserName = null }: FotosTabProps) {
                 selectionMode={selectionMode}
                 selectedIds={selectedIds}
                 onToggleSelect={toggleSelect}
+                defaultOpen={isToday}
               />
             );
           })}
@@ -323,6 +362,7 @@ export function FotosTab({ trip, currentUserName = null }: FotosTabProps) {
                 selectionMode={selectionMode}
                 selectedIds={selectedIds}
                 onToggleSelect={toggleSelect}
+                defaultOpen={false}
               />
             );
           })()}
@@ -395,6 +435,7 @@ function DaySection({
   selectionMode,
   selectedIds,
   onToggleSelect,
+  defaultOpen = false,
 }: {
   title: string;
   subtitle: string;
@@ -405,12 +446,20 @@ function DaySection({
   selectionMode: boolean;
   selectedIds: Set<string>;
   onToggleSelect: (id: string) => void;
+  /** v1.7.6 — Default-open für heutigen Tag, sonst zu (gegen Endlos-Scroll). */
+  defaultOpen?: boolean;
 }) {
+  const [open, setOpen] = useState(defaultOpen);
+
   return (
     <div className="rounded-2xl bg-white shadow-card border border-cream-200/50 overflow-hidden">
       <div className="h-1.5 w-full" style={{ backgroundColor: color }} />
-      <div className="p-4">
-        <div className="mb-3">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="w-full p-4 flex items-start gap-3 text-left hover:bg-cream-50 transition"
+      >
+        <div className="flex-1 min-w-0">
           <p className="text-[10px] uppercase tracking-wider text-ink-light font-semibold">
             {title}
           </p>
@@ -419,25 +468,36 @@ function DaySection({
             {photos.length} {photos.length === 1 ? "Foto" : "Fotos"}
           </p>
         </div>
-        <div className="grid grid-cols-3 gap-1.5">
-          {photos.map((p) => (
-            <div key={p.id} className="relative">
-              <PhotoCard
-                photo={p}
-                onClick={() => {
-                  if (selectionMode) onToggleSelect(p.id);
-                  else onOpen(p.id);
-                }}
-                selectionMode={selectionMode}
-                selected={selectedIds.has(p.id)}
-                // Broken photos can always be removed even without
-                // entering selection mode — they're useless to the user.
-                onSelfDelete={onDelete}
-              />
-            </div>
-          ))}
+        <ChevronDown
+          size={16}
+          className={classNames(
+            "text-ink-light transition-transform flex-shrink-0 mt-1",
+            !open && "rotate-[-90deg]",
+          )}
+        />
+      </button>
+      {open && (
+        <div className="px-4 pb-4 border-t border-cream-100 pt-3">
+          <div className="grid grid-cols-3 gap-1.5">
+            {photos.map((p) => (
+              <div key={p.id} className="relative">
+                <PhotoCard
+                  photo={p}
+                  onClick={() => {
+                    if (selectionMode) onToggleSelect(p.id);
+                    else onOpen(p.id);
+                  }}
+                  selectionMode={selectionMode}
+                  selected={selectedIds.has(p.id)}
+                  // Broken photos can always be removed even without
+                  // entering selection mode — they're useless to the user.
+                  onSelfDelete={onDelete}
+                />
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
