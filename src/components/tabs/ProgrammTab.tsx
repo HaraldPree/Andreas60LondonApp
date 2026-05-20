@@ -13,17 +13,21 @@ import { useWeather } from "@/hooks/useWeather";
 import type { TripVariant } from "@/hooks/useTripVariant";
 import { getDisruptionsForDay } from "@/lib/disruptions";
 import { useUserPlaces } from "@/hooks/useUserPlaces";
+import { usePlaceStatus } from "@/hooks/usePlaceStatus";
 
 interface ProgrammTabProps {
   trip: Trip;
   variant?: TripVariant;
   onVariantChange?: (next: TripVariant) => void;
+  /** v1.7.1 — für Place-Status-Sync zwischen Programm + Wunschliste. */
+  currentUserName?: string | null;
 }
 
 export function ProgrammTab({
   trip,
   variant = "original",
   onVariantChange,
+  currentUserName,
 }: ProgrammTabProps) {
   const { data: weather } = useWeather(
     trip.weatherLocation.lat,
@@ -31,6 +35,12 @@ export function ProgrammTab({
     trip.weatherLocation.timezone,
   );
   const { listForDay, remove: removeUserPlace } = useUserPlaces(trip.slug);
+
+  // v1.7.1 — Place-Status synchron mit Wunschliste-Tab
+  const { statusOf: placeStatusOf, setStatus: setPlaceStatus } = usePlaceStatus(
+    trip.slug,
+    currentUserName ?? null,
+  );
 
   // v1.6.0 — In-App-Editor (Phase 1+2) deaktiviert auf User-Wunsch:
   // "Phase 1 und 2 kannst du momentan deaktivieren — das werden wir in
@@ -110,6 +120,10 @@ export function ProgrammTab({
               // itemStateFor/onToggleItemDone/onCommitItemState/etc.
               // Props mehr durchgereicht. DayCard rendert ohne Circle-
               // Button, ohne Action-Menu und ohne Stats-Badge.
+
+              // v1.7.1 — Place-Status-Sync mit Wunschliste-Tab
+              placeStatusOf={placeStatusOf}
+              onSetPlaceStatus={setPlaceStatus}
             />
           ))}
         </div>

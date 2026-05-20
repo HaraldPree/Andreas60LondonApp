@@ -10,6 +10,8 @@ import {
   Trash2,
   Check,
   CircleSlash,
+  Eye,
+  Heart,
   RotateCcw,
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -17,10 +19,12 @@ import type { Day } from "@/types/trip";
 import type { UserPlace } from "@/types/userPlace";
 import type { DayDisruptionWindow } from "@/lib/disruptions";
 import type { ItemMark, ItemState } from "@/types/itemState";
+import type { PlaceStatus } from "@/types/place";
 import { classNames, mapsUrl } from "@/lib/formatters";
 import { TimelineItem } from "./TimelineItem";
 import { DisruptionPill } from "./DisruptionPill";
 import { ItemActionSheet } from "./ItemActionSheet";
+import { PlaceStatusActionSheet } from "@/components/places/PlaceStatusActionSheet";
 import { TransportButtons } from "@/components/ui/TransportButtons";
 
 interface DayCardProps {
@@ -54,6 +58,14 @@ interface DayCardProps {
    * v1.4.0 — Phase 2: „Ab hier Rest des Tages offen lassen".
    */
   onRestOfDayOpen?: (fromItemIndex: number) => void;
+
+  /**
+   * v1.7.1 — Place-Status-Sync (Wunschliste ↔ Programm).
+   * Wenn ein Item ein `placeId` hat, kann diese Funktion den aktuellen
+   * Status liefern bzw. setzen. Header zeigt zusätzliche Stats.
+   */
+  placeStatusOf?: (placeId: string) => PlaceStatus;
+  onSetPlaceStatus?: (placeId: string, next: PlaceStatus) => void;
 }
 
 export function DayCard({
@@ -70,6 +82,8 @@ export function DayCard({
   onClearItem,
   onClearDay,
   onRestOfDayOpen,
+  placeStatusOf,
+  onSetPlaceStatus,
 }: DayCardProps) {
   const [open, setOpen] = useState(defaultOpen);
   const [showRainy, setShowRainy] = useState(false);
@@ -79,6 +93,37 @@ export function DayCard({
   const sheetItem = sheetIndex !== null ? day.items[sheetIndex] : null;
   const sheetState =
     sheetIndex !== null && itemStateFor ? itemStateFor(sheetIndex) : undefined;
+
+  // v1.7.1 — Place-Status Action-Sheet (für Items mit placeId)
+  const [placeStatusSheetIndex, setPlaceStatusSheetIndex] = useState<
+    number | null
+  >(null);
+  const placeStatusSheetItem =
+    placeStatusSheetIndex !== null
+      ? day.items[placeStatusSheetIndex]
+      : null;
+  const placeStatusSheetCurrent: PlaceStatus =
+    placeStatusSheetItem?.placeId && placeStatusOf
+      ? placeStatusOf(placeStatusSheetItem.placeId)
+      : "open";
+
+  // v1.7.1 — Per-Day Place-Stats
+  const placeStats = useMemo(() => {
+    if (!placeStatusOf) return null;
+    let wantToSee = 0;
+    let passed = 0;
+    let done = 0;
+    let withPlace = 0;
+    for (const item of day.items) {
+      if (!item.placeId) continue;
+      withPlace += 1;
+      const s = placeStatusOf(item.placeId);
+      if (s === "wantToSee") wantToSee += 1;
+      else if (s === "passed") passed += 1;
+      else if (s === "done") done += 1;
+    }
+    return { wantToSee, passed, done, withPlace };
+  }, [day.items, placeStatusOf]);
 
   // Stats für den Header-Badge
   const stats = useMemo(() => {
@@ -138,6 +183,36 @@ export function DayCard({
               <DisruptionPill windows={disruptions} />
             </div>
           )}
+          {/* v1.7.1 Place-Stats — wenn Items mit placeId existieren UND
+              mindestens einer markiert ist */}
+          {placeStats &&
+            placeStats.withPlace > 0 &&
+            (placeStats.wantToSee + placeStats.passed + placeStats.done >
+              0) && (
+              <div className="mt-1.5 inline-flex items-center gap-2 text-[10px] font-mono">
+                {placeStats.done > 0 && (
+                  <span className="inline-flex items-center gap-0.5 text-success">
+                    <Check size={10} strokeWidth={3} />
+                    {placeStats.done}
+                  </span>
+                )}
+                {placeStats.passed > 0 && (
+                  <span className="inline-flex items-center gap-0.5 text-info">
+                    <Eye size={10} strokeWidth={2.2} />
+                    {placeStats.passed}
+                  </span>
+                )}
+                {placeStats.wantToSee > 0 && (
+                  <span className="inline-flex items-center gap-0.5 text-gold-600">
+                    <Heart size={10} fill="currentColor" strokeWidth={0} />
+                    {placeStats.wantToSee}
+                  </span>
+                )}
+                <span className="text-ink-light">
+                  / {placeStats.withPlace} Punkt(e)
+                </span>
+              </div>
+            )}
           {/* v1.3.0 Stats-Badge — nur sichtbar wenn mind. 1 Item markiert */}
           {stats && stats.touched > 0 && (
             <div className="mt-1.5 inline-flex items-center gap-2 text-[10px] font-mono">
@@ -193,6 +268,16 @@ export function DayCard({
                     }
                     onOpenMenu={
                       onCommitItemState ? () => setSheetIndex(i) : undefined
+                    }
+                    placeStatus={
+                      item.placeId && placeStatusOf
+                        ? placeStatusOf(item.placeId)
+                        : undefined
+                    }
+                    onOpenPlaceStatus={
+                      item.placeId && onSetPlaceStatus
+                        ? () => setPlaceStatusSheetIndex(i)
+                        : undefined
                     }
                   />
                 ))}
@@ -424,6 +509,22 @@ export function DayCard({
           subsequentCount={day.items.length - 1 - sheetIndex}
         />
       )}
+
+      {/* v1.7.1 — Place-Status Action-Sheet (Programm ↔ Wunschliste-Sync) */}
+      {placeStatusSheetItem &&
+        placeStatusSheetItem.placeId &&
+        onSetPlaceStatus && (
+          <PlaceStatusActionSheet
+            open={placeStatusSheetIndex !== null}
+            placeName={placeStatusSheetItem.label}
+            subtitle={`${placeStatusSheetItem.time} · ${day.date}`}
+            currentStatus={placeStatusSheetCurrent}
+            onSelect={(next) =>
+              onSetPlaceStatus(placeStatusSheetItem.placeId!, next)
+            }
+            onClose={() => setPlaceStatusSheetIndex(null)}
+          />
+        )}
     </div>
   );
 }

@@ -305,6 +305,7 @@ export const londonTrip: Trip = {
           icon: "🛍️",
           coordinates: { lat: 51.5152, lng: -0.1418 },
           note: "10 Min Fußweg vom Apartment. Selfridges, John Lewis, Liberty.",
+          placeId: "liberty-london",
         },
         {
           time: "Nachmittag",
@@ -313,6 +314,7 @@ export const londonTrip: Trip = {
           icon: "🏮",
           coordinates: { lat: 51.5118, lng: -0.1305 },
           note: "Gerrard Street für China-Atmosphäre, Old Compton Street für Cafés.",
+          placeId: "soho-chinatown",
         },
         {
           time: "Alternative",
@@ -321,6 +323,7 @@ export const londonTrip: Trip = {
           icon: "🌳",
           coordinates: { lat: 51.5313, lng: -0.1570 },
           note: "Falls die Anreise müde gemacht hat – Regent's Park ist 10 Min vom Hotel.",
+          placeId: "regents-park",
         },
         {
           time: "Abend",
@@ -394,6 +397,7 @@ export const londonTrip: Trip = {
           icon: "🗿",
           coordinates: { lat: 51.5121, lng: -0.1873 },
           note: "Start gleich beim Apartment — schöne Foto-Stopps.",
+          placeId: "leinster-square-statuen",
         },
         {
           time: "Vormittag",
@@ -401,6 +405,7 @@ export const londonTrip: Trip = {
           type: "activity",
           icon: "🦁",
           coordinates: { lat: 51.508, lng: -0.1281 },
+          placeId: "trafalgar-square",
         },
         {
           time: "Vormittag",
@@ -408,13 +413,23 @@ export const londonTrip: Trip = {
           type: "activity",
           icon: "🕰️",
           coordinates: { lat: 51.4994, lng: -0.1245 },
+          placeId: "big-ben",
         },
         {
           time: "Vormittag",
-          label: "Westminster Abbey (außen) & Buckingham Palace",
+          label: "Westminster Abbey (außen)",
+          type: "activity",
+          icon: "⛪",
+          coordinates: { lat: 51.4994, lng: -0.1273 },
+          placeId: "westminster-abbey",
+        },
+        {
+          time: "Vormittag",
+          label: "Buckingham Palace",
           type: "activity",
           icon: "💂",
           coordinates: { lat: 51.5014, lng: -0.1419 },
+          placeId: "buckingham-palace",
         },
         {
           time: "13:00",
@@ -425,6 +440,7 @@ export const londonTrip: Trip = {
           coordinates: { lat: 51.5014, lng: -0.1525 },
           note: "Das süße Herzstück für Andreas 60er. Reservierung 436JUJ35U7YV. Service 12:00–16:30.",
           bookingUrl: "https://www.the-berkeley.co.uk/restaurants-and-bars/cedric-grolet/",
+          placeId: "cedric-grolet-berkeley",
         },
         {
           time: "Nachmittag",
@@ -440,6 +456,7 @@ export const londonTrip: Trip = {
           icon: "🌈",
           coordinates: { lat: 51.5093, lng: -0.1957 },
           note: "Portobello Road, bunte Häuser, Vintage-Vibes. Schlendern + Foto-Stopps.",
+          placeId: "notting-hill-pastell",
         },
         {
           time: "Abend",
@@ -497,6 +514,7 @@ export const londonTrip: Trip = {
           highlight: true,
           coordinates: { lat: 51.5025, lng: -0.1148 },
           note: "~150m Banksy-Style-Streetart unter Waterloo Station, wechselt fast täglich. Gratis, 24/7. Foto-Paradies.",
+          placeId: "leake-street-tunnel",
         },
         {
           time: "11:30",
@@ -505,6 +523,7 @@ export const londonTrip: Trip = {
           icon: "🎡",
           coordinates: { lat: 51.5033, lng: -0.1196 },
           note: "5 Min Fußweg, schöne Themse-View Richtung Westminster.",
+          placeId: "london-eye-outside",
         },
         {
           time: "12:00",
@@ -520,6 +539,7 @@ export const londonTrip: Trip = {
           highlight: true,
           coordinates: { lat: 51.5055, lng: -0.0909 },
           note: "Foodie-Highlight von London. Käse (Kappacasein Grilled Cheese), Pies, Bread-Ahead-Doughnuts, Bratwurst. Mittag direkt am Markt — kein Restaurant.",
+          placeId: "borough-market",
         },
         {
           time: "14:30",
@@ -528,6 +548,7 @@ export const londonTrip: Trip = {
           icon: "🌉",
           coordinates: { lat: 51.5055, lng: -0.0754 },
           note: "5 Min Fußweg von Borough Market. Glass Floor optional (£12, ~30 Min) falls Lust.",
+          placeId: "tower-bridge",
         },
         {
           time: "15:00",
@@ -543,6 +564,7 @@ export const londonTrip: Trip = {
           highlight: true,
           coordinates: { lat: 51.5130, lng: -0.0826 },
           note: "Der Geheimtipp gegenüber Sky Garden: 15. Stock, Walk-in (keine Reservierung), gratis. Aussicht über St. Paul's, Tower Bridge, Themse. Tube Bank/Monument → 2 Min Fußweg.",
+          placeId: "garden-at-120",
         },
         {
           time: "19:30",
@@ -598,6 +620,7 @@ export const londonTrip: Trip = {
           coordinates: { lat: 51.5074, lng: -0.1219 },
           note: "Schönste Anreise: Themse-Panorama, Tower Bridge von unten passieren, City-Skyline. Uber Boat River Roamer £21/Tag unbegrenzt oder einfache Strecke ~£12.",
           bookingUrl: "https://www.thamesclippers.com/",
+          placeId: "thames-clipper",
         },
         {
           time: "12:00",
@@ -606,6 +629,7 @@ export const londonTrip: Trip = {
           icon: "⛵",
           coordinates: { lat: 51.4827, lng: -0.0096 },
           note: "Innen optional (£20). Außen reicht für Foto + Atmosphäre.",
+          placeId: "cutty-sark",
         },
         {
           time: "12:30",
@@ -615,6 +639,7 @@ export const londonTrip: Trip = {
           highlight: true,
           coordinates: { lat: 51.4814, lng: -0.0099 },
           note: "Kleiner als Borough Market aber charmant: Streetfood, Kunsthandwerk, Souvenirs. Mi–So geöffnet.",
+          placeId: "greenwich-market",
         },
         {
           time: "14:00",
@@ -625,6 +650,7 @@ export const londonTrip: Trip = {
           coordinates: { lat: 51.4769, lng: 0.0005 },
           note: "10 Min Anstieg durch Greenwich Park. Oben: Greenwich-Meridian (Foto-Highlight) + berühmte Skyline-Aussicht über London. Innen kostet £20, draußen + Aussicht gratis.",
           bookingUrl: "https://www.rmg.co.uk/royal-observatory",
+          placeId: "royal-observatory",
         },
         {
           time: "15:30",
@@ -632,6 +658,7 @@ export const londonTrip: Trip = {
           type: "activity",
           icon: "🌳",
           note: "Schöner Park, gemütlich runter zur DLR.",
+          placeId: "greenwich-park",
         },
         {
           time: "16:00",
@@ -639,6 +666,7 @@ export const londonTrip: Trip = {
           type: "transport",
           icon: "🚇",
           note: "DLR fährt vollautomatisch über Canary Wharf — schöne Skyline aus dem Zug.",
+          placeId: "dlr",
         },
         {
           time: "17:00",
@@ -791,7 +819,7 @@ export const londonTrip: Trip = {
         },
         {
           time: "09:30",
-          label: "Walking ab Apartment → Piccadilly Circus",
+          label: "Walking ab Apartment Richtung Westend",
           type: "activity",
           icon: "🚶",
           coordinates: { lat: 51.5101, lng: -0.1342 },
@@ -804,6 +832,7 @@ export const londonTrip: Trip = {
           icon: "🦁",
           coordinates: { lat: 51.508, lng: -0.1281 },
           note: "National Gallery direkt dahinter (gratis, falls Zeit).",
+          placeId: "trafalgar-square",
         },
         {
           time: "10:30",
@@ -812,6 +841,7 @@ export const londonTrip: Trip = {
           icon: "🕰️",
           coordinates: { lat: 51.4994, lng: -0.1245 },
           note: "Außenbesichtigung. Westminster Abbey innen würde 1-2h kosten.",
+          placeId: "big-ben",
         },
         {
           time: "11:00",
@@ -819,6 +849,7 @@ export const londonTrip: Trip = {
           type: "activity",
           icon: "🌳",
           coordinates: { lat: 51.5028, lng: -0.1346 },
+          placeId: "st-james-park",
         },
         {
           time: "11:30",
@@ -826,6 +857,7 @@ export const londonTrip: Trip = {
           type: "activity",
           icon: "💂",
           coordinates: { lat: 51.5014, lng: -0.1419 },
+          placeId: "buckingham-palace",
         },
         {
           time: "12:15",
@@ -843,6 +875,7 @@ export const londonTrip: Trip = {
           coordinates: { lat: 51.5014, lng: -0.1525 },
           note: "Reservierung 436JUJ35U7YV.",
           bookingUrl: "https://www.the-berkeley.co.uk/restaurants-and-bars/cedric-grolet/",
+          placeId: "cedric-grolet-berkeley",
         },
         {
           time: "14:45",
@@ -851,14 +884,7 @@ export const londonTrip: Trip = {
           icon: "🌳",
           coordinates: { lat: 51.5074, lng: -0.1657 },
           note: "Serpentine umrunden oder zu Princess Diana Memorial.",
-        },
-        {
-          time: "15:30",
-          label: "Harrods (optional, 10 Min Fußweg)",
-          type: "activity",
-          icon: "🛍️",
-          coordinates: { lat: 51.4994, lng: -0.1632 },
-          note: "Food Hall ist beeindruckend.",
+          placeId: "hyde-park",
         },
         {
           time: "16:30",
@@ -867,6 +893,7 @@ export const londonTrip: Trip = {
           icon: "🏛️",
           coordinates: { lat: 51.4966, lng: -0.1722 },
           note: "Beide gratis. V&A für Mode/Design, NHM für Dinosaurier.",
+          placeId: "vanda-museum",
         },
         {
           time: "17:30",
@@ -881,6 +908,7 @@ export const londonTrip: Trip = {
           type: "activity",
           icon: "🌈",
           coordinates: { lat: 51.5165, lng: -0.2056 },
+          placeId: "portobello-road-market",
         },
         {
           time: "19:30",
@@ -889,6 +917,7 @@ export const londonTrip: Trip = {
           icon: "🍺",
           coordinates: { lat: 51.5093, lng: -0.1957 },
           note: "The Cock & Bottle oder The Ladbroke Arms.",
+          placeId: "the-cock-and-bottle",
         },
       ],
       mapPoints: [
@@ -927,6 +956,7 @@ export const londonTrip: Trip = {
           icon: "🏢",
           coordinates: { lat: 51.5142, lng: -0.0982 },
           note: "Architektur-Spaziergang rund um St. Paul's.",
+          placeId: "paternoster-square",
         },
         {
           time: "Vormittag",
@@ -935,6 +965,7 @@ export const londonTrip: Trip = {
           icon: "🌿",
           coordinates: { lat: 51.5202, lng: -0.0938 },
           note: "Tropengarten im Barbican — nur an bestimmten Tagen offen, barbican.org.uk prüfen.",
+          placeId: "barbican-conservatory",
         },
         {
           time: "Vormittag",
@@ -943,6 +974,7 @@ export const londonTrip: Trip = {
           icon: "🖼️",
           coordinates: { lat: 51.5159, lng: -0.0922 },
           note: "Kostenlos — inkl. römisches Amphitheater im Keller.",
+          placeId: "guildhall-art-gallery",
         },
         {
           time: "Mittag",
@@ -952,6 +984,7 @@ export const londonTrip: Trip = {
           coordinates: { lat: 51.5138, lng: -0.0984 },
           note: "Eintritt £25, Aufstieg auf die Stone Gallery für Aussicht (528 Stufen).",
           bookingUrl: "https://www.stpauls.co.uk/",
+          placeId: "st-pauls-cathedral",
         },
         {
           time: "Mittag",
@@ -960,6 +993,7 @@ export const londonTrip: Trip = {
           icon: "🥪",
           coordinates: { lat: 51.5055, lng: -0.0909 },
           note: "Kappacasein Grilled Cheese, Padella Pasta, Bratwurst.",
+          placeId: "borough-market",
         },
         {
           time: "Nachmittag",
@@ -969,6 +1003,7 @@ export const londonTrip: Trip = {
           coordinates: { lat: 51.5081, lng: -0.0759 },
           note: "Tickets online (£35), 2-3h einplanen.",
           bookingUrl: "https://www.hrp.org.uk/tower-of-london/",
+          placeId: "tower-of-london",
         },
         {
           time: "Nachmittag",
@@ -976,6 +1011,7 @@ export const londonTrip: Trip = {
           type: "activity",
           icon: "🌉",
           coordinates: { lat: 51.5055, lng: -0.0754 },
+          placeId: "tower-bridge",
         },
         {
           time: "Nachmittag",
@@ -984,6 +1020,7 @@ export const londonTrip: Trip = {
           icon: "⚓",
           coordinates: { lat: 51.5074, lng: -0.0728 },
           note: "Schöne Marina + Restaurants an der Themse.",
+          placeId: "st-katherine-docks",
         },
         {
           time: "Nachmittag",
@@ -992,6 +1029,7 @@ export const londonTrip: Trip = {
           icon: "🚢",
           coordinates: { lat: 51.5066, lng: -0.0814 },
           note: "Kriegsschiff-Museum, £24.",
+          placeId: "hms-belfast",
         },
         {
           time: "Nachmittag",
@@ -1000,6 +1038,7 @@ export const londonTrip: Trip = {
           icon: "🎨",
           coordinates: { lat: 51.5099, lng: -0.0985 },
           note: "Tate Modern Eintritt frei.",
+          placeId: "tate-modern",
         },
         {
           time: "Spätnachmittag",
@@ -1007,6 +1046,7 @@ export const londonTrip: Trip = {
           type: "activity",
           icon: "🖼️",
           coordinates: { lat: 51.5085, lng: -0.1399 },
+          placeId: "halcyon-gallery",
         },
         {
           time: "Abend",
@@ -1016,6 +1056,7 @@ export const londonTrip: Trip = {
           coordinates: { lat: 51.5132, lng: -0.1311 },
           note: "Ronnie Scott's (reservieren!) oder The 100 Club Oxford Street.",
           bookingUrl: "https://www.ronniescotts.co.uk/",
+          placeId: "ronnie-scotts",
         },
       ],
       mapPoints: [
@@ -1055,6 +1096,7 @@ export const londonTrip: Trip = {
           coordinates: { lat: 51.5074, lng: -0.0883 },
           note: "Thames Clipper von Westminster/Embankment (~1h, River Roamer £21/Tag) oder DLR von Bank.",
           bookingUrl: "https://www.thamesclippers.com/",
+          placeId: "thames-clipper",
         },
         {
           time: "Vormittag",
@@ -1063,6 +1105,7 @@ export const londonTrip: Trip = {
           icon: "⛵",
           coordinates: { lat: 51.4827, lng: -0.0096 },
           note: "Historischer Tee-Klipper, innen £20.",
+          placeId: "cutty-sark",
         },
         {
           time: "Vormittag",
@@ -1071,6 +1114,7 @@ export const londonTrip: Trip = {
           icon: "🛍️",
           coordinates: { lat: 51.4814, lng: -0.0099 },
           note: "Kunsthandwerk + Streetfood. Mi–So offen.",
+          placeId: "greenwich-market",
         },
         {
           time: "Mittag",
@@ -1081,6 +1125,7 @@ export const londonTrip: Trip = {
           coordinates: { lat: 51.4769, lng: 0.0005 },
           note: "Greenwich-Meridian + Aussicht. Eintritt £20, Hügel kostenlos.",
           bookingUrl: "https://www.rmg.co.uk/royal-observatory",
+          placeId: "royal-observatory",
         },
         {
           time: "Nachmittag",
@@ -1089,6 +1134,7 @@ export const londonTrip: Trip = {
           icon: "🏛️",
           coordinates: { lat: 51.4836, lng: -0.0050 },
           note: "Die 'Sixtinische Kapelle Englands' — atemberaubende Decke.",
+          placeId: "painted-hall",
         },
         {
           time: "Nachmittag",
@@ -1097,6 +1143,7 @@ export const londonTrip: Trip = {
           icon: "🚇",
           coordinates: { lat: 51.5049, lng: -0.0195 },
           note: "Skyline-Kontrast nach historischem Greenwich. 5 Min mit DLR.",
+          placeId: "canary-wharf",
         },
         {
           time: "Spätnachmittag",
@@ -1105,6 +1152,7 @@ export const londonTrip: Trip = {
           icon: "🌴",
           coordinates: { lat: 51.5054, lng: -0.0186 },
           note: "Versteckter Dachgarten über der Crossrail-Station, gratis.",
+          placeId: "crossrail-roof-garden",
         },
         {
           time: "Abend",

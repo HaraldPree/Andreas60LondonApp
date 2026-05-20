@@ -91,13 +91,33 @@ export function usePlaceStatus(tripSlug: string, userName: string | null) {
 
   const stats = useCallback(() => {
     let wantToSee = 0;
+    let passed = 0;
     let done = 0;
     for (const val of Object.values(statuses)) {
       if (val === "wantToSee") wantToSee += 1;
+      else if (val === "passed") passed += 1;
       else if (val === "done") done += 1;
     }
-    return { wantToSee, done };
+    return { wantToSee, passed, done };
   }, [statuses]);
+
+  /** Stats nur für eine vorgegebene Liste von placeIds (z.B. Items
+   *  eines Tages im Programm). */
+  const statsFor = useCallback(
+    (placeIds: string[]) => {
+      let wantToSee = 0;
+      let passed = 0;
+      let done = 0;
+      for (const id of placeIds) {
+        const val = statuses[id];
+        if (val === "wantToSee") wantToSee += 1;
+        else if (val === "passed") passed += 1;
+        else if (val === "done") done += 1;
+      }
+      return { wantToSee, passed, done, total: placeIds.length };
+    },
+    [statuses],
+  );
 
   return {
     hydrated,
@@ -105,6 +125,7 @@ export function usePlaceStatus(tripSlug: string, userName: string | null) {
     setStatus,
     clear,
     stats,
+    statsFor,
     rawMap: statuses,
   };
 }

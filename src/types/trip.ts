@@ -134,6 +134,15 @@ export interface ProgramItem {
   bookingUrl?: string;
   note?: string;
   duration?: string;
+  /**
+   * v1.7.1 — Verlinkung zur Place-Library für bidirektionalen Status-
+   * Sync zwischen Programm-Tab und Wunschliste-Tab. Wenn gesetzt, zeigt
+   * das TimelineItem rechts einen Status-Indikator (○ / 💭 / 👁 / ✓),
+   * der bei Tap ein Action-Sheet öffnet.
+   *
+   * IDs müssen mit `trip.places[].id` matchen.
+   */
+  placeId?: string;
 }
 
 export type MapPointCategory =

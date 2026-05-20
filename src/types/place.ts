@@ -80,8 +80,19 @@ export interface Place {
   related?: string[];
 }
 
-/** User-Status pro Place. Drei mögliche Werte. */
-export type PlaceStatus = "open" | "wantToSee" | "done";
+/**
+ * User-Status pro Place. Vier mögliche Werte (v1.7.1).
+ *
+ *  - "open":      Default, nicht markiert
+ *  - "wantToSee": 💭 Auf meine Wunschliste
+ *  - "passed":    👁 Vorbei / gesehen (außen besichtigt, im Vorbeigehen)
+ *  - "done":      ✓ Erledigt (vollständig erlebt — innen, drin, durchgemacht)
+ *
+ * Naming: bewusst „Vorbei" für die Außen-Variante (Variante A im
+ * v1.7.1 Wording-Vorschlag). Klares mentales Modell: vorbeigegangen
+ * ≠ erlebt.
+ */
+export type PlaceStatus = "open" | "wantToSee" | "passed" | "done";
 
 /** Per-Person Status-Map (in localStorage). */
 export type PlaceStatusMap = Record<string, PlaceStatus>;

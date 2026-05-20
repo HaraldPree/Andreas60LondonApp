@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import {
   ChevronDown,
   Heart,
+  Eye,
   Check,
   ListChecks,
   Filter,
@@ -21,7 +22,7 @@ interface WunschlisteTabProps {
   currentUserName?: string | null;
 }
 
-type FilterMode = "all" | "wantToSee" | "done";
+type FilterMode = "all" | "wantToSee" | "passed" | "done";
 
 const WEEKDAY_MAP: Record<number, WeekDay> = {
   0: "So",
@@ -121,16 +122,19 @@ export function WunschlisteTab({
           <p className="text-[10px] uppercase tracking-wider text-ink-light font-semibold">
             Dein Stand · {currentUserName}
           </p>
-          <div className="mt-1 flex items-center gap-4 text-sm">
+          <div className="mt-1.5 flex items-center flex-wrap gap-x-4 gap-y-1 text-sm">
             <span className="inline-flex items-center gap-1.5 text-gold-600 font-semibold">
-              <Heart size={14} fill="currentColor" strokeWidth={0} />
+              <Heart size={13} fill="currentColor" strokeWidth={0} />
               {myStats.wantToSee}{" "}
-              <span className="text-ink-mid font-normal text-xs">
-                will ich noch sehen
-              </span>
+              <span className="text-ink-mid font-normal text-xs">Wunsch</span>
+            </span>
+            <span className="inline-flex items-center gap-1.5 text-info font-semibold">
+              <Eye size={13} strokeWidth={2} />
+              {myStats.passed}{" "}
+              <span className="text-ink-mid font-normal text-xs">vorbei</span>
             </span>
             <span className="inline-flex items-center gap-1.5 text-success font-semibold">
-              <Check size={14} strokeWidth={3} />
+              <Check size={13} strokeWidth={3} />
               {myStats.done}{" "}
               <span className="text-ink-mid font-normal text-xs">erledigt</span>
             </span>
@@ -149,11 +153,12 @@ export function WunschlisteTab({
       )}
 
       {/* Filter-Pills */}
-      <div className="flex gap-1.5 px-1">
+      <div className="flex flex-wrap gap-1.5 px-1">
         {(
           [
             { key: "all", label: "Alle", count: totalCount },
-            { key: "wantToSee", label: "💭 Meine Liste", count: myStats.wantToSee },
+            { key: "wantToSee", label: "💭 Wunsch", count: myStats.wantToSee },
+            { key: "passed", label: "👁 Vorbei", count: myStats.passed },
             { key: "done", label: "✓ Erledigt", count: myStats.done },
           ] as const
         ).map((opt) => (
@@ -162,13 +167,12 @@ export function WunschlisteTab({
             type="button"
             onClick={() => setFilter(opt.key)}
             className={classNames(
-              "flex-1 inline-flex items-center justify-center gap-1 px-2 py-2 min-h-[40px] rounded-lg text-[11px] font-semibold transition",
+              "flex-1 min-w-[72px] inline-flex items-center justify-center gap-1 px-2 py-2 min-h-[40px] rounded-lg text-[11px] font-semibold transition",
               filter === opt.key
                 ? "bg-navy text-cream shadow-sm"
                 : "bg-cream-100 text-ink-mid hover:bg-cream-200",
             )}
           >
-            <Filter size={10} className={filter === opt.key ? "" : "hidden"} />
             {opt.label}
             <span
               className={classNames(
@@ -189,10 +193,12 @@ export function WunschlisteTab({
         <div className="rounded-2xl bg-white border border-cream-200 p-6 text-center">
           <p className="text-sm font-semibold text-ink-dark">
             {filter === "wantToSee"
-              ? "Noch kein Place auf deiner Liste"
-              : filter === "done"
-                ? "Noch nichts als erledigt markiert"
-                : "Keine Places vorhanden"}
+              ? "Noch kein Place auf deiner Wunschliste"
+              : filter === "passed"
+                ? "Noch nichts als 'vorbei' markiert"
+                : filter === "done"
+                  ? "Noch nichts als erledigt markiert"
+                  : "Keine Places vorhanden"}
           </p>
           {filter !== "all" && (
             <button
@@ -218,6 +224,9 @@ export function WunschlisteTab({
           const categoryAllItems = places.filter((p) => p.category === cat.key);
           const categoryDone = categoryAllItems.filter(
             (p) => statusOf(p.id) === "done",
+          ).length;
+          const categoryPassed = categoryAllItems.filter(
+            (p) => statusOf(p.id) === "passed",
           ).length;
           const categoryWant = categoryAllItems.filter(
             (p) => statusOf(p.id) === "wantToSee",
@@ -252,6 +261,12 @@ export function WunschlisteTab({
                     <span className="text-[10px] text-gold-600 inline-flex items-center gap-0.5 font-mono">
                       <Heart size={9} fill="currentColor" strokeWidth={0} />
                       {categoryWant}
+                    </span>
+                  )}
+                  {categoryPassed > 0 && (
+                    <span className="text-[10px] text-info inline-flex items-center gap-0.5 font-mono">
+                      <Eye size={9} strokeWidth={2} />
+                      {categoryPassed}
                     </span>
                   )}
                   {categoryDone > 0 && (

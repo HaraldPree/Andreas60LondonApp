@@ -5,11 +5,14 @@ import {
   Check,
   CircleSlash,
   Circle,
+  Eye,
+  Heart,
   MoreHorizontal,
   Pencil,
 } from "lucide-react";
 import type { ProgramItem } from "@/types/trip";
 import type { ItemState } from "@/types/itemState";
+import type { PlaceStatus } from "@/types/place";
 import { classNames, mapsUrl } from "@/lib/formatters";
 import { TransportButtons } from "@/components/ui/TransportButtons";
 
@@ -22,6 +25,13 @@ interface TimelineItemProps {
   onToggleDone?: () => void;
   /** Action-Sheet öffnen für Skip / Notiz / Reset. */
   onOpenMenu?: () => void;
+
+  /**
+   * v1.7.1 — Wenn das Item ein verlinktes Place (placeId) hat, wird
+   * rechts ein Status-Indikator gerendert. Tap = Action-Sheet öffnen.
+   */
+  placeStatus?: PlaceStatus;
+  onOpenPlaceStatus?: () => void;
 }
 
 const TYPE_COLORS: Record<ProgramItem["type"], string> = {
@@ -40,12 +50,15 @@ export function TimelineItem({
   state,
   onToggleDone,
   onOpenMenu,
+  placeStatus,
+  onOpenPlaceStatus,
 }: TimelineItemProps) {
   const mark = state?.mark;
   const isDone = mark === "done";
   const isSkipped = mark === "skipped";
   const isMarked = isDone || isSkipped;
   const hasControls = !!onToggleDone || !!onOpenMenu;
+  const hasPlaceStatus = !!item.placeId && !!onOpenPlaceStatus;
 
   return (
     <div className="relative pl-8">
@@ -114,6 +127,35 @@ export function TimelineItem({
               </div>
             )}
           </div>
+
+          {/* v1.7.1 — Place-Status-Indikator (Wunschliste-Sync) */}
+          {hasPlaceStatus && (
+            <button
+              type="button"
+              onClick={onOpenPlaceStatus}
+              aria-label="Status setzen"
+              className={classNames(
+                "flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition pt-0.5",
+                placeStatus === "done"
+                  ? "bg-success text-white shadow-sm"
+                  : placeStatus === "passed"
+                    ? "bg-info text-white shadow-sm"
+                    : placeStatus === "wantToSee"
+                      ? "bg-gold text-white shadow-sm"
+                      : "bg-cream-100 text-ink-light hover:bg-cream-200",
+              )}
+            >
+              {placeStatus === "done" ? (
+                <Check size={14} strokeWidth={3} />
+              ) : placeStatus === "passed" ? (
+                <Eye size={14} strokeWidth={2.4} />
+              ) : placeStatus === "wantToSee" ? (
+                <Heart size={13} fill="currentColor" strokeWidth={0} />
+              ) : (
+                <Circle size={13} strokeWidth={1.8} />
+              )}
+            </button>
+          )}
 
           {/* State-Controls (v1.3.0) — rechts neben dem Item */}
           {hasControls && (

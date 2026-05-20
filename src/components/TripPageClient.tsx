@@ -114,6 +114,7 @@ export function TripPageClient({ trip }: TripPageClientProps) {
               trip={effectiveTrip}
               variant={variant}
               onVariantChange={setVariant}
+              currentUserName={currentUserName}
             />
           )}
           {tab === "wunschliste" && (

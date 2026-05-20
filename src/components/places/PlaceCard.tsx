@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import {
-  Circle,
   Heart,
+  Eye,
   Check,
   MapPin,
   ExternalLink,
@@ -58,9 +58,11 @@ export function PlaceCard({
         "rounded-xl border transition overflow-hidden",
         status === "done"
           ? "bg-success/5 border-success/40"
-          : status === "wantToSee"
-            ? "bg-gold/8 border-gold/40"
-            : "bg-white border-cream-200/70",
+          : status === "passed"
+            ? "bg-info/5 border-info/40"
+            : status === "wantToSee"
+              ? "bg-gold/8 border-gold/40"
+              : "bg-white border-cream-200/70",
       )}
     >
       {/* Header-Zeile */}
@@ -78,7 +80,9 @@ export function PlaceCard({
               className={classNames(
                 "text-sm font-semibold leading-tight",
                 status === "done" && "line-through text-ink-mid",
-                status !== "done" && "text-ink-dark",
+                status === "passed" && "text-ink-dark",
+                status === "wantToSee" && "text-ink-dark",
+                status === "open" && "text-ink-dark",
               )}
             >
               {place.name}
@@ -112,46 +116,68 @@ export function PlaceCard({
           </div>
         </button>
 
-        {/* Status-Buttons rechts */}
-        <div className="flex flex-col gap-1 flex-shrink-0">
-          <button
-            type="button"
-            onClick={() => onSetStatus("wantToSee")}
-            aria-label="Auf meine Liste"
-            className={classNames(
-              "w-9 h-9 rounded-full flex items-center justify-center transition",
-              status === "wantToSee"
-                ? "bg-gold text-white"
-                : "bg-cream-100 text-ink-light hover:bg-cream-200",
-            )}
-          >
-            <Heart
-              size={15}
-              strokeWidth={status === "wantToSee" ? 0 : 2}
-              fill={status === "wantToSee" ? "currentColor" : "none"}
-            />
-          </button>
-          <button
-            type="button"
-            onClick={() => onSetStatus("done")}
-            aria-label="Erledigt"
-            className={classNames(
-              "w-9 h-9 rounded-full flex items-center justify-center transition",
-              status === "done"
-                ? "bg-success text-white"
-                : "bg-cream-100 text-ink-light hover:bg-cream-200",
-            )}
-          >
-            <Check size={15} strokeWidth={3} />
-          </button>
+        {/* Status-Buttons rechts (v1.7.1 — 3 Stufen horizontal) */}
+        <div className="flex flex-col items-end gap-1 flex-shrink-0">
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={() =>
+                onSetStatus(status === "wantToSee" ? "open" : "wantToSee")
+              }
+              aria-label="Auf meine Wunschliste"
+              title="Wunsch"
+              className={classNames(
+                "w-8 h-8 rounded-full flex items-center justify-center transition",
+                status === "wantToSee"
+                  ? "bg-gold text-white"
+                  : "bg-cream-100 text-ink-light hover:bg-cream-200",
+              )}
+            >
+              <Heart
+                size={13}
+                strokeWidth={status === "wantToSee" ? 0 : 2}
+                fill={status === "wantToSee" ? "currentColor" : "none"}
+              />
+            </button>
+            <button
+              type="button"
+              onClick={() =>
+                onSetStatus(status === "passed" ? "open" : "passed")
+              }
+              aria-label="Vorbei / gesehen"
+              title="Vorbei"
+              className={classNames(
+                "w-8 h-8 rounded-full flex items-center justify-center transition",
+                status === "passed"
+                  ? "bg-info text-white"
+                  : "bg-cream-100 text-ink-light hover:bg-cream-200",
+              )}
+            >
+              <Eye size={13} strokeWidth={2} />
+            </button>
+            <button
+              type="button"
+              onClick={() => onSetStatus(status === "done" ? "open" : "done")}
+              aria-label="Erledigt"
+              title="Erledigt"
+              className={classNames(
+                "w-8 h-8 rounded-full flex items-center justify-center transition",
+                status === "done"
+                  ? "bg-success text-white"
+                  : "bg-cream-100 text-ink-light hover:bg-cream-200",
+              )}
+            >
+              <Check size={13} strokeWidth={3} />
+            </button>
+          </div>
           {status !== "open" && (
             <button
               type="button"
               onClick={() => onSetStatus("open")}
               aria-label="Markierung entfernen"
-              className="w-9 h-7 rounded-full text-[9px] font-bold text-ink-light hover:text-warning hover:bg-warning/10 transition"
+              className="text-[9px] font-bold text-ink-light hover:text-warning transition px-2 py-0.5 rounded"
             >
-              reset
+              zurücksetzen
             </button>
           )}
         </div>
