@@ -153,18 +153,22 @@ export function WunschlisteTab({
                 </span>
               </div>
             </div>
-            {/* v1.7.2 — Gruppen-Poll-Button */}
-            {myStats.wantToSee > 0 && (
-              <button
-                type="button"
-                onClick={() => setPollOpen(true)}
-                className="flex-shrink-0 inline-flex items-center gap-1.5 px-3 min-h-[40px] rounded-lg bg-success/15 text-success text-[11px] font-semibold hover:bg-success/25 transition"
-                aria-label="Gruppen-Poll teilen"
-              >
-                <MessageCircle size={12} />
-                Poll teilen
-              </button>
-            )}
+            {/* v1.7.3 — Gruppen-Poll-Button (immer sichtbar, mit Hint
+                wenn 0 Wünsche → klar wo das Feature ist) */}
+            <button
+              type="button"
+              onClick={() => setPollOpen(true)}
+              className={classNames(
+                "flex-shrink-0 inline-flex items-center gap-1.5 px-3 min-h-[40px] rounded-lg text-[11px] font-semibold transition",
+                myStats.wantToSee > 0
+                  ? "bg-success/15 text-success hover:bg-success/25"
+                  : "bg-cream-100 text-ink-light hover:bg-cream-200",
+              )}
+              aria-label="Gruppen-Poll teilen"
+            >
+              <MessageCircle size={12} />
+              Poll teilen
+            </button>
           </div>
         </div>
       ) : (
