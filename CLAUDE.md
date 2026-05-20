@@ -100,6 +100,73 @@ Beziehung der drei Ordner:
 8. Google Maps Links: bevorzugt Adress-String (`?q=126+Great+Portland+Street...`) statt rohe Koordinaten, damit Geocoding nicht driftet
 9. **Architektur muss generisch sein** — jede Reise ist eine eigene Datei in `src/data/trips/`, die App ist nicht reise-spezifisch
 10. **KEINE ERFUNDENEN INFOS** ⚠️ (Anti-Halluzinations-Regel — siehe unten)
+11. **User-Kommunikation für Updates: Short+Lang-Format** (siehe unten)
+
+## User-Kommunikation für Updates (PFLICHT-FORMAT)
+
+**Jeder Update-Text für die Reisegruppe folgt dem Short+Lang-Schema.**
+
+Vorgegeben von Harald, 20.05.2026 — gilt für alle künftigen Updates
+die per WhatsApp / Mail an die Reisegruppe gehen:
+
+> Erst Short für den Überblick, wer mehr wissen will kann das Detail
+> weiterlesen.
+
+### Pflicht-Struktur
+
+```
+Update in der Travel-Companion-App 🎉
+Neu seit [Datum] | Short:
+• [Bullet 1 — wichtigstes Feature]
+• [Bullet 2]
+• [Bullet 3]
+• [Bullet 4 — max ~5 Bullets]
+App neu laden, dann ist alles da.
+
+
+DetailInfo | Lang-Variante (mit allen Details, falls du mehr wissen willst)
+🎉 Update Travel-Companion-App
+
+[Emoji] [Feature-Titel]
+   [1-3 Zeilen Beschreibung]
+
+[Emoji] [Feature-Titel]
+   [Erklärung]
+
+... weitere Features ...
+
+📥 App-Reload nötig: einfach Seite neu laden, dann sind alle
+Updates da. Bei Fragen oder Bugs: kurz schreiben.
+
+(Optional: Hinweis auf nächste geplante Erweiterung in vX.Y.Z.)
+```
+
+### Regeln
+
+- **Short** zuerst, mit Bullets — Überblick in 30 Sekunden lesbar
+- **Lang** danach im selben Text-Block — keine zwei separaten
+  Nachrichten, sonst geht's verloren
+- **Emoji pro Feature** in der Lang-Variante (📋 🔄 🗳️ 🎬 ✅ etc.) —
+  visuelle Auffälligkeit ohne Markdown
+- **„App-Reload"-Hinweis** in beiden Varianten — die meisten Bugs sind
+  Cache-Probleme
+- **Kein Markdown-Bold** mit `**…**` — WhatsApp rendert es nicht
+  zuverlässig. Stattdessen Emoji + Zeilenumbrüche
+- **Footer mit Next-Release-Hint** wenn passend (z.B. „Echter Sync
+  kommt in v1.8.0")
+
+### Wann verwenden
+
+- **Jeder neue Release** der user-facing Features bringt → diese
+  Vorlage anwenden
+- **Patches ohne User-Wirkung** (z.B. nur Code-Refactoring) brauchen
+  KEIN WhatsApp-Update — User-Update nur wenn was sichtbar wird
+
+### Wo dokumentiert
+
+Der konkrete WhatsApp-Text wird im jeweiligen Release-Doc unter dem
+Abschnitt **„User-Kommunikation"** abgelegt — copy-paste-bereit für
+Harald.
 
 ## Anti-Halluzinations-Regel (KRITISCH)
 

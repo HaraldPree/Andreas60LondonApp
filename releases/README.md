@@ -49,6 +49,7 @@ Wenn ich (Claude) eine Code-Änderung mache:
 
 | Version | Datum | Titel | Status |
 |---|---|---|---|
+| [v1.7.5](./v1.7.5.md) | 20.05.2026 | Frag-Button auch bei „👁 Vorbei" + Update-Format-Regelwerk | deployed |
 | [v1.7.4](./v1.7.4.md) | 20.05.2026 | Poll pro Wunsch (Single-Place-Poll) | deployed |
 | [v1.7.3](./v1.7.3.md) | 20.05.2026 | Poll-Button immer sichtbar (Discoverability-Fix) | deployed |
 | [v1.7.2](./v1.7.2.md) | 20.05.2026 | WhatsApp-Poll aus der Wunschliste | deployed |

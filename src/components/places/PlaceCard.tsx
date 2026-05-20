@@ -285,10 +285,13 @@ export function PlaceCard({
         </div>
       )}
 
-      {/* Footer-Zeile: Single-Place-Frag-Button (bei wantToSee) + Expand */}
+      {/* Footer-Zeile: Single-Place-Frag-Button + Expand */}
       <div className="flex items-center border-t border-cream-100">
-        {/* v1.7.4 — Single-Place-Poll bei 💭-Wunsch */}
-        {status === "wantToSee" && onAskGroup && (
+        {/* v1.7.5 — Frag-Button sichtbar bei 💭 Wunsch UND 👁 Vorbei
+            (Lukas-Case: er war außen, will jetzt innen — kein
+            Status-Wechsel nötig). Bei ✓ Erledigt + Offen blendet
+            der Button aus weil dort kein Frag-Bedarf typisch ist. */}
+        {(status === "wantToSee" || status === "passed") && onAskGroup && (
           <button
             type="button"
             onClick={onAskGroup}
