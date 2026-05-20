@@ -9,7 +9,9 @@ import {
   Check,
   ListChecks,
   Filter,
+  MessageCircle,
 } from "lucide-react";
+import { WunschPollShare } from "@/components/places/WunschPollShare";
 import type { Trip } from "@/types/trip";
 import type { Place, PlaceCategory, WeekDay } from "@/types/place";
 import { CATEGORY_META } from "@/types/place";
@@ -62,6 +64,9 @@ export function WunschlisteTab({
   // Welche Kategorien standardmäßig offen sind: alle (kann pro User später
   // persistiert werden, für jetzt einfach immer offen beim ersten Render).
   const [collapsed, setCollapsed] = useState<Set<PlaceCategory>>(new Set());
+
+  // v1.7.2 — WhatsApp-Poll-Share
+  const [pollOpen, setPollOpen] = useState(false);
 
   const today = todayAsWeekday();
 
@@ -119,25 +124,47 @@ export function WunschlisteTab({
       {/* Personal Stats */}
       {currentUserName ? (
         <div className="rounded-2xl bg-white shadow-card border border-cream-200/50 px-4 py-3">
-          <p className="text-[10px] uppercase tracking-wider text-ink-light font-semibold">
-            Dein Stand · {currentUserName}
-          </p>
-          <div className="mt-1.5 flex items-center flex-wrap gap-x-4 gap-y-1 text-sm">
-            <span className="inline-flex items-center gap-1.5 text-gold-600 font-semibold">
-              <Heart size={13} fill="currentColor" strokeWidth={0} />
-              {myStats.wantToSee}{" "}
-              <span className="text-ink-mid font-normal text-xs">Wunsch</span>
-            </span>
-            <span className="inline-flex items-center gap-1.5 text-info font-semibold">
-              <Eye size={13} strokeWidth={2} />
-              {myStats.passed}{" "}
-              <span className="text-ink-mid font-normal text-xs">vorbei</span>
-            </span>
-            <span className="inline-flex items-center gap-1.5 text-success font-semibold">
-              <Check size={13} strokeWidth={3} />
-              {myStats.done}{" "}
-              <span className="text-ink-mid font-normal text-xs">erledigt</span>
-            </span>
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex-1 min-w-0">
+              <p className="text-[10px] uppercase tracking-wider text-ink-light font-semibold">
+                Dein Stand · {currentUserName}
+              </p>
+              <div className="mt-1.5 flex items-center flex-wrap gap-x-4 gap-y-1 text-sm">
+                <span className="inline-flex items-center gap-1.5 text-gold-600 font-semibold">
+                  <Heart size={13} fill="currentColor" strokeWidth={0} />
+                  {myStats.wantToSee}{" "}
+                  <span className="text-ink-mid font-normal text-xs">
+                    Wunsch
+                  </span>
+                </span>
+                <span className="inline-flex items-center gap-1.5 text-info font-semibold">
+                  <Eye size={13} strokeWidth={2} />
+                  {myStats.passed}{" "}
+                  <span className="text-ink-mid font-normal text-xs">
+                    vorbei
+                  </span>
+                </span>
+                <span className="inline-flex items-center gap-1.5 text-success font-semibold">
+                  <Check size={13} strokeWidth={3} />
+                  {myStats.done}{" "}
+                  <span className="text-ink-mid font-normal text-xs">
+                    erledigt
+                  </span>
+                </span>
+              </div>
+            </div>
+            {/* v1.7.2 — Gruppen-Poll-Button */}
+            {myStats.wantToSee > 0 && (
+              <button
+                type="button"
+                onClick={() => setPollOpen(true)}
+                className="flex-shrink-0 inline-flex items-center gap-1.5 px-3 min-h-[40px] rounded-lg bg-success/15 text-success text-[11px] font-semibold hover:bg-success/25 transition"
+                aria-label="Gruppen-Poll teilen"
+              >
+                <MessageCircle size={12} />
+                Poll teilen
+              </button>
+            )}
           </div>
         </div>
       ) : (
@@ -305,9 +332,22 @@ export function WunschlisteTab({
 
       {/* Footer-Hinweis */}
       <p className="text-[10px] text-center text-ink-light italic px-4 pt-2 leading-relaxed">
-        Diese Markierungen werden auf diesem Gerät gespeichert. Gruppen-Sync
-        (alle 5 sehen dieselbe Liste) kommt im nächsten Update.
+        Diese Markierungen werden auf diesem Gerät gespeichert. Echter
+        Gruppen-Sync kommt in v1.7.x — bis dahin Poll-Button oben nutzen
+        um deine Wünsche per WhatsApp abzustimmen.
       </p>
+
+      {/* v1.7.2 — Gruppen-Poll-Share-Sheet */}
+      {currentUserName && (
+        <WunschPollShare
+          open={pollOpen}
+          places={places}
+          statusOf={statusOf}
+          authorName={currentUserName}
+          destination={trip.destination}
+          onClose={() => setPollOpen(false)}
+        />
+      )}
     </motion.div>
   );
 }
