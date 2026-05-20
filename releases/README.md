@@ -49,6 +49,7 @@ Wenn ich (Claude) eine Code-Änderung mache:
 
 | Version | Datum | Titel | Status |
 |---|---|---|---|
+| [v1.7.0](./v1.7.0.md) | 20.05.2026 | Wunschliste-Tab + London Place-Library (75 Places) | deployed |
 | [v1.6.2](./v1.6.2.md) | 20.05.2026 | Wording „Teilen" → „Freigeben" + Users-Icon | deployed |
 | [v1.6.1](./v1.6.1.md) | 20.05.2026 | Multi-Photo-Share entdeckbar machen (Button + Hilfe-Zeile) | deployed |
 | [v1.6.0](./v1.6.0.md) | 20.05.2026 | Leger vs. Original-Programm umschalten + Editor deaktiviert | deployed |

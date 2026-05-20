@@ -8,6 +8,7 @@ import { Navigation, type TabKey } from "@/components/layout/Navigation";
 import { Footer } from "@/components/layout/Footer";
 import { ScrollToTop } from "@/components/layout/ScrollToTop";
 import { ProgrammTab } from "@/components/tabs/ProgrammTab";
+import { WunschlisteTab } from "@/components/tabs/WunschlisteTab";
 import { KarteTab } from "@/components/tabs/KarteTab";
 import { FotosTab } from "@/components/tabs/FotosTab";
 import { ReservierungenTab } from "@/components/tabs/ReservierungenTab";
@@ -113,6 +114,13 @@ export function TripPageClient({ trip }: TripPageClientProps) {
               trip={effectiveTrip}
               variant={variant}
               onVariantChange={setVariant}
+            />
+          )}
+          {tab === "wunschliste" && (
+            <WunschlisteTab
+              key="wunschliste"
+              trip={effectiveTrip}
+              currentUserName={currentUserName}
             />
           )}
           {tab === "karte" && <KarteTab key="karte" trip={effectiveTrip} />}

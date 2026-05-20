@@ -1,4 +1,5 @@
 import type { Trip } from "@/types/trip";
+import { LONDON_PLACES } from "./london-2026-places";
 
 export const londonTrip: Trip = {
   slug: "london-2026",
@@ -1282,6 +1283,8 @@ export const londonTrip: Trip = {
       bookingUrl: "https://www.thamesclippers.com/plan-your-journey/tickets-passes/single-return-tickets",
     },
   ],
+
+  places: LONDON_PLACES,
 
   hiddenPlaces: [
     {

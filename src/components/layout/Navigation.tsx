@@ -1,9 +1,24 @@
 "use client";
 
-import { CalendarDays, MapPinned, Camera, Ticket, LifeBuoy, Info } from "lucide-react";
+import {
+  CalendarDays,
+  ListChecks,
+  MapPinned,
+  Camera,
+  Ticket,
+  LifeBuoy,
+  Info,
+} from "lucide-react";
 import { classNames } from "@/lib/formatters";
 
-export type TabKey = "programm" | "karte" | "fotos" | "reservierungen" | "sos" | "info";
+export type TabKey =
+  | "programm"
+  | "wunschliste"
+  | "karte"
+  | "fotos"
+  | "reservierungen"
+  | "sos"
+  | "info";
 
 interface NavigationProps {
   active: TabKey;
@@ -12,9 +27,10 @@ interface NavigationProps {
 
 const TABS: { key: TabKey; label: string; Icon: typeof CalendarDays }[] = [
   { key: "programm", label: "Programm", Icon: CalendarDays },
+  { key: "wunschliste", label: "Wünsche", Icon: ListChecks },
   { key: "karte", label: "Karte", Icon: MapPinned },
   { key: "fotos", label: "Fotos", Icon: Camera },
-  { key: "reservierungen", label: "Reserv.", Icon: Ticket },
+  { key: "reservierungen", label: "Resv.", Icon: Ticket },
   { key: "sos", label: "SOS", Icon: LifeBuoy },
   { key: "info", label: "Info", Icon: Info },
 ];
@@ -23,7 +39,7 @@ export function Navigation({ active, onChange }: NavigationProps) {
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-cream-200 shadow-[0_-2px_12px_rgba(0,51,102,0.06)]">
       <div className="mx-auto max-w-app">
-        <ul className="grid grid-cols-6">
+        <ul className="grid grid-cols-7">
           {TABS.map(({ key, label, Icon }) => {
             const isActive = key === active;
             return (

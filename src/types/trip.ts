@@ -393,6 +393,17 @@ export interface Trip {
   days: Day[];
   reservations: Reservation[];
   hiddenPlaces: HiddenPlace[];
+
+  /**
+   * v1.7.0 — Kuratierte Place-Library für die Wunschliste-Tab.
+   * Sehenswürdigkeiten, Hidden Gems, Filmspots, Foodie-Spots etc.
+   * mit Verfügbarkeits-Info (Öffnungszeiten, Reservation).
+   *
+   * In Travel Live (Phase C) wird das in eine globale Place-DB
+   * migrieren — heute noch pro Trip.
+   */
+  places?: import("./place").Place[];
+
   quickActions: QuickAction[];
   emergencyInfo?: EmergencyInfo;
   runningRoutes?: RunningRoute[];
