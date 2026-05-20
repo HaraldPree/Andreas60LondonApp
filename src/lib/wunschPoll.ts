@@ -45,6 +45,47 @@ export const POLL_TEMPLATES: PollTemplate[] = [
   },
 ];
 
+/**
+ * Templates für Single-Place-Polls (v1.7.4).
+ *
+ * Frage adressiert den einen Place direkt — kürzer, klarer als
+ * Sammel-Poll-Templates. Der Platzhalter `{name}` wird vom Caller
+ * mit dem konkreten Place-Namen ersetzt.
+ */
+export interface SingleTemplate {
+  key: string;
+  label: string;
+  /** Frage-Vorlage. `{name}` wird durch place.name ersetzt. */
+  template: string;
+}
+
+export const SINGLE_POLL_TEMPLATES: SingleTemplate[] = [
+  {
+    key: "join",
+    label: "Wer kommt mit?",
+    template: "Wer kommt mit zur {name}?",
+  },
+  {
+    key: "should",
+    label: "Sollen wir?",
+    template: "Sollen wir die {name} machen?",
+  },
+  {
+    key: "interest",
+    label: "Hat Interesse?",
+    template: "Würdet ihr zur {name} mitkommen?",
+  },
+  {
+    key: "custom",
+    label: "Eigene Frage",
+    template: "",
+  },
+];
+
+export function fillSingleTemplate(template: string, placeName: string): string {
+  return template.replace(/\{name\}/g, placeName);
+}
+
 interface GeneratePollTextArgs {
   /** Die eigentliche Frage / Header-Zeile */
   question: string;

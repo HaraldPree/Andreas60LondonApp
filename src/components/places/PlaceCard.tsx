@@ -10,6 +10,7 @@ import {
   ChevronDown,
   AlertCircle,
   CalendarClock,
+  MessageCircle,
 } from "lucide-react";
 import type { Place, PlaceStatus, WeekDay } from "@/types/place";
 import { classNames, mapsUrl } from "@/lib/formatters";
@@ -21,6 +22,12 @@ interface PlaceCardProps {
   /** Optional: aktueller Wochentag der Reise (z.B. "Mi") — wenn der Place
    *  scheduled ist und an dem Tag NICHT offen, wird ein Hinweis gezeigt. */
   currentWeekday?: WeekDay;
+  /**
+   * v1.7.4 — Wenn gesetzt, erscheint bei 💭-Wünschen ein „💬 Fragen"-Button
+   * der einen Single-Place-Poll öffnet. Apple-Way: pro Wunsch eine
+   * klare Abstimmung statt Bündel-Poll.
+   */
+  onAskGroup?: () => void;
 }
 
 /**
@@ -42,6 +49,7 @@ export function PlaceCard({
   status,
   onSetStatus,
   currentWeekday,
+  onAskGroup,
 }: PlaceCardProps) {
   const [expanded, setExpanded] = useState(false);
 
@@ -277,21 +285,37 @@ export function PlaceCard({
         </div>
       )}
 
-      {/* Expand-Indicator unten */}
-      <button
-        type="button"
-        onClick={() => setExpanded((v) => !v)}
-        aria-label={expanded ? "Details ausblenden" : "Details anzeigen"}
-        className="w-full px-3 py-1 flex items-center justify-center text-ink-light hover:text-ink-mid border-t border-cream-100"
-      >
-        <ChevronDown
-          size={12}
-          className={classNames(
-            "transition-transform",
-            expanded && "rotate-180",
-          )}
-        />
-      </button>
+      {/* Footer-Zeile: Single-Place-Frag-Button (bei wantToSee) + Expand */}
+      <div className="flex items-center border-t border-cream-100">
+        {/* v1.7.4 — Single-Place-Poll bei 💭-Wunsch */}
+        {status === "wantToSee" && onAskGroup && (
+          <button
+            type="button"
+            onClick={onAskGroup}
+            className="flex-1 px-3 py-2 min-h-[36px] inline-flex items-center justify-center gap-1.5 text-[11px] font-semibold text-success hover:bg-success/8 transition border-r border-cream-100"
+            aria-label="Diese eine Frage an die Gruppe stellen"
+          >
+            <MessageCircle size={12} />
+            Frag die Gruppe
+          </button>
+        )}
+
+        {/* Expand-Indicator */}
+        <button
+          type="button"
+          onClick={() => setExpanded((v) => !v)}
+          aria-label={expanded ? "Details ausblenden" : "Details anzeigen"}
+          className="flex-1 px-3 py-1 min-h-[36px] flex items-center justify-center text-ink-light hover:text-ink-mid"
+        >
+          <ChevronDown
+            size={12}
+            className={classNames(
+              "transition-transform",
+              expanded && "rotate-180",
+            )}
+          />
+        </button>
+      </div>
     </div>
   );
 }

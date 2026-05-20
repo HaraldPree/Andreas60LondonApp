@@ -49,6 +49,7 @@ Wenn ich (Claude) eine Code-Änderung mache:
 
 | Version | Datum | Titel | Status |
 |---|---|---|---|
+| [v1.7.4](./v1.7.4.md) | 20.05.2026 | Poll pro Wunsch (Single-Place-Poll) | deployed |
 | [v1.7.3](./v1.7.3.md) | 20.05.2026 | Poll-Button immer sichtbar (Discoverability-Fix) | deployed |
 | [v1.7.2](./v1.7.2.md) | 20.05.2026 | WhatsApp-Poll aus der Wunschliste | deployed |
 | [v1.7.1](./v1.7.1.md) | 20.05.2026 | 4 Status + Programm↔Wunschliste-Verzahnung | deployed |

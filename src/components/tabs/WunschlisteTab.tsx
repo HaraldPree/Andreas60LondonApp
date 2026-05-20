@@ -65,12 +65,22 @@ export function WunschlisteTab({
   // persistiert werden, für jetzt einfach immer offen beim ersten Render).
   const [collapsed, setCollapsed] = useState<Set<PlaceCategory>>(new Set());
 
-  // v1.7.2 — WhatsApp-Poll-Share
+  // v1.7.2 — WhatsApp-Poll-Share (Bulk-Modus)
   const [pollOpen, setPollOpen] = useState(false);
+
+  // v1.7.4 — Single-Place-Poll: welcher Place soll abgestimmt werden?
+  const [singlePollPlaceId, setSinglePollPlaceId] = useState<string | null>(
+    null,
+  );
 
   const today = todayAsWeekday();
 
   const places = trip.places ?? [];
+
+  const singlePollPlace =
+    singlePollPlaceId !== null
+      ? (places.find((p) => p.id === singlePollPlaceId) ?? null)
+      : null;
 
   // Filter anwenden
   const filteredPlaces = useMemo(() => {
@@ -325,6 +335,11 @@ export function WunschlisteTab({
                       status={statusOf(place.id)}
                       onSetStatus={(next) => setStatus(place.id, next)}
                       currentWeekday={today}
+                      onAskGroup={
+                        currentUserName
+                          ? () => setSinglePollPlaceId(place.id)
+                          : undefined
+                      }
                     />
                   ))}
                 </div>
@@ -341,7 +356,7 @@ export function WunschlisteTab({
         um deine Wünsche per WhatsApp abzustimmen.
       </p>
 
-      {/* v1.7.2 — Gruppen-Poll-Share-Sheet */}
+      {/* v1.7.2 — Gruppen-Poll-Share-Sheet (Bulk) */}
       {currentUserName && (
         <WunschPollShare
           open={pollOpen}
@@ -350,6 +365,19 @@ export function WunschlisteTab({
           authorName={currentUserName}
           destination={trip.destination}
           onClose={() => setPollOpen(false)}
+        />
+      )}
+
+      {/* v1.7.4 — Single-Place-Poll-Sheet */}
+      {currentUserName && singlePollPlace && (
+        <WunschPollShare
+          open={singlePollPlaceId !== null}
+          places={places}
+          statusOf={statusOf}
+          authorName={currentUserName}
+          destination={trip.destination}
+          singlePlace={singlePollPlace}
+          onClose={() => setSinglePollPlaceId(null)}
         />
       )}
     </motion.div>

@@ -6,6 +6,8 @@ import { X, MessageCircle, Check, Copy } from "lucide-react";
 import type { Place, PlaceStatus } from "@/types/place";
 import {
   POLL_TEMPLATES,
+  SINGLE_POLL_TEMPLATES,
+  fillSingleTemplate,
   generatePollText,
   sharePollText,
 } from "@/lib/wunschPoll";
@@ -20,6 +22,12 @@ interface Props {
   authorName: string;
   destination: string;
   onClose: () => void;
+  /**
+   * v1.7.4 — Single-Place-Modus: wenn gesetzt, wird das Sheet auf
+   * genau diesen einen Place fixiert (keine Liste, andere Templates).
+   * User-Feedback: „pro Wunsch abstimmen, nicht 6 Punkte gleichzeitig".
+   */
+  singlePlace?: Place;
 }
 
 /**
@@ -37,9 +45,15 @@ export function WunschPollShare({
   authorName,
   destination,
   onClose,
+  singlePlace,
 }: Props) {
-  // Standardmäßig alle 💭-Wünsche selektiert
+  const isSingleMode = !!singlePlace;
+
+  // Standardmäßig alle 💭-Wünsche selektiert (Bulk-Modus)
   const initialSelected = useMemo(() => {
+    if (isSingleMode && singlePlace) {
+      return new Set<string>([singlePlace.id]);
+    }
     const set = new Set<string>();
     for (const p of places) {
       if (statusOf(p.id) === "wantToSee") set.add(p.id);
@@ -47,10 +61,12 @@ export function WunschPollShare({
     return set;
     // open wird bewusst dependency — neue Berechnung beim erneuten Öffnen
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, places]);
+  }, [open, places, isSingleMode, singlePlace]);
 
   const [selectedIds, setSelectedIds] = useState<Set<string>>(initialSelected);
-  const [templateKey, setTemplateKey] = useState<string>("tomorrow");
+  const [templateKey, setTemplateKey] = useState<string>(
+    isSingleMode ? "join" : "tomorrow",
+  );
   const [customQuestion, setCustomQuestion] = useState("");
   const [shareState, setShareState] = useState<
     "idle" | "sharing" | "done" | "error"
@@ -60,25 +76,43 @@ export function WunschPollShare({
   useEffect(() => {
     if (open) {
       setSelectedIds(initialSelected);
-      setTemplateKey("tomorrow");
+      setTemplateKey(isSingleMode ? "join" : "tomorrow");
       setCustomQuestion("");
       setShareState("idle");
     }
-  }, [open, initialSelected]);
+  }, [open, initialSelected, isSingleMode]);
 
   useDismissOnBack(open, onClose);
 
-  const template = POLL_TEMPLATES.find((t) => t.key === templateKey);
-  const question =
-    templateKey === "custom"
+  // Frage abhängig vom Modus
+  const question = useMemo(() => {
+    if (isSingleMode && singlePlace) {
+      const tmpl = SINGLE_POLL_TEMPLATES.find((t) => t.key === templateKey);
+      if (templateKey === "custom") {
+        return (
+          customQuestion.trim() ||
+          fillSingleTemplate(SINGLE_POLL_TEMPLATES[0].template, singlePlace.name)
+        );
+      }
+      return tmpl
+        ? fillSingleTemplate(tmpl.template, singlePlace.name)
+        : fillSingleTemplate(
+            SINGLE_POLL_TEMPLATES[0].template,
+            singlePlace.name,
+          );
+    }
+    // Bulk-Modus
+    const template = POLL_TEMPLATES.find((t) => t.key === templateKey);
+    return templateKey === "custom"
       ? customQuestion.trim() || "Wer kommt mit zu folgenden Punkten?"
       : template?.question ?? "Wer kommt mit?";
+  }, [isSingleMode, singlePlace, templateKey, customQuestion]);
 
   // Selektierte Places in Reise-Reihenfolge (nicht zufällig)
-  const selectedPlaces = useMemo(
-    () => places.filter((p) => selectedIds.has(p.id)),
-    [places, selectedIds],
-  );
+  const selectedPlaces = useMemo(() => {
+    if (isSingleMode && singlePlace) return [singlePlace];
+    return places.filter((p) => selectedIds.has(p.id));
+  }, [isSingleMode, singlePlace, places, selectedIds]);
 
   const previewText = useMemo(
     () =>
@@ -155,10 +189,12 @@ export function WunschPollShare({
               <div className="flex items-start justify-between gap-3 mb-3">
                 <div className="flex-1 min-w-0">
                   <p className="text-[10px] uppercase tracking-wider text-ink-light font-semibold">
-                    Gruppen-Poll teilen
+                    {isSingleMode ? "Einzel-Abstimmung" : "Gruppen-Poll teilen"}
                   </p>
                   <h2 className="font-display text-lg font-semibold text-navy leading-tight mt-0.5">
-                    Wünsche per WhatsApp abstimmen
+                    {isSingleMode && singlePlace
+                      ? `${singlePlace.icon ?? "📍"} ${singlePlace.name}`
+                      : "Wünsche per WhatsApp abstimmen"}
                   </h2>
                 </div>
                 <button
@@ -171,7 +207,7 @@ export function WunschPollShare({
                 </button>
               </div>
 
-              {wantToSeeCount === 0 ? (
+              {!isSingleMode && wantToSeeCount === 0 ? (
                 <div className="rounded-xl bg-info/10 border border-info/30 p-3 mb-3">
                   <p className="text-xs text-info font-semibold">
                     Noch keine 💭-Wünsche markiert
@@ -184,13 +220,16 @@ export function WunschPollShare({
                 </div>
               ) : (
                 <>
-                  {/* Template-Auswahl */}
+                  {/* Template-Auswahl — andere Templates je nach Modus */}
                   <div className="mb-3">
                     <p className="text-[10px] uppercase tracking-wider text-ink-light font-semibold mb-1.5">
                       Welche Frage?
                     </p>
                     <div className="grid grid-cols-2 gap-1.5">
-                      {POLL_TEMPLATES.map((tmpl) => (
+                      {(isSingleMode
+                        ? SINGLE_POLL_TEMPLATES
+                        : POLL_TEMPLATES
+                      ).map((tmpl) => (
                         <button
                           key={tmpl.key}
                           type="button"
@@ -211,13 +250,18 @@ export function WunschPollShare({
                         type="text"
                         value={customQuestion}
                         onChange={(e) => setCustomQuestion(e.target.value)}
-                        placeholder="z.B. 'Tower of London diese Reise noch?'"
+                        placeholder={
+                          isSingleMode && singlePlace
+                            ? `z.B. 'Würdet ihr ${singlePlace.name} machen?'`
+                            : "z.B. 'Tower of London diese Reise noch?'"
+                        }
                         className="mt-2 w-full px-3 py-2 rounded-xl bg-white border border-cream-200 text-sm text-ink-dark placeholder:text-ink-light focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold/40"
                       />
                     )}
                   </div>
 
-                  {/* Place-Auswahl */}
+                  {/* Place-Auswahl nur im Bulk-Modus */}
+                  {!isSingleMode && (
                   <div className="mb-3">
                     <div className="flex items-center justify-between mb-1.5">
                       <p className="text-[10px] uppercase tracking-wider text-ink-light font-semibold">
@@ -272,6 +316,7 @@ export function WunschPollShare({
                         })}
                     </div>
                   </div>
+                  )}
 
                   {/* Vorschau */}
                   <div className="mb-3">
