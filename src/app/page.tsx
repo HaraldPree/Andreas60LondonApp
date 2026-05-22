@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Calendar, Users, Sparkles } from "lucide-react";
+import { ArrowRight, Calendar, Users, Sparkles, Search } from "lucide-react";
 import { trips } from "@/data/trips";
 import { GoldDivider } from "@/components/ui/GoldDivider";
 import { Footer } from "@/components/layout/Footer";
@@ -126,7 +126,30 @@ export default function HomePage() {
           ))}
         </ul>
 
-        <div className="mt-8 rounded-2xl bg-white/60 border border-cream-200 p-4 text-center">
+        {/* v1.10.0 — Veranstalter-Tools: AI-Event-Recherche pro Trip.
+            Bewusst dezent — nicht für End-Reisende, sondern für Harald als
+            Reise-Vorbereiter. */}
+        {trips.length > 0 && (
+          <details className="mt-6 rounded-2xl bg-white/60 border border-cream-200 px-4 py-3">
+            <summary className="text-xs text-ink-mid font-semibold cursor-pointer inline-flex items-center gap-1">
+              <Sparkles size={11} className="text-gold-600" /> Veranstalter-Tools
+            </summary>
+            <ul className="mt-2 space-y-1.5">
+              {trips.map((t) => (
+                <li key={t.slug}>
+                  <Link
+                    href={`/research/events?trip=${t.slug}`}
+                    className="text-[11px] text-navy hover:text-gold transition inline-flex items-center gap-1"
+                  >
+                    <Search size={11} /> Event-Recherche · {t.destination}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </details>
+        )}
+
+        <div className="mt-6 rounded-2xl bg-white/60 border border-cream-200 p-4 text-center">
           <p className="text-xs text-ink-mid leading-relaxed">
             Privates Test-Produkt für die Reisegruppe.
           </p>
