@@ -13,6 +13,7 @@ import {
   Cake,
   RefreshCw,
   WifiOff,
+  ChevronDown,
 } from "lucide-react";
 import type { Trip } from "@/types/trip";
 import type {
@@ -65,6 +66,25 @@ export function SharedGallery({ trip, currentUserName }: Props) {
     if (!viewerIsCelebrant || tab === "all") return photos;
     return photos.filter((p) => p.visibility === "celebrant");
   }, [photos, viewerIsCelebrant, tab]);
+
+  // v1.8.0 — Gruppierung nach assignedDay für Day-Sections
+  const grouped = useMemo(() => {
+    const map = new Map<number | "unsorted", SharedPhotoView[]>();
+    for (const p of visiblePhotos) {
+      const key =
+        typeof p.assignedDay === "number" ? p.assignedDay : "unsorted";
+      const arr = map.get(key) ?? [];
+      arr.push(p);
+      map.set(key, arr);
+    }
+    return map;
+  }, [visiblePhotos]);
+
+  // Heutiger Tag für Default-Open (analog FotosTab)
+  const todayIso = useMemo(() => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  }, []);
 
   // Wenn der User noch keinen Namen gewählt hat
   if (!currentUserName) {
@@ -213,22 +233,54 @@ export function SharedGallery({ trip, currentUserName }: Props) {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-3 gap-1.5">
-          {visiblePhotos.map((photo) => (
-            <SharedPhotoTile
-              key={photo.id}
-              photo={photo}
-              currentUserName={currentUserName}
-              onWithdraw={() => {
-                if (confirm("Foto wirklich aus dem Pool entfernen?")) {
-                  withdraw(photo.id).catch(console.error);
+        // v1.8.0 — Day-Sections (Lukas+Andrea-Feedback: tageweise sortiert)
+        <div className="space-y-2">
+          {trip.days.map((day, i) => {
+            const list = grouped.get(i);
+            if (!list || list.length === 0) return null;
+            const isToday = day.isoDate === todayIso;
+            return (
+              <SharedDaySection
+                key={day.date}
+                title={`Tag ${i + 1} · ${day.date}`}
+                subtitle={day.title}
+                color={day.color}
+                photos={list}
+                currentUserName={currentUserName}
+                onWithdraw={(id) => {
+                  if (confirm("Foto wirklich aus dem Pool entfernen?")) {
+                    withdraw(id).catch(console.error);
+                  }
+                }}
+                onChangeVisibility={(id, next) =>
+                  changeVisibility(id, next).catch(console.error)
                 }
-              }}
-              onChangeVisibility={(next) =>
-                changeVisibility(photo.id, next).catch(console.error)
-              }
-            />
-          ))}
+                defaultOpen={isToday}
+              />
+            );
+          })}
+          {(() => {
+            const unsorted = grouped.get("unsorted");
+            if (!unsorted || unsorted.length === 0) return null;
+            return (
+              <SharedDaySection
+                title="Unsortiert"
+                subtitle="Fotos ohne Tag-Zuordnung"
+                color="#7A7A8A"
+                photos={unsorted}
+                currentUserName={currentUserName}
+                onWithdraw={(id) => {
+                  if (confirm("Foto wirklich aus dem Pool entfernen?")) {
+                    withdraw(id).catch(console.error);
+                  }
+                }}
+                onChangeVisibility={(id, next) =>
+                  changeVisibility(id, next).catch(console.error)
+                }
+                defaultOpen={false}
+              />
+            );
+          })()}
         </div>
       )}
 
@@ -247,6 +299,75 @@ export function SharedGallery({ trip, currentUserName }: Props) {
           Du kannst eigene Fotos jederzeit zurückziehen.
         </p>
       </div>
+    </div>
+  );
+}
+
+/**
+ * v1.8.0 — Day-Section für Gemeinsame Galerie.
+ * Analog FotosTab DaySection — collapsible mit Header.
+ */
+function SharedDaySection({
+  title,
+  subtitle,
+  color,
+  photos,
+  currentUserName,
+  onWithdraw,
+  onChangeVisibility,
+  defaultOpen,
+}: {
+  title: string;
+  subtitle: string;
+  color: string;
+  photos: SharedPhotoView[];
+  currentUserName: string;
+  onWithdraw: (id: string) => void;
+  onChangeVisibility: (id: string, next: SharedPhotoVisibility) => void;
+  defaultOpen: boolean;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <div className="rounded-xl bg-white border border-cream-200/70 overflow-hidden">
+      <div className="h-1 w-full" style={{ backgroundColor: color }} />
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="w-full px-3 py-2.5 flex items-start gap-2 text-left hover:bg-cream-50 transition"
+      >
+        <div className="flex-1 min-w-0">
+          <p className="text-[10px] uppercase tracking-wider text-ink-light font-semibold">
+            {title}
+          </p>
+          <p className="text-xs text-ink-dark font-medium">{subtitle}</p>
+          <p className="text-[10px] text-ink-light mt-0.5">
+            {photos.length} {photos.length === 1 ? "Foto" : "Fotos"}
+          </p>
+        </div>
+        <ChevronDown
+          size={14}
+          className={`text-ink-light transition-transform flex-shrink-0 mt-1 ${
+            !open ? "rotate-[-90deg]" : ""
+          }`}
+        />
+      </button>
+      {open && (
+        <div className="px-3 pb-3 border-t border-cream-100 pt-2">
+          <div className="grid grid-cols-3 gap-1.5">
+            {photos.map((photo) => (
+              <SharedPhotoTile
+                key={photo.id}
+                photo={photo}
+                currentUserName={currentUserName}
+                onWithdraw={() => onWithdraw(photo.id)}
+                onChangeVisibility={(next) =>
+                  onChangeVisibility(photo.id, next)
+                }
+              />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

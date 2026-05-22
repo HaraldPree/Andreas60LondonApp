@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
+import { Film } from "lucide-react";
 import type { Trip } from "@/types/trip";
 import { WeatherWidget } from "@/components/weather/WeatherWidget";
 import { ForecastBar } from "@/components/weather/ForecastBar";
@@ -9,11 +10,13 @@ import { AlertBanner } from "@/components/trip/AlertBanner";
 import { DayCard } from "@/components/trip/DayCard";
 import { TripHero } from "@/components/trip/TripHero";
 import { TripVariantSwitcher } from "@/components/trip/TripVariantSwitcher";
+import { GoodbyeReel } from "@/components/reel/GoodbyeReel";
 import { useWeather } from "@/hooks/useWeather";
 import type { TripVariant } from "@/hooks/useTripVariant";
 import { getDisruptionsForDay } from "@/lib/disruptions";
 import { useUserPlaces } from "@/hooks/useUserPlaces";
 import { usePlaceStatus } from "@/hooks/usePlaceStatus";
+import { useSharedPhotos } from "@/hooks/useSharedPhotos";
 
 interface ProgrammTabProps {
   trip: Trip;
@@ -42,6 +45,18 @@ export function ProgrammTab({
     currentUserName ?? null,
   );
 
+  // v1.8.0 — Goodbye-Reel (Banner am Abreise-Tag)
+  const [reelOpen, setReelOpen] = useState(false);
+  const { photos: sharedPhotos } = useSharedPhotos({
+    tripSlug: trip.slug,
+    viewerName: currentUserName ?? null,
+  });
+
+  // v1.8.0 — Auto-Open beim ersten Besuch am Abreise-Tag (mit
+  // localStorage-Flag, damit es nicht jedes Mal aufpoppt).
+  // Banner bleibt sichtbar fürs erneute Ansehen.
+  const reelSeenKey = `rcmk:reelSeen:${trip.slug}`;
+
   // v1.6.0 — In-App-Editor (Phase 1+2) deaktiviert auf User-Wunsch:
   // "Phase 1 und 2 kannst du momentan deaktivieren — das werden wir in
   // der Neufassung anders machen". Hook + Komponenten bleiben im Code,
@@ -64,6 +79,43 @@ export function ProgrammTab({
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
   }, []);
 
+  // v1.8.0 — Letzter Reisetag? Dann Goodbye-Reel-Banner zeigen.
+  const isLastDay = useMemo(() => {
+    const last = trip.days[trip.days.length - 1];
+    return last?.isoDate === todayIso;
+  }, [trip.days, todayIso]);
+
+  // v1.8.0 — Auto-Open des Reels beim ersten Besuch am letzten Tag.
+  // localStorage-Flag verhindert dass es bei jedem Tab-Wechsel aufpoppt.
+  // Banner bleibt sichtbar zum erneuten Ansehen.
+  useEffect(() => {
+    if (!isLastDay) return;
+    if (sharedPhotos.length === 0) return;
+    if (typeof window === "undefined") return;
+    try {
+      const seen = window.localStorage.getItem(reelSeenKey);
+      if (!seen) {
+        // Erstes Mal heute → Reel öffnet sich automatisch nach kurzem Delay
+        // (damit der User nicht überrascht wird beim App-Open)
+        const t = setTimeout(() => setReelOpen(true), 1500);
+        return () => clearTimeout(t);
+      }
+    } catch {
+      // ignore
+    }
+  }, [isLastDay, sharedPhotos.length, reelSeenKey]);
+
+  const handleReelClose = () => {
+    setReelOpen(false);
+    if (typeof window !== "undefined") {
+      try {
+        window.localStorage.setItem(reelSeenKey, new Date().toISOString());
+      } catch {
+        // ignore
+      }
+    }
+  };
+
   return (
     <motion.div
       key="programm"
@@ -73,6 +125,31 @@ export function ProgrammTab({
       className="space-y-4"
     >
       <TripHero trip={trip} />
+
+      {/* v1.8.0 — Goodbye-Reel-Banner am Abreise-Tag */}
+      {isLastDay && sharedPhotos.length > 0 && (
+        <button
+          type="button"
+          onClick={() => setReelOpen(true)}
+          className="w-full rounded-2xl bg-gradient-to-br from-gold via-gold-400 to-gold-600 text-navy p-4 flex items-center gap-3 hover:scale-[1.01] active:scale-[0.99] transition shadow-elevated"
+        >
+          <div className="w-12 h-12 rounded-xl bg-navy/15 flex items-center justify-center flex-shrink-0">
+            <Film size={22} strokeWidth={2.2} />
+          </div>
+          <div className="flex-1 min-w-0 text-left">
+            <p className="text-[10px] uppercase tracking-[0.2em] font-bold opacity-70">
+              Letzter Tag — Abschieds-Reel
+            </p>
+            <p className="font-display text-base font-semibold leading-tight mt-0.5">
+              🎂 Andrea-Reel + Reise-Highlights
+            </p>
+            <p className="text-[11px] opacity-80 mt-0.5">
+              {sharedPhotos.length} geteilte Fotos · Slideshow + Konfetti
+            </p>
+          </div>
+          <span className="text-2xl flex-shrink-0">🎬</span>
+        </button>
+      )}
 
       {trip.alternativeDays && onVariantChange && (
         <TripVariantSwitcher
@@ -135,6 +212,15 @@ export function ProgrammTab({
           ))}
         </div>
       </div>
+
+      {/* v1.8.0 — Goodbye-Reel-Modal */}
+      <GoodbyeReel
+        open={reelOpen}
+        trip={trip}
+        sharedPhotos={sharedPhotos}
+        currentUserName={currentUserName}
+        onClose={handleReelClose}
+      />
     </motion.div>
   );
 }
