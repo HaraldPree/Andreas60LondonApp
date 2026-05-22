@@ -413,6 +413,19 @@ export interface Trip {
    */
   places?: import("./place").Place[];
 
+  /**
+   * v1.9.0 — Zeitlich gebundene Events während des Reisezeitraums.
+   * Wiederkehrende Annual-Events (Chelsea Flower Show, Wimbledon),
+   * Sonderausstellungen, Konzerte, Pop-Ups.
+   *
+   * Banner im Programm-Tab matched Events automatisch gegen
+   * Reise-Daten — User sieht nur was zur Reise passt.
+   *
+   * Anlass: Live-London-Reise hat Chelsea Flower Show verpasst weil
+   * keine Event-Daten in der App waren.
+   */
+  events?: import("./event").Event[];
+
   quickActions: QuickAction[];
   emergencyInfo?: EmergencyInfo;
   runningRoutes?: RunningRoute[];

@@ -1,5 +1,6 @@
 import type { Trip } from "@/types/trip";
 import { LONDON_PLACES } from "./london-2026-places";
+import { LONDON_EVENTS_2026 } from "./london-2026-events";
 
 export const londonTrip: Trip = {
   slug: "london-2026",
@@ -1343,6 +1344,7 @@ export const londonTrip: Trip = {
   ],
 
   places: LONDON_PLACES,
+  events: LONDON_EVENTS_2026,
 
   hiddenPlaces: [
     {

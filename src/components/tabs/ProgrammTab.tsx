@@ -10,6 +10,7 @@ import { AlertBanner } from "@/components/trip/AlertBanner";
 import { DayCard } from "@/components/trip/DayCard";
 import { TripHero } from "@/components/trip/TripHero";
 import { TripVariantSwitcher } from "@/components/trip/TripVariantSwitcher";
+import { EventBanner } from "@/components/trip/EventBanner";
 import { GoodbyeReel } from "@/components/reel/GoodbyeReel";
 import { useWeather } from "@/hooks/useWeather";
 import type { TripVariant } from "@/hooks/useTripVariant";
@@ -125,6 +126,11 @@ export function ProgrammTab({
       className="space-y-4"
     >
       <TripHero trip={trip} />
+
+      {/* v1.9.0 — Event-Banner: zeigt nur Events die mit dem Reisezeitraum
+          überlappen (Chelsea Flower Show, Wimbledon etc.). Null-fallback
+          wenn nichts passt — komplett unsichtbar. */}
+      <EventBanner trip={trip} />
 
       {/* v1.8.0 — Goodbye-Reel-Banner am Abreise-Tag */}
       {isLastDay && sharedPhotos.length > 0 && (

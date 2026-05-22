@@ -49,6 +49,7 @@ Wenn ich (Claude) eine Code-Änderung mache:
 
 | Version | Datum | Titel | Status |
 |---|---|---|---|
+| [v1.9.0](./v1.9.0.md) | 23.05.2026 | Events-Datenklasse + London-Event-Library (15 Events, Chelsea Flower Show & Co.) | deployed |
 | [v1.8.1](./v1.8.1.md) | 23.05.2026 | Aufräum-Bundle (Anchor Tap + Status-Farben + Retro-Doc) | deployed |
 | [v1.8.0](./v1.8.0.md) | 22.05.2026 | Gemeinsame Galerie tagweise + Goodbye-Reel mit Auto-Open | deployed |
 | [v1.7.9](./v1.7.9.md) | 22.05.2026 | Rückflug-Flugnummer-Korrektur (FR1695 → RK1695) | deployed |
