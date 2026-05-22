@@ -20,6 +20,8 @@ import { useAiConsent } from "@/hooks/useAiConsent";
 import { useDismissOnBack } from "@/hooks/useDismissOnBack";
 import { AiConsentModal } from "@/components/ai/AiConsentModal";
 import { PhotoShareSection } from "./PhotoShareSection";
+import { DayPickerModal } from "./DayPickerModal";
+import type { Trip } from "@/types/trip";
 
 interface PhotoDetailProps {
   photo: PhotoMeta;
@@ -31,6 +33,10 @@ interface PhotoDetailProps {
   onDelete: (id: string) => void;
   onCaptionChange: (id: string, caption: string) => void;
   onNarrativeChange: (id: string, narrative: string) => void;
+  /** v1.7.8 — manueller Tag-Zuordnung (für EXIF-lose Fotos). */
+  onAssignDay?: (id: string, dayIndex: number | null) => void;
+  /** Trip-Objekt für DayPickerModal — wenn nicht übergeben, kein Picker. */
+  trip?: Trip;
 }
 
 export function PhotoDetail({
@@ -43,6 +49,8 @@ export function PhotoDetail({
   onDelete,
   onCaptionChange,
   onNarrativeChange,
+  onAssignDay,
+  trip,
 }: PhotoDetailProps) {
   const fullUrl = useBlobUrl(photo.id, getFullBlob);
   const [narrative, setNarrative] = useState(photo.aiNarrative ?? "");
@@ -51,6 +59,7 @@ export function PhotoDetail({
   const [caption, setCaption] = useState(photo.caption ?? "");
   const [captionEditing, setCaptionEditing] = useState(false);
   const [consentOpen, setConsentOpen] = useState(false);
+  const [dayPickerOpen, setDayPickerOpen] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
   const consent = useAiConsent("photo-narration");
 
@@ -172,12 +181,24 @@ export function PhotoDetail({
         >
           {/* Header */}
           <div className="flex items-center justify-between p-3 sticky top-0 bg-black/70 backdrop-blur z-10">
-            <div className="text-cream text-xs space-y-0.5">
-              {dayLabel && (
+            <div className="text-cream text-xs space-y-0.5 flex-1 min-w-0">
+              {/* v1.7.8 — Tag-Anzeige als Button: tippbar = Tag ändern */}
+              {trip && onAssignDay ? (
+                <button
+                  type="button"
+                  onClick={() => setDayPickerOpen(true)}
+                  className="font-semibold inline-flex items-center gap-1 hover:text-gold transition"
+                  aria-label="Tag ändern"
+                >
+                  <Calendar size={11} />
+                  {dayLabel ?? "Tag zuordnen…"}
+                  <span className="text-[9px] opacity-60">(tippen)</span>
+                </button>
+              ) : dayLabel ? (
                 <p className="font-semibold inline-flex items-center gap-1">
                   <Calendar size={11} /> {dayLabel}
                 </p>
-              )}
+              ) : null}
               <p className="opacity-70 font-mono text-[10px]">
                 {new Date(photo.takenAt).toLocaleString("de-DE", {
                   hour: "2-digit",
@@ -354,6 +375,21 @@ export function PhotoDetail({
           void doNarrate();
         }}
       />
+
+      {/* v1.7.8 — Tag-Picker für manuelle Zuordnung */}
+      {trip && onAssignDay && (
+        <DayPickerModal
+          open={dayPickerOpen}
+          trip={trip}
+          title="Tag für dieses Foto"
+          hint="Wähle den Reisetag, dem dieses Foto zugeordnet werden soll. Du kannst es jederzeit ändern."
+          onClose={() => setDayPickerOpen(false)}
+          onConfirm={({ dayIndex }) => {
+            onAssignDay(photo.id, dayIndex);
+            setDayPickerOpen(false);
+          }}
+        />
+      )}
     </>
   );
 }

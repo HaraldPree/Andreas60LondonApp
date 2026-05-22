@@ -54,6 +54,7 @@ export function FotosTab({ trip, currentUserName = null }: FotosTabProps) {
     removeMany,
     setCaption,
     setNarrative,
+    setAssignedDay,
   } = usePhotos({ tripSlug: trip.slug, days: trip.days });
   const [openId, setOpenId] = useState<string | null>(null);
 
@@ -398,6 +399,8 @@ export function FotosTab({ trip, currentUserName = null }: FotosTabProps) {
           onDelete={(id) => remove(id)}
           onCaptionChange={(id, c) => setCaption(id, c)}
           onNarrativeChange={(id, n) => setNarrative(id, n)}
+          onAssignDay={(id, dayIndex) => setAssignedDay(id, dayIndex)}
+          trip={trip}
         />
       )}
 

@@ -57,6 +57,13 @@ export function ProgrammTab({
     return map;
   }, [weather]);
 
+  // v1.7.8 — heutiger Tag als Default offen (statt immer Tag 1).
+  // Fallback wenn kein Tag matched: keiner offen — User klickt selbst.
+  const todayIso = useMemo(() => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  }, []);
+
   return (
     <motion.div
       key="programm"
@@ -105,7 +112,7 @@ export function ProgrammTab({
               key={day.date}
               day={day}
               dayNumber={i}
-              defaultOpen={i === 0}
+              defaultOpen={day.isoDate === todayIso}
               rainProbability={
                 day.isoDate ? precipByDate.get(day.isoDate) : undefined
               }

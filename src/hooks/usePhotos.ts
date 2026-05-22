@@ -188,6 +188,20 @@ export function usePhotos({ tripSlug, days }: UsePhotosOptions) {
     [refresh],
   );
 
+  /**
+   * v1.7.8 — Manueller Tag-Wechsel für Fotos.
+   * Wird genutzt wenn EXIF-Auto-Sort nicht gegriffen hat (Foto in
+   * "Unsortiert") oder User die Auto-Zuordnung korrigieren will.
+   * `null` setzt zurück auf "Unsortiert".
+   */
+  const setAssignedDay = useCallback(
+    async (id: string, dayIndex: number | null) => {
+      await updatePhoto(id, { assignedDay: dayIndex ?? undefined });
+      await refresh();
+    },
+    [refresh],
+  );
+
   return {
     photos,
     loading,
@@ -199,6 +213,7 @@ export function usePhotos({ tripSlug, days }: UsePhotosOptions) {
     removeMany,
     setCaption,
     setNarrative,
+    setAssignedDay,
     refresh,
     getThumbnailBlob,
     getFullBlob,

@@ -49,6 +49,7 @@ Wenn ich (Claude) eine Code-Änderung mache:
 
 | Version | Datum | Titel | Status |
 |---|---|---|---|
+| [v1.7.8](./v1.7.8.md) | 21.05.2026 | Heutiger Tag default offen + Foto-Tag manuell zuordnen | deployed |
 | [v1.7.7](./v1.7.7.md) | 21.05.2026 | Tag 4 Leger angepasst (Borough Market → Uber Boat → Greenwich) | deployed |
 | [v1.7.6](./v1.7.6.md) | 20.05.2026 | Fotos-Tab: Tage + Gemeinsame Galerie ausklappbar (Lukas-Feedback) | deployed |
 | [v1.7.5](./v1.7.5.md) | 20.05.2026 | Frag-Button auch bei „👁 Vorbei" + Update-Format-Regelwerk | deployed |
