@@ -165,12 +165,13 @@ export const londonTrip: Trip = {
       arrival: "16:25",
       from: "London Stansted (STN)",
       to: "Linz (LNZ)",
-      airline: "Ryanair",
-      // Korrigiert auf FR-Code (Ryanair-Standard). "RK1695" war ein
-      // Schreibfehler in der ursprünglichen Buchungs-Email — alle Ryanair-
-      // Flüge laufen unter dem IATA-Code "FR" und sind nur darunter in
-      // Tracking-Tools (AviationStack, Flightradar24) auffindbar.
-      flightNumber: "FR1695",
+      airline: "Ryanair UK",
+      // RK = IATA-Code von Ryanair UK (eigene Airline post-Brexit für
+      // UK-startende Flüge). User-Korrektur 22.05.2026: die ursprüngliche
+      // Buchungs-Email war korrekt mit "RK1695", mein früherer Fix auf FR
+      // war falsch. Hinflug Linz → Stansted bleibt FR1694 (Ryanair Mainline,
+      // operiert ab AT).
+      flightNumber: "RK1695",
       duration: "1h 55m",
       bookingReference: "H58R9R", // selber PNR wie outbound (Round-Trip-Buchung)
       checkedIn: true,
@@ -775,7 +776,7 @@ export const londonTrip: Trip = {
         },
         {
           time: "13:30",
-          label: "Abflug Stansted → Linz (FR1695)",
+          label: "Abflug Stansted → Linz (RK1695, Ryanair UK)",
           type: "flight",
           icon: "✈️",
           highlight: true,
