@@ -27,13 +27,18 @@ const STATUS_LABELS: Record<ReservationStatus, string> = {
   erledigt: "Erledigt",
 };
 
+// v1.8.1 — Status-Farben vereinheitlicht (UX-Audit #14):
+// grau (offen) → blau (reserviert, in Bearbeitung) → grün (erledigt).
+// Vorher kollidierten die Farben mit Alert-Banner-warning (offen),
+// Wunschliste-gold (reserviert) und Wunschliste-success (erledigt) —
+// jetzt eigene Progression unabhängig von anderen Status-Bedeutungen.
 const STATUS_CONFIG: Record<
   ReservationStatus,
   { bg: string; text: string; icon: typeof Check }
 > = {
-  offen: { bg: "bg-warning/10", text: "text-warning", icon: Clock },
-  reserviert: { bg: "bg-gold/15", text: "text-gold-600", icon: Calendar },
-  erledigt: { bg: "bg-success/10", text: "text-success", icon: Check },
+  offen: { bg: "bg-cream-200", text: "text-ink-mid", icon: Clock },
+  reserviert: { bg: "bg-info/15", text: "text-info", icon: Calendar },
+  erledigt: { bg: "bg-success/15", text: "text-success", icon: Check },
 };
 
 export function ReservationCard({

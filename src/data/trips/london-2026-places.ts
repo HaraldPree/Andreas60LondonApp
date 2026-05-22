@@ -1349,6 +1349,24 @@ export const LONDON_PLACES: Place[] = [
     tags: ["outdoor-möglich", "themse", "aussicht"],
   },
   {
+    id: "the-anchor-tap",
+    name: "The Anchor Tap (Southwark)",
+    category: "foodie",
+    icon: "🍺",
+    coordinates: { lat: 51.5012, lng: -0.0758 },
+    description:
+      "Traditioneller Pub direkt bei Tower Bridge / Borough Market. Live-getestete Empfehlung: Fish & Chips waren sehr gut (RCMK London-Reise Mai 2026).",
+    bookingUrl: "https://www.theanchortap.co.uk/",
+    availability: {
+      type: "scheduled",
+      openHours: "täglich 11:00–23:00",
+      lastVerified: VERIFIED,
+      source: "Live-Test London-Reise 21.05.2026 + theanchortap.co.uk",
+    },
+    cost: "Pub-Preise",
+    tags: ["indoor", "themse-nähe", "fish-and-chips", "live-empfohlen"],
+  },
+  {
     id: "the-trafalgar-tavern",
     name: "The Trafalgar Tavern (Greenwich)",
     category: "foodie",

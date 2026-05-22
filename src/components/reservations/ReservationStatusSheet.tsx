@@ -21,28 +21,30 @@ const OPTIONS: Array<{
   bg: string;
   text: string;
 }> = [
+  // v1.8.1 — Farben vereinheitlicht (grau → blau → grün)
+  // Konsistent mit ReservationCard.tsx STATUS_CONFIG.
   {
     status: "offen",
     label: "Offen",
     description: "Reservierung steht noch aus",
     icon: Clock,
-    bg: "bg-warning/10",
-    text: "text-warning",
+    bg: "bg-cream-200",
+    text: "text-ink-mid",
   },
   {
     status: "reserviert",
     label: "Reserviert",
     description: "Tisch / Termin steht fix",
     icon: Calendar,
-    bg: "bg-gold/15",
-    text: "text-gold-600",
+    bg: "bg-info/15",
+    text: "text-info",
   },
   {
     status: "erledigt",
     label: "Erledigt",
     description: "Schon gemacht — Haken dran",
     icon: Check,
-    bg: "bg-success/10",
+    bg: "bg-success/15",
     text: "text-success",
   },
 ];
