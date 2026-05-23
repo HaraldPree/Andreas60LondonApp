@@ -160,6 +160,9 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   // Day separator
+  // v1.10.3 — Padding von 60 auf 40 reduziert (Format-Konsistenz mit
+  // photoPageContainer 30 → optisch sehr ähnlich, kein "anderes Format"-
+  // Eindruck mehr — Harald-Feedback).
   separatorPage: {
     backgroundColor: COLORS.cream,
     flex: 1,
@@ -167,7 +170,7 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
-    padding: 60,
+    padding: 40,
   },
   separatorColorStripe: {
     position: "absolute",
@@ -215,6 +218,10 @@ const styles = StyleSheet.create({
     marginVertical: 20,
   },
   // Photo page (2 photos side by side)
+  // v1.10.3 — Padding bleibt 30, photoImageWrap bekommt cream-Hintergrund
+  // statt grau-Rechteck (Harald-Bug "hochformat-fotos haben grauen
+  // hintergrund"). Border radius weg — Foto liegt jetzt elegant auf
+  // Page-Hintergrund, ungenutzter Raum bei Hochformat ist unsichtbar.
   photoPageContainer: {
     flex: 1,
     padding: 30,
@@ -242,9 +249,8 @@ const styles = StyleSheet.create({
   },
   photoImageWrap: {
     flex: 1,
-    backgroundColor: COLORS.inkLight,
-    borderRadius: 4,
-    overflow: "hidden",
+    // Kein backgroundColor, kein borderRadius → Hochformat-Fotos haben
+    // jetzt elegantem Page-Hintergrund statt grauem Rahmen-Rest.
   },
   photoImage: {
     width: "100%",
@@ -267,21 +273,18 @@ const styles = StyleSheet.create({
     textAlign: "center",
     // Light grey + small size already reads as "secondary" — no italic needed
   },
-  // Single photo page (full)
+  // Single photo page (full) — v1.10.3 ebenfalls ohne grauen Hintergrund.
   singlePhotoWrap: {
     flex: 1,
-    backgroundColor: COLORS.inkLight,
-    borderRadius: 4,
-    overflow: "hidden",
   },
-  // Closing page
+  // Closing page — v1.10.3 padding 40 für Format-Konsistenz mit anderen Pages.
   closingPage: {
     flex: 1,
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
-    padding: 60,
+    padding: 40,
   },
   closingEmoji: {
     fontSize: 64,
@@ -410,9 +413,11 @@ function CoverPage({
   const title = coverTitleOverride ?? trip.destination;
   const participants = trip.participants ?? [];
   return (
-    // v1.10.2 — wrap={false} verhindert dass react-pdf bei minimalem
-    // Overflow zweite PDF-Seiten als Phantom erzeugt (Harald-Bug).
-    <Page size="A4" orientation="landscape" style={styles.page} wrap={false}>
+    // v1.10.3 — wrap={false} wieder entfernt: hat in v1.10.2 das
+    // Cover-Hero-Image gekillt (Harald-Bug "Titelseite leer").
+    // Phantom-Pages werden jetzt nur via Flat-Array + truncate(summary)
+    // verhindert, ohne dass wrap-Verhalten manipuliert werden muss.
+    <Page size="A4" orientation="landscape" style={styles.page}>
       <View style={styles.coverContainer}>
         {heroDataUrl && <Image src={heroDataUrl} style={styles.coverImage} />}
         <View style={styles.coverOverlay} />
@@ -456,7 +461,7 @@ function DaySeparatorPage({
   const day = trip.days[dayIndex];
   if (!day) return null;
   return (
-    <Page size="A4" orientation="landscape" style={styles.page} wrap={false}>
+    <Page size="A4" orientation="landscape" style={styles.page}>
       <View
         style={[
           styles.separatorColorStripe,
@@ -484,7 +489,7 @@ function DaySeparatorPage({
 
 function UnsortedSeparatorPage() {
   return (
-    <Page size="A4" orientation="landscape" style={styles.page} wrap={false}>
+    <Page size="A4" orientation="landscape" style={styles.page}>
       <View style={styles.separatorPage}>
         <Text style={styles.separatorEyebrow}>Unsortiert</Text>
         <View style={styles.separatorGoldDivider} />
@@ -506,7 +511,7 @@ function PhotoPairPage({
   dayLabel: string;
 }) {
   return (
-    <Page size="A4" orientation="landscape" style={styles.page} wrap={false}>
+    <Page size="A4" orientation="landscape" style={styles.page}>
       <View style={styles.photoPageContainer}>
         <Text style={styles.photoPageHeader}>{dayLabel}</Text>
         <View style={styles.photoRow}>
@@ -539,7 +544,7 @@ function SinglePhotoPage({
   dayLabel: string;
 }) {
   return (
-    <Page size="A4" orientation="landscape" style={styles.page} wrap={false}>
+    <Page size="A4" orientation="landscape" style={styles.page}>
       <View style={styles.photoPageContainer}>
         <Text style={styles.photoPageHeader}>{dayLabel}</Text>
         <View style={styles.singlePhotoWrap}>
@@ -559,7 +564,7 @@ function SinglePhotoPage({
 function ClosingPage({ trip }: { trip: Trip }) {
   const celebrant = trip.participants?.find((p) => p.role === "celebrant");
   return (
-    <Page size="A4" orientation="landscape" style={styles.page} wrap={false}>
+    <Page size="A4" orientation="landscape" style={styles.page}>
       <View style={styles.closingPage}>
         {/* No emoji at top — built-in fonts can't render them.
             Use a small uppercase label as decoration instead. */}
