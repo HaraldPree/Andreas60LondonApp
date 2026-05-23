@@ -84,15 +84,21 @@ export function PdfBookExportButton({ trip, photos }: Props) {
     }
   };
 
-  /** Native share-sheet (Files / WhatsApp / Drive / AirDrop…). */
-  const handleShare = async () => {
+  /**
+   * v1.10.1 — Universeller Save-Handler. Try Share-API first (für
+   * Samsung Internet + iOS Safari, wo <a download href="blob:"> einen
+   * about:blank-Tab statt Download produziert — Harald A53 Bug).
+   * Fallback: klassischer anchor-Click (Desktop, alte Browser).
+   */
+  const handleSave = async () => {
     if (!ready) return;
-    try {
-      if (
-        typeof navigator.share === "function" &&
-        typeof navigator.canShare === "function" &&
-        typeof File !== "undefined"
-      ) {
+    // 1) Share API mit File-Support — Mobile-bevorzugt
+    if (
+      typeof navigator.share === "function" &&
+      typeof navigator.canShare === "function" &&
+      typeof File !== "undefined"
+    ) {
+      try {
         const file = new File([ready.blob], ready.filename, {
           type: ready.blob.type,
         });
@@ -101,22 +107,22 @@ export function PdfBookExportButton({ trip, photos }: Props) {
             files: [file],
             title: ready.filename,
           });
-          return;
+          return; // erfolgreich
         }
-      }
-      // Share API unavailable — fall back to a fresh anchor click
-      const a = document.createElement("a");
-      a.href = ready.url;
-      a.download = ready.filename;
-      a.click();
-    } catch (e) {
-      // User cancelled or share failed — silent (the visible link
-      // remains as the always-reliable fallback)
-      const msg = e instanceof Error ? e.message : String(e);
-      if (!/abort|cancel/i.test(msg)) {
-        console.warn("[PdfBookExportButton] share failed:", e);
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : String(e);
+        if (/abort|cancel/i.test(msg)) return; // User hat im Sheet abgebrochen
+        console.warn("[PdfBookExportButton] share fehlgeschlagen, falle auf Download zurück:", e);
+        // weiter zum Fallback
       }
     }
+    // 2) Fallback: anchor download (Desktop, alte Browser)
+    const a = document.createElement("a");
+    a.href = ready.url;
+    a.download = ready.filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   };
 
   const handleReset = () => {
@@ -194,7 +200,7 @@ export function PdfBookExportButton({ trip, photos }: Props) {
           </>
         )}
 
-        {/* Ready state — persistent download link + share button */}
+        {/* Ready state — Share-based save + anchor fallback */}
         {ready && (
           <div className="space-y-2">
             <div className="rounded-lg bg-success/10 border border-success/30 p-3 text-center">
@@ -202,30 +208,34 @@ export function PdfBookExportButton({ trip, photos }: Props) {
                 ✓ PDF bereit ({ready.sizeMb} MB)
               </p>
               <p className="text-[10px] text-ink-mid mt-0.5 leading-relaxed">
-                Tippe auf den Button unten zum Speichern auf deinem Handy
+                Auf Handy: Teilen-Sheet öffnet sich → „In Dateien speichern"
+                oder App auswählen
               </p>
             </div>
 
-            {/* Real <a download> — tap is "user initiated" which mobile
-                browsers handle reliably (programmatic click() was the
-                bug). Works on Firefox / Chrome / Samsung / Safari. */}
-            <a
-              href={ready.url}
-              download={ready.filename}
+            {/* v1.10.1 — Primärer Speichern-Button nutzt Share API auf
+                Mobile (Samsung Internet öffnet sonst about:blank-Tab
+                statt Download — Harald A53 Bug). Desktop: fällt auf
+                klassischen <a download> Anchor zurück. */}
+            <button
+              type="button"
+              onClick={handleSave}
               className="w-full inline-flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-navy text-cream text-sm font-semibold hover:bg-navy-700 transition shadow-sm"
             >
               <Download size={16} />
               PDF speichern
-            </a>
-
-            <button
-              type="button"
-              onClick={handleShare}
-              className="w-full inline-flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-gold/15 text-gold-600 text-sm font-semibold hover:bg-gold/25 transition"
-            >
-              <Share2 size={14} />
-              Teilen (WhatsApp, Drive, E-Mail…)
             </button>
+
+            {/* Fallback-Anchor für User die vom Share-Sheet zurück­kommen
+                ohne gespeichert zu haben — direktes Download via Anchor. */}
+            <a
+              href={ready.url}
+              download={ready.filename}
+              className="w-full inline-flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-cream-100 text-ink-dark text-xs font-medium hover:bg-cream-200 transition"
+            >
+              <Share2 size={12} />
+              Alternativ: Direkt-Download (Desktop / Chrome)
+            </a>
 
             <button
               type="button"
@@ -237,9 +247,8 @@ export function PdfBookExportButton({ trip, photos }: Props) {
             </button>
 
             <p className="text-[10px] text-ink-light text-center italic mt-1 leading-relaxed">
-              💡 Falls "Speichern" einen neuen Tab öffnet:{" "}
-              <strong>lange auf den Button drücken</strong> → „Link
-              speichern unter" wählen
+              💡 Samsung Internet / iOS Safari: bitte den blauen Hauptbutton
+              nehmen — das Teilen-Sheet bietet „In Dateien speichern".
             </p>
           </div>
         )}

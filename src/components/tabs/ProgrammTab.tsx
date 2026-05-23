@@ -80,17 +80,27 @@ export function ProgrammTab({
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
   }, []);
 
-  // v1.8.0 — Letzter Reisetag? Dann Goodbye-Reel-Banner zeigen.
-  const isLastDay = useMemo(() => {
+  // v1.8.0 — Auto-Open am echten letzten Tag (nur 1x via localStorage-Flag).
+  const isActualLastDay = useMemo(() => {
     const last = trip.days[trip.days.length - 1];
     return last?.isoDate === todayIso;
   }, [trip.days, todayIso]);
 
+  // v1.10.1 — Banner auch NACH Reise-Ende sichtbar zum nostalgischen
+  // Wiederansehen. Bug-Fix: Off-by-one-day — vorher war Banner nur am
+  // exakten letzten Tag sichtbar und verschwand am Tag danach komplett.
+  // Harald-Feedback: "ich sehe auch nirgends das reel zum nochmals ansehen"
+  const showReelBanner = useMemo(() => {
+    const last = trip.days[trip.days.length - 1];
+    if (!last?.isoDate) return false;
+    return last.isoDate <= todayIso; // letzter Tag ODER danach
+  }, [trip.days, todayIso]);
+
   // v1.8.0 — Auto-Open des Reels beim ersten Besuch am letzten Tag.
   // localStorage-Flag verhindert dass es bei jedem Tab-Wechsel aufpoppt.
-  // Banner bleibt sichtbar zum erneuten Ansehen.
+  // Banner bleibt sichtbar zum erneuten Ansehen (siehe showReelBanner).
   useEffect(() => {
-    if (!isLastDay) return;
+    if (!isActualLastDay) return;
     if (sharedPhotos.length === 0) return;
     if (typeof window === "undefined") return;
     try {
@@ -104,7 +114,7 @@ export function ProgrammTab({
     } catch {
       // ignore
     }
-  }, [isLastDay, sharedPhotos.length, reelSeenKey]);
+  }, [isActualLastDay, sharedPhotos.length, reelSeenKey]);
 
   const handleReelClose = () => {
     setReelOpen(false);
@@ -132,8 +142,9 @@ export function ProgrammTab({
           wenn nichts passt — komplett unsichtbar. */}
       <EventBanner trip={trip} />
 
-      {/* v1.8.0 — Goodbye-Reel-Banner am Abreise-Tag */}
-      {isLastDay && sharedPhotos.length > 0 && (
+      {/* v1.8.0 + v1.10.1 — Goodbye-Reel-Banner ab Abreise-Tag und danach.
+          Bleibt dauerhaft sichtbar zum nostalgischen Wieder-Ansehen. */}
+      {showReelBanner && sharedPhotos.length > 0 && (
         <button
           type="button"
           onClick={() => setReelOpen(true)}
@@ -144,7 +155,7 @@ export function ProgrammTab({
           </div>
           <div className="flex-1 min-w-0 text-left">
             <p className="text-[10px] uppercase tracking-[0.2em] font-bold opacity-70">
-              Letzter Tag — Abschieds-Reel
+              {isActualLastDay ? "Letzter Tag — Abschieds-Reel" : "Abschieds-Reel · Wiederansehen"}
             </p>
             <p className="font-display text-base font-semibold leading-tight mt-0.5">
               🎂 Andrea-Reel + Reise-Highlights

@@ -49,6 +49,7 @@ Wenn ich (Claude) eine Code-Änderung mache:
 
 | Version | Datum | Titel | Status |
 |---|---|---|---|
+| [v1.10.1](./v1.10.1.md) | 23.05.2026 | Reel-Banner zurück nach Reise-Ende + PDF/ZIP-Download auf Samsung Internet (Share-API) | deployed |
 | [v1.10.0](./v1.10.0.md) | 23.05.2026 | AI-Pre-Trip-Event-Recherche (Claude-basiert, Anti-Halluzinations-Pipeline) | deployed |
 | [v1.9.0](./v1.9.0.md) | 23.05.2026 | Events-Datenklasse + London-Event-Library (15 Events, Chelsea Flower Show & Co.) | deployed |
 | [v1.8.1](./v1.8.1.md) | 23.05.2026 | Aufräum-Bundle (Anchor Tap + Status-Farben + Retro-Doc) | deployed |
