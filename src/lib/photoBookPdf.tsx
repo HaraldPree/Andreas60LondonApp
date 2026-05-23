@@ -413,10 +413,11 @@ function CoverPage({
   const title = coverTitleOverride ?? trip.destination;
   const participants = trip.participants ?? [];
   return (
-    // v1.10.3 — wrap={false} wieder entfernt: hat in v1.10.2 das
-    // Cover-Hero-Image gekillt (Harald-Bug "Titelseite leer").
-    // Phantom-Pages werden jetzt nur via Flat-Array + truncate(summary)
-    // verhindert, ohne dass wrap-Verhalten manipuliert werden muss.
+    // v1.10.4 — Cover BLEIBT ohne wrap={false} (sonst stirbt das
+    // Hero-Bild — Cover-Image ist position:absolute, react-pdf rechnet
+    // mit wrap={false} die Container-Höhe auf 0 und absolute-children
+    // verlieren ihre Bounds). Cover overflowed im Normalfall nicht weil
+    // alles position:absolute ist — kein wrap nötig.
     <Page size="A4" orientation="landscape" style={styles.page}>
       <View style={styles.coverContainer}>
         {heroDataUrl && <Image src={heroDataUrl} style={styles.coverImage} />}
@@ -461,7 +462,10 @@ function DaySeparatorPage({
   const day = trip.days[dayIndex];
   if (!day) return null;
   return (
-    <Page size="A4" orientation="landscape" style={styles.page}>
+    // v1.10.4 — wrap={false} verhindert dass langer Summary
+    // automatisch eine zweite PDF-Seite erzeugt (Harald-Bug-Klasse).
+    // truncate(summary, 320) als Backup, falls Layout doch sprengt.
+    <Page size="A4" orientation="landscape" style={styles.page} wrap={false}>
       <View
         style={[
           styles.separatorColorStripe,
@@ -489,7 +493,7 @@ function DaySeparatorPage({
 
 function UnsortedSeparatorPage() {
   return (
-    <Page size="A4" orientation="landscape" style={styles.page}>
+    <Page size="A4" orientation="landscape" style={styles.page} wrap={false}>
       <View style={styles.separatorPage}>
         <Text style={styles.separatorEyebrow}>Unsortiert</Text>
         <View style={styles.separatorGoldDivider} />
@@ -511,7 +515,8 @@ function PhotoPairPage({
   dayLabel: string;
 }) {
   return (
-    <Page size="A4" orientation="landscape" style={styles.page}>
+    // v1.10.4 — wrap={false} verhindert Phantom-Folgepages.
+    <Page size="A4" orientation="landscape" style={styles.page} wrap={false}>
       <View style={styles.photoPageContainer}>
         <Text style={styles.photoPageHeader}>{dayLabel}</Text>
         <View style={styles.photoRow}>
@@ -544,7 +549,8 @@ function SinglePhotoPage({
   dayLabel: string;
 }) {
   return (
-    <Page size="A4" orientation="landscape" style={styles.page}>
+    // v1.10.4 — wrap={false} verhindert Phantom-Folgepages.
+    <Page size="A4" orientation="landscape" style={styles.page} wrap={false}>
       <View style={styles.photoPageContainer}>
         <Text style={styles.photoPageHeader}>{dayLabel}</Text>
         <View style={styles.singlePhotoWrap}>
@@ -564,7 +570,8 @@ function SinglePhotoPage({
 function ClosingPage({ trip }: { trip: Trip }) {
   const celebrant = trip.participants?.find((p) => p.role === "celebrant");
   return (
-    <Page size="A4" orientation="landscape" style={styles.page}>
+    // v1.10.4 — wrap={false} verhindert leere Folgepage am Ende.
+    <Page size="A4" orientation="landscape" style={styles.page} wrap={false}>
       <View style={styles.closingPage}>
         {/* No emoji at top — built-in fonts can't render them.
             Use a small uppercase label as decoration instead. */}
