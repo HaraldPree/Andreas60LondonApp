@@ -197,7 +197,8 @@ export function PhotoBookExportButton({ trip, photos }: Props) {
               </p>
             </div>
 
-            {/* v1.10.1 — Primärer Save via Share-API (Mobile-Fix). */}
+            {/* v1.10.2 — EINZIGER Save-Button (Direkt-Anchor entfernt,
+                Samsung-about:blank-Bug). */}
             <button
               type="button"
               onClick={handleSave}
@@ -206,15 +207,6 @@ export function PhotoBookExportButton({ trip, photos }: Props) {
               <Download size={16} />
               ZIP speichern
             </button>
-
-            <a
-              href={ready.url}
-              download={ready.filename}
-              className="w-full inline-flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-cream-100 text-ink-dark text-xs font-medium hover:bg-cream-200 transition"
-            >
-              <Share2 size={12} />
-              Alternativ: Direkt-Download (Desktop / Chrome)
-            </a>
 
             <button
               type="button"
@@ -226,8 +218,8 @@ export function PhotoBookExportButton({ trip, photos }: Props) {
             </button>
 
             <p className="text-[10px] text-ink-light text-center italic mt-1 leading-relaxed">
-              💡 Samsung Internet / iOS Safari: blauen Hauptbutton nehmen —
-              Teilen-Sheet bietet „In Dateien speichern".
+              💡 Auf Handy öffnet sich Teilen-Sheet → „In Dateien speichern"
+              oder direkt an WhatsApp/Mail.
             </p>
           </div>
         )}

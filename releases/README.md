@@ -49,6 +49,7 @@ Wenn ich (Claude) eine Code-Änderung mache:
 
 | Version | Datum | Titel | Status |
 |---|---|---|---|
+| [v1.10.2](./v1.10.2.md) | 23.05.2026 | PDF-Foto-Buch: Leere Seiten + Text-Wrap-Bugs + Direct-Download-Falle entfernt | deployed |
 | [v1.10.1](./v1.10.1.md) | 23.05.2026 | Reel-Banner zurück nach Reise-Ende + PDF/ZIP-Download auf Samsung Internet (Share-API) | deployed |
 | [v1.10.0](./v1.10.0.md) | 23.05.2026 | AI-Pre-Trip-Event-Recherche (Claude-basiert, Anti-Halluzinations-Pipeline) | deployed |
 | [v1.9.0](./v1.9.0.md) | 23.05.2026 | Events-Datenklasse + London-Event-Library (15 Events, Chelsea Flower Show & Co.) | deployed |

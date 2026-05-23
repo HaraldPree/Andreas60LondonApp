@@ -375,6 +375,15 @@ function safeText(s: string | undefined | null): string {
     .trim();
 }
 
+/**
+ * v1.10.2 — Truncate auf maxLen mit "…" Suffix. Verhindert dass lange
+ * Summary-Texte den DaySeparatorPage-Layout sprengen.
+ */
+function truncate(s: string, maxLen: number): string {
+  if (s.length <= maxLen) return s;
+  return s.slice(0, maxLen - 1).trimEnd() + "…";
+}
+
 function formatTime(iso: string): string {
   try {
     return new Date(iso).toLocaleTimeString("de-AT", {
@@ -401,7 +410,9 @@ function CoverPage({
   const title = coverTitleOverride ?? trip.destination;
   const participants = trip.participants ?? [];
   return (
-    <Page size="A4" orientation="landscape" style={styles.page}>
+    // v1.10.2 — wrap={false} verhindert dass react-pdf bei minimalem
+    // Overflow zweite PDF-Seiten als Phantom erzeugt (Harald-Bug).
+    <Page size="A4" orientation="landscape" style={styles.page} wrap={false}>
       <View style={styles.coverContainer}>
         {heroDataUrl && <Image src={heroDataUrl} style={styles.coverImage} />}
         <View style={styles.coverOverlay} />
@@ -445,7 +456,7 @@ function DaySeparatorPage({
   const day = trip.days[dayIndex];
   if (!day) return null;
   return (
-    <Page size="A4" orientation="landscape" style={styles.page}>
+    <Page size="A4" orientation="landscape" style={styles.page} wrap={false}>
       <View
         style={[
           styles.separatorColorStripe,
@@ -458,8 +469,11 @@ function DaySeparatorPage({
         <Text style={styles.separatorTitle}>{safeText(day.title)}</Text>
         <Text style={styles.separatorDate}>{safeText(day.date)}</Text>
         {day.summary && (
+          // v1.10.2 — Hartes Truncating auf 320 Zeichen, sonst sprengt
+          // langer Summary die vertikal-zentrierte Layout-Höhe und react-pdf
+          // wrapped trotz wrap={false} zu Layout-Issues.
           <Text style={styles.separatorSummary}>
-            {safeText(day.summary)}
+            {truncate(safeText(day.summary), 320)}
           </Text>
         )}
         <View style={styles.separatorGoldDivider} />
@@ -470,7 +484,7 @@ function DaySeparatorPage({
 
 function UnsortedSeparatorPage() {
   return (
-    <Page size="A4" orientation="landscape" style={styles.page}>
+    <Page size="A4" orientation="landscape" style={styles.page} wrap={false}>
       <View style={styles.separatorPage}>
         <Text style={styles.separatorEyebrow}>Unsortiert</Text>
         <View style={styles.separatorGoldDivider} />
@@ -492,7 +506,7 @@ function PhotoPairPage({
   dayLabel: string;
 }) {
   return (
-    <Page size="A4" orientation="landscape" style={styles.page}>
+    <Page size="A4" orientation="landscape" style={styles.page} wrap={false}>
       <View style={styles.photoPageContainer}>
         <Text style={styles.photoPageHeader}>{dayLabel}</Text>
         <View style={styles.photoRow}>
@@ -525,7 +539,7 @@ function SinglePhotoPage({
   dayLabel: string;
 }) {
   return (
-    <Page size="A4" orientation="landscape" style={styles.page}>
+    <Page size="A4" orientation="landscape" style={styles.page} wrap={false}>
       <View style={styles.photoPageContainer}>
         <Text style={styles.photoPageHeader}>{dayLabel}</Text>
         <View style={styles.singlePhotoWrap}>
@@ -545,7 +559,7 @@ function SinglePhotoPage({
 function ClosingPage({ trip }: { trip: Trip }) {
   const celebrant = trip.participants?.find((p) => p.role === "celebrant");
   return (
-    <Page size="A4" orientation="landscape" style={styles.page}>
+    <Page size="A4" orientation="landscape" style={styles.page} wrap={false}>
       <View style={styles.closingPage}>
         {/* No emoji at top — built-in fonts can't render them.
             Use a small uppercase label as decoration instead. */}
@@ -601,71 +615,79 @@ export function PhotoBookDocument({
         coverTitleOverride={coverTitleOverride}
       />
 
-      {daysWithPhotos.map((dayIdx) => {
-        const day = trip.days[dayIdx];
-        const photos = photosByDay.get(dayIdx) ?? [];
-        const dayLabel = `Tag ${dayIdx + 1} · ${day?.date ?? ""}`;
-        // Pages: 2 photos per page if there are 2+, else 1 per page
-        const pages: React.ReactNode[] = [];
-        if (photos.length === 1) {
-          pages.push(
-            <SinglePhotoPage
-              key={`day-${dayIdx}-single`}
-              photo={photos[0]}
-              dayLabel={dayLabel}
+      {/* v1.10.2 — FLAT Array statt nested .map()-returns.
+          Vorher: jeder map-Return war ein Array → React-PDF erhielt
+          Array<Array<Page>> und erzeugte Phantompages (leere Seiten
+          nach jedem Tag). Jetzt baue ich eine flache Liste vorab und
+          übergebe sie einmal — keine Verschachtelung mehr. */}
+      {(() => {
+        const allPages: React.ReactNode[] = [];
+        for (const dayIdx of daysWithPhotos) {
+          const day = trip.days[dayIdx];
+          const photos = photosByDay.get(dayIdx) ?? [];
+          const dayLabel = `Tag ${dayIdx + 1} · ${day?.date ?? ""}`;
+
+          allPages.push(
+            <DaySeparatorPage
+              key={`sep-${dayIdx}`}
+              trip={trip}
+              dayIndex={dayIdx}
             />,
           );
-        } else {
-          const pairs = chunk(photos, 2);
-          pairs.forEach((pair, i) => {
-            pages.push(
+
+          if (photos.length === 1) {
+            allPages.push(
+              <SinglePhotoPage
+                key={`day-${dayIdx}-single`}
+                photo={photos[0]}
+                dayLabel={dayLabel}
+              />,
+            );
+          } else {
+            const pairs = chunk(photos, 2);
+            pairs.forEach((pair, i) => {
+              allPages.push(
+                pair.length === 2 ? (
+                  <PhotoPairPage
+                    key={`day-${dayIdx}-pair-${i}`}
+                    photos={pair}
+                    dayLabel={dayLabel}
+                  />
+                ) : (
+                  <SinglePhotoPage
+                    key={`day-${dayIdx}-single-${i}`}
+                    photo={pair[0]}
+                    dayLabel={dayLabel}
+                  />
+                ),
+              );
+            });
+          }
+        }
+
+        if (unsorted.length > 0) {
+          allPages.push(<UnsortedSeparatorPage key="uns-sep" />);
+          chunk(unsorted, 2).forEach((pair, i) => {
+            allPages.push(
               pair.length === 2 ? (
                 <PhotoPairPage
-                  key={`day-${dayIdx}-pair-${i}`}
+                  key={`uns-pair-${i}`}
                   photos={pair}
-                  dayLabel={dayLabel}
+                  dayLabel="Unsortiert"
                 />
               ) : (
                 <SinglePhotoPage
-                  key={`day-${dayIdx}-single-${i}`}
+                  key={`uns-single-${i}`}
                   photo={pair[0]}
-                  dayLabel={dayLabel}
+                  dayLabel="Unsortiert"
                 />
               ),
             );
           });
         }
 
-        return [
-          <DaySeparatorPage
-            key={`sep-${dayIdx}`}
-            trip={trip}
-            dayIndex={dayIdx}
-          />,
-          ...pages,
-        ];
-      })}
-
-      {unsorted.length > 0 && (
-        <>
-          <UnsortedSeparatorPage />
-          {chunk(unsorted, 2).map((pair, i) =>
-            pair.length === 2 ? (
-              <PhotoPairPage
-                key={`uns-pair-${i}`}
-                photos={pair}
-                dayLabel="Unsortiert"
-              />
-            ) : (
-              <SinglePhotoPage
-                key={`uns-single-${i}`}
-                photo={pair[0]}
-                dayLabel="Unsortiert"
-              />
-            ),
-          )}
-        </>
-      )}
+        return allPages;
+      })()}
 
       <ClosingPage trip={trip} />
     </Document>

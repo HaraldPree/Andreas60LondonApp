@@ -213,10 +213,11 @@ export function PdfBookExportButton({ trip, photos }: Props) {
               </p>
             </div>
 
-            {/* v1.10.1 — Primärer Speichern-Button nutzt Share API auf
-                Mobile (Samsung Internet öffnet sonst about:blank-Tab
-                statt Download — Harald A53 Bug). Desktop: fällt auf
-                klassischen <a download> Anchor zurück. */}
+            {/* v1.10.2 — EINZIGER Save-Button. Direkt-Download-Anchor
+                entfernt weil auf Samsung Internet about:blank-Tab statt
+                Download (Harald-Bug v1.10.1 nicht behoben). handleSave
+                versucht erst Share-API, fällt notfalls auf anchor click
+                zurück — beide Pfade in EINER Funktion. */}
             <button
               type="button"
               onClick={handleSave}
@@ -225,17 +226,6 @@ export function PdfBookExportButton({ trip, photos }: Props) {
               <Download size={16} />
               PDF speichern
             </button>
-
-            {/* Fallback-Anchor für User die vom Share-Sheet zurück­kommen
-                ohne gespeichert zu haben — direktes Download via Anchor. */}
-            <a
-              href={ready.url}
-              download={ready.filename}
-              className="w-full inline-flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-cream-100 text-ink-dark text-xs font-medium hover:bg-cream-200 transition"
-            >
-              <Share2 size={12} />
-              Alternativ: Direkt-Download (Desktop / Chrome)
-            </a>
 
             <button
               type="button"
@@ -247,8 +237,8 @@ export function PdfBookExportButton({ trip, photos }: Props) {
             </button>
 
             <p className="text-[10px] text-ink-light text-center italic mt-1 leading-relaxed">
-              💡 Samsung Internet / iOS Safari: bitte den blauen Hauptbutton
-              nehmen — das Teilen-Sheet bietet „In Dateien speichern".
+              💡 Auf Handy öffnet sich Teilen-Sheet → „In Dateien speichern"
+              oder direkt an WhatsApp/Mail.
             </p>
           </div>
         )}
