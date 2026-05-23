@@ -35,6 +35,10 @@ export function PdfBookExportButton({ trip, photos }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [ready, setReady] = useState<ReadyPdf | null>(null);
   const previousUrlRef = useRef<string | null>(null);
+  // v1.10.5 — Feedback-State für handleSave
+  const [saveStatus, setSaveStatus] = useState<
+    "idle" | "trying" | "opened-tab" | "anchor-click"
+  >("idle");
 
   // Revoke the previous blob URL when a new one replaces it or the
   // component unmounts. We deliberately KEEP the URL alive while the
@@ -85,44 +89,69 @@ export function PdfBookExportButton({ trip, photos }: Props) {
   };
 
   /**
-   * v1.10.1 — Universeller Save-Handler. Try Share-API first (für
-   * Samsung Internet + iOS Safari, wo <a download href="blob:"> einen
-   * about:blank-Tab statt Download produziert — Harald A53 Bug).
-   * Fallback: klassischer anchor-Click (Desktop, alte Browser).
+   * v1.10.5 — Robusterer Save-Handler.
+   *
+   * Samsung Internet bug: canShare() returnt true, aber share() öffnet
+   * stillschweigend kein Sheet (Harald A53 v1.10.4 Bug). Lösung:
+   *  1) navigator.share OHNE canShare-Check (Samsung lügt)
+   *  2) Bei Share-Fail: window.open für PDF-Inline-Anzeige
+   *  3) Bei Open-Fail: klassischer Anchor-Click (Desktop)
+   *
+   * Plus: feedback-State, damit User sieht ob's geklappt hat.
    */
   const handleSave = async () => {
     if (!ready) return;
-    // 1) Share API mit File-Support — Mobile-bevorzugt
-    if (
-      typeof navigator.share === "function" &&
-      typeof navigator.canShare === "function" &&
-      typeof File !== "undefined"
-    ) {
+    setSaveStatus("trying");
+
+    // 1) Share API ohne canShare-Check — Samsung lügt manchmal
+    if (typeof navigator.share === "function" && typeof File !== "undefined") {
       try {
         const file = new File([ready.blob], ready.filename, {
           type: ready.blob.type,
         });
-        if (navigator.canShare({ files: [file] })) {
-          await navigator.share({
-            files: [file],
-            title: ready.filename,
-          });
-          return; // erfolgreich
-        }
+        await navigator.share({
+          files: [file],
+          title: ready.filename,
+        });
+        setSaveStatus("idle");
+        return;
       } catch (e) {
         const msg = e instanceof Error ? e.message : String(e);
-        if (/abort|cancel/i.test(msg)) return; // User hat im Sheet abgebrochen
-        console.warn("[PdfBookExportButton] share fehlgeschlagen, falle auf Download zurück:", e);
-        // weiter zum Fallback
+        if (/abort|cancel/i.test(msg)) {
+          setSaveStatus("idle");
+          return;
+        }
+        console.warn("[Save] Share failed, will try open-in-tab:", e);
       }
     }
-    // 2) Fallback: anchor download (Desktop, alte Browser)
+
+    // 2) Fallback: PDF in neuem Tab öffnen. Samsung Internet rendert
+    //    PDF inline → User kann via 3-Dot-Menü "Seite speichern"
+    try {
+      const opened = window.open(ready.url, "_blank");
+      if (opened) {
+        setSaveStatus("opened-tab");
+        return;
+      }
+    } catch (e) {
+      console.warn("[Save] window.open failed:", e);
+    }
+
+    // 3) Letzter Fallback: Anchor-Click (Desktop)
     const a = document.createElement("a");
     a.href = ready.url;
     a.download = ready.filename;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
+    setSaveStatus("anchor-click");
+  };
+
+  /** v1.10.5 — Alternativer Direct-Path: PDF in neuem Tab via window.open.
+   *  Sichtbar als Sekundär-Button damit User immer einen Weg hat. */
+  const handleOpenInTab = () => {
+    if (!ready) return;
+    window.open(ready.url, "_blank");
   };
 
   const handleReset = () => {
@@ -200,7 +229,7 @@ export function PdfBookExportButton({ trip, photos }: Props) {
           </>
         )}
 
-        {/* Ready state — Share-based save + anchor fallback */}
+        {/* Ready state — v1.10.5 mit dreifachem Save-Pfad */}
         {ready && (
           <div className="space-y-2">
             <div className="rounded-lg bg-success/10 border border-success/30 p-3 text-center">
@@ -208,24 +237,41 @@ export function PdfBookExportButton({ trip, photos }: Props) {
                 ✓ PDF bereit ({ready.sizeMb} MB)
               </p>
               <p className="text-[10px] text-ink-mid mt-0.5 leading-relaxed">
-                Auf Handy: Teilen-Sheet öffnet sich → „In Dateien speichern"
-                oder App auswählen
+                Drei Wege zum Speichern — Hauptbutton zuerst probieren
               </p>
             </div>
 
-            {/* v1.10.2 — EINZIGER Save-Button. Direkt-Download-Anchor
-                entfernt weil auf Samsung Internet about:blank-Tab statt
-                Download (Harald-Bug v1.10.1 nicht behoben). handleSave
-                versucht erst Share-API, fällt notfalls auf anchor click
-                zurück — beide Pfade in EINER Funktion. */}
+            {/* v1.10.5 — Primary Save (Share-Sheet) */}
             <button
               type="button"
               onClick={handleSave}
               className="w-full inline-flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-navy text-cream text-sm font-semibold hover:bg-navy-700 transition shadow-sm"
             >
               <Download size={16} />
-              PDF speichern
+              PDF speichern (Teilen-Sheet)
             </button>
+
+            {/* v1.10.5 — Wenn Share-Sheet nicht aufpoppt (Samsung-Bug),
+                kann User PDF in neuem Tab öffnen und dort manuell speichern */}
+            <button
+              type="button"
+              onClick={handleOpenInTab}
+              className="w-full inline-flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-gold/15 text-gold-600 text-sm font-semibold hover:bg-gold/25 transition"
+            >
+              <Share2 size={14} />
+              PDF in neuem Tab öffnen
+            </button>
+
+            {/* v1.10.5 — Direct-Download für Desktop / Chrome Android.
+                Samsung Internet macht hier about:blank — daher kleiner Hint. */}
+            <a
+              href={ready.url}
+              download={ready.filename}
+              className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-cream-100 text-ink-dark text-xs font-medium hover:bg-cream-200 transition"
+            >
+              <Download size={11} />
+              Direct-Download (Desktop / Chrome)
+            </a>
 
             <button
               type="button"
@@ -236,10 +282,24 @@ export function PdfBookExportButton({ trip, photos }: Props) {
               Neu generieren (z.B. nach neuen Fotos)
             </button>
 
-            <p className="text-[10px] text-ink-light text-center italic mt-1 leading-relaxed">
-              💡 Auf Handy öffnet sich Teilen-Sheet → „In Dateien speichern"
-              oder direkt an WhatsApp/Mail.
-            </p>
+            {saveStatus === "opened-tab" && (
+              <p className="text-[10px] text-info text-center mt-1 leading-relaxed">
+                💡 PDF wurde in neuem Tab geöffnet — dort Browser-Menü
+                (3 Punkte oben rechts) → „Seite speichern".
+              </p>
+            )}
+            {saveStatus === "anchor-click" && (
+              <p className="text-[10px] text-info text-center mt-1 leading-relaxed">
+                💡 Download gestartet — bei Samsung Internet evtl. nur
+                about:blank: dann gold-Button „in neuem Tab öffnen" nutzen.
+              </p>
+            )}
+            {saveStatus === "idle" && (
+              <p className="text-[10px] text-ink-light text-center italic mt-1 leading-relaxed">
+                Funktioniert nichts? Gold-Button → PDF in Tab → Browser-Menü
+                speichern.
+              </p>
+            )}
           </div>
         )}
 

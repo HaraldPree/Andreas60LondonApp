@@ -34,6 +34,10 @@ export function PhotoBookExportButton({ trip, photos }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [ready, setReady] = useState<ReadyZip | null>(null);
   const previousUrlRef = useRef<string | null>(null);
+  // v1.10.5 — Feedback-State
+  const [saveStatus, setSaveStatus] = useState<
+    "idle" | "trying" | "opened-tab" | "anchor-click"
+  >("idle");
 
   useEffect(() => {
     return () => {
@@ -75,40 +79,56 @@ export function PhotoBookExportButton({ trip, photos }: Props) {
   };
 
   /**
-   * v1.10.1 — Universeller Save-Handler. Try Share-API first (Samsung
-   * Internet + iOS Safari) bevor Anchor-Download. Gleicher Fix-Pattern
-   * wie PdfBookExportButton.
+   * v1.10.5 — Robusterer Save-Handler (analog PdfBookExportButton).
+   * 3-Stufen-Fallback: Share-API → window.open → anchor-click.
    */
   const handleSave = async () => {
     if (!ready) return;
-    if (
-      typeof navigator.share === "function" &&
-      typeof navigator.canShare === "function" &&
-      typeof File !== "undefined"
-    ) {
+    setSaveStatus("trying");
+
+    if (typeof navigator.share === "function" && typeof File !== "undefined") {
       try {
         const file = new File([ready.blob], ready.filename, {
           type: ready.blob.type,
         });
-        if (navigator.canShare({ files: [file] })) {
-          await navigator.share({
-            files: [file],
-            title: ready.filename,
-          });
-          return;
-        }
+        await navigator.share({
+          files: [file],
+          title: ready.filename,
+        });
+        setSaveStatus("idle");
+        return;
       } catch (e) {
         const msg = e instanceof Error ? e.message : String(e);
-        if (/abort|cancel/i.test(msg)) return;
-        console.warn("[PhotoBookExportButton] share fehlgeschlagen, Fallback Anchor:", e);
+        if (/abort|cancel/i.test(msg)) {
+          setSaveStatus("idle");
+          return;
+        }
+        console.warn("[Save ZIP] Share failed:", e);
       }
     }
+
+    try {
+      const opened = window.open(ready.url, "_blank");
+      if (opened) {
+        setSaveStatus("opened-tab");
+        return;
+      }
+    } catch (e) {
+      console.warn("[Save ZIP] window.open failed:", e);
+    }
+
     const a = document.createElement("a");
     a.href = ready.url;
     a.download = ready.filename;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
+    setSaveStatus("anchor-click");
+  };
+
+  const handleOpenInTab = () => {
+    if (!ready) return;
+    window.open(ready.url, "_blank");
   };
 
   const handleReset = () => {
@@ -184,7 +204,7 @@ export function PhotoBookExportButton({ trip, photos }: Props) {
           </>
         )}
 
-        {/* Ready state — Share-based save + anchor fallback */}
+        {/* Ready state — v1.10.5 mit dreifachem Save-Pfad */}
         {ready && (
           <div className="space-y-2">
             <div className="rounded-lg bg-success/10 border border-success/30 p-3 text-center">
@@ -192,21 +212,36 @@ export function PhotoBookExportButton({ trip, photos }: Props) {
                 ✓ ZIP bereit ({ready.sizeMb} MB)
               </p>
               <p className="text-[10px] text-ink-mid mt-0.5 leading-relaxed">
-                Auf Handy: Teilen-Sheet öffnet sich → „In Dateien speichern"
-                oder App auswählen
+                Drei Wege zum Speichern — Hauptbutton zuerst probieren
               </p>
             </div>
 
-            {/* v1.10.2 — EINZIGER Save-Button (Direkt-Anchor entfernt,
-                Samsung-about:blank-Bug). */}
             <button
               type="button"
               onClick={handleSave}
               className="w-full inline-flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-navy text-cream text-sm font-semibold hover:bg-navy-700 transition shadow-sm"
             >
               <Download size={16} />
-              ZIP speichern
+              ZIP speichern (Teilen-Sheet)
             </button>
+
+            <button
+              type="button"
+              onClick={handleOpenInTab}
+              className="w-full inline-flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-gold/15 text-gold-600 text-sm font-semibold hover:bg-gold/25 transition"
+            >
+              <Share2 size={14} />
+              ZIP in neuem Tab öffnen
+            </button>
+
+            <a
+              href={ready.url}
+              download={ready.filename}
+              className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-cream-100 text-ink-dark text-xs font-medium hover:bg-cream-200 transition"
+            >
+              <Download size={11} />
+              Direct-Download (Desktop / Chrome)
+            </a>
 
             <button
               type="button"
@@ -217,10 +252,16 @@ export function PhotoBookExportButton({ trip, photos }: Props) {
               Neu erstellen (z.B. nach neuen Fotos)
             </button>
 
-            <p className="text-[10px] text-ink-light text-center italic mt-1 leading-relaxed">
-              💡 Auf Handy öffnet sich Teilen-Sheet → „In Dateien speichern"
-              oder direkt an WhatsApp/Mail.
-            </p>
+            {saveStatus === "opened-tab" && (
+              <p className="text-[10px] text-info text-center mt-1 leading-relaxed">
+                💡 ZIP wurde in neuem Tab geöffnet — dort speichern.
+              </p>
+            )}
+            {saveStatus === "idle" && (
+              <p className="text-[10px] text-ink-light text-center italic mt-1 leading-relaxed">
+                Funktioniert nichts? Gold-Button → ZIP in Tab → Browser-Menü.
+              </p>
+            )}
           </div>
         )}
 
