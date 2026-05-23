@@ -232,7 +232,8 @@ export function PdfBookExportButton({ trip, photos }: Props) {
           </>
         )}
 
-        {/* Ready state — v1.10.5 mit dreifachem Save-Pfad */}
+        {/* Ready state — v1.10.7: Open-in-Tab als Primary, Share als Secondary,
+            Direct-Download komplett entfernt (funktionierte auf Samsung nicht). */}
         {ready && (
           <div className="space-y-2">
             <div className="rounded-lg bg-success/10 border border-success/30 p-3 text-center">
@@ -240,41 +241,33 @@ export function PdfBookExportButton({ trip, photos }: Props) {
                 ✓ PDF bereit ({ready.sizeMb} MB)
               </p>
               <p className="text-[10px] text-ink-mid mt-0.5 leading-relaxed">
-                Drei Wege zum Speichern — Hauptbutton zuerst probieren
+                Auf Handy: blauer Button öffnet PDF — dann Browser-Menü → speichern
               </p>
             </div>
 
-            {/* v1.10.5 — Primary Save (Share-Sheet) */}
-            <button
-              type="button"
-              onClick={handleSave}
-              className="w-full inline-flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-navy text-cream text-sm font-semibold hover:bg-navy-700 transition shadow-sm"
-            >
-              <Download size={16} />
-              PDF speichern (Teilen-Sheet)
-            </button>
-
-            {/* v1.10.5 — Wenn Share-Sheet nicht aufpoppt (Samsung-Bug),
-                kann User PDF in neuem Tab öffnen und dort manuell speichern */}
+            {/* v1.10.7 — PRIMARY: PDF in Tab öffnen.
+                Funktioniert auf Samsung A53, iOS Safari, Chrome, Edge.
+                User kann dann via Browser-Menü „Speichern" wählen. */}
             <button
               type="button"
               onClick={handleOpenInTab}
+              className="w-full inline-flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-navy text-cream text-sm font-semibold hover:bg-navy-700 transition shadow-sm"
+            >
+              <Download size={16} />
+              PDF öffnen + speichern
+            </button>
+
+            {/* v1.10.7 — SECONDARY: Teilen-Sheet via Share-API.
+                Funktioniert auf iOS Safari sehr gut, Samsung Internet
+                buggy. Daher als sekundäre Option. */}
+            <button
+              type="button"
+              onClick={handleSave}
               className="w-full inline-flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-gold/15 text-gold-600 text-sm font-semibold hover:bg-gold/25 transition"
             >
               <Share2 size={14} />
-              PDF in neuem Tab öffnen
+              Teilen / Senden (iOS Safari, WhatsApp)
             </button>
-
-            {/* v1.10.5 — Direct-Download für Desktop / Chrome Android.
-                Samsung Internet macht hier about:blank — daher kleiner Hint. */}
-            <a
-              href={ready.url}
-              download={ready.filename}
-              className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-cream-100 text-ink-dark text-xs font-medium hover:bg-cream-200 transition"
-            >
-              <Download size={11} />
-              Direct-Download (Desktop / Chrome)
-            </a>
 
             <button
               type="button"
@@ -285,24 +278,10 @@ export function PdfBookExportButton({ trip, photos }: Props) {
               Neu generieren (z.B. nach neuen Fotos)
             </button>
 
-            {saveStatus === "opened-tab" && (
-              <p className="text-[10px] text-info text-center mt-1 leading-relaxed">
-                💡 PDF wurde in neuem Tab geöffnet — dort Browser-Menü
-                (3 Punkte oben rechts) → „Seite speichern".
-              </p>
-            )}
-            {saveStatus === "anchor-click" && (
-              <p className="text-[10px] text-info text-center mt-1 leading-relaxed">
-                💡 Download gestartet — bei Samsung Internet evtl. nur
-                about:blank: dann gold-Button „in neuem Tab öffnen" nutzen.
-              </p>
-            )}
-            {saveStatus === "idle" && (
-              <p className="text-[10px] text-ink-light text-center italic mt-1 leading-relaxed">
-                Funktioniert nichts? Gold-Button → PDF in Tab → Browser-Menü
-                speichern.
-              </p>
-            )}
+            <p className="text-[10px] text-ink-light text-center italic mt-1 leading-relaxed">
+              💡 Samsung: blauer Button → PDF im Tab → 3-Punkte-Menü oben rechts →
+              „Seite speichern".
+            </p>
           </div>
         )}
 

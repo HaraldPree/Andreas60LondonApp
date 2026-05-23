@@ -206,7 +206,7 @@ export function PhotoBookExportButton({ trip, photos }: Props) {
           </>
         )}
 
-        {/* Ready state — v1.10.5 mit dreifachem Save-Pfad */}
+        {/* Ready state — v1.10.7: Open-in-Tab als Primary, Direct-Download entfernt. */}
         {ready && (
           <div className="space-y-2">
             <div className="rounded-lg bg-success/10 border border-success/30 p-3 text-center">
@@ -214,36 +214,27 @@ export function PhotoBookExportButton({ trip, photos }: Props) {
                 ✓ ZIP bereit ({ready.sizeMb} MB)
               </p>
               <p className="text-[10px] text-ink-mid mt-0.5 leading-relaxed">
-                Drei Wege zum Speichern — Hauptbutton zuerst probieren
+                Auf Handy: blauer Button öffnet ZIP — dann Browser-Menü → speichern
               </p>
             </div>
 
             <button
               type="button"
-              onClick={handleSave}
+              onClick={handleOpenInTab}
               className="w-full inline-flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-navy text-cream text-sm font-semibold hover:bg-navy-700 transition shadow-sm"
             >
               <Download size={16} />
-              ZIP speichern (Teilen-Sheet)
+              ZIP öffnen + speichern
             </button>
 
             <button
               type="button"
-              onClick={handleOpenInTab}
+              onClick={handleSave}
               className="w-full inline-flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-gold/15 text-gold-600 text-sm font-semibold hover:bg-gold/25 transition"
             >
               <Share2 size={14} />
-              ZIP in neuem Tab öffnen
+              Teilen / Senden (iOS Safari, WhatsApp)
             </button>
-
-            <a
-              href={ready.url}
-              download={ready.filename}
-              className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-cream-100 text-ink-dark text-xs font-medium hover:bg-cream-200 transition"
-            >
-              <Download size={11} />
-              Direct-Download (Desktop / Chrome)
-            </a>
 
             <button
               type="button"
@@ -254,16 +245,9 @@ export function PhotoBookExportButton({ trip, photos }: Props) {
               Neu erstellen (z.B. nach neuen Fotos)
             </button>
 
-            {saveStatus === "opened-tab" && (
-              <p className="text-[10px] text-info text-center mt-1 leading-relaxed">
-                💡 ZIP wurde in neuem Tab geöffnet — dort speichern.
-              </p>
-            )}
-            {saveStatus === "idle" && (
-              <p className="text-[10px] text-ink-light text-center italic mt-1 leading-relaxed">
-                Funktioniert nichts? Gold-Button → ZIP in Tab → Browser-Menü.
-              </p>
-            )}
+            <p className="text-[10px] text-ink-light text-center italic mt-1 leading-relaxed">
+              💡 Samsung: blauer Button → ZIP im Tab → 3-Punkte-Menü → speichern.
+            </p>
           </div>
         )}
 
