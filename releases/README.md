@@ -49,6 +49,7 @@ Wenn ich (Claude) eine Code-Änderung mache:
 
 | Version | Datum | Titel | Status |
 |---|---|---|---|
+| [v1.10.6](./v1.10.6.md) | 23.05.2026 | PDF/ZIP: expliziter MIME-Type für Share-API — Samsung-Bug fixt sich endlich | deployed |
 | [v1.10.5](./v1.10.5.md) | 23.05.2026 | PDF/ZIP: 3 sichtbare Save-Pfade nebeneinander (Samsung-Share-Stillschweigen umgangen) | deployed |
 | [v1.10.4](./v1.10.4.md) | 23.05.2026 | PDF: selektives wrap={false} — Cover lebt, Phantom-Pages + Text-Wrapping weg | deployed |
 | [v1.10.3](./v1.10.3.md) | 23.05.2026 | PDF: Titelseite zurück + Grau-Rahmen weg + Format-Konsistenz Tagestrenner | deployed |

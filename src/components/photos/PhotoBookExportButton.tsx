@@ -88,8 +88,10 @@ export function PhotoBookExportButton({ trip, photos }: Props) {
 
     if (typeof navigator.share === "function" && typeof File !== "undefined") {
       try {
+        // v1.10.5 — Expliziter MIME-Type für ZIP — sonst lehnt Samsung
+        // Internet die Datei stillschweigend ab.
         const file = new File([ready.blob], ready.filename, {
-          type: ready.blob.type,
+          type: "application/zip",
         });
         await navigator.share({
           files: [file],

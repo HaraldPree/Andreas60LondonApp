@@ -106,8 +106,11 @@ export function PdfBookExportButton({ trip, photos }: Props) {
     // 1) Share API ohne canShare-Check — Samsung lügt manchmal
     if (typeof navigator.share === "function" && typeof File !== "undefined") {
       try {
+        // v1.10.5 — Expliziter MIME-Type: react-pdf liefert manchmal
+        // ein Blob mit leerem .type, dann lehnt Samsung Internet die
+        // Datei stillschweigend ab.
         const file = new File([ready.blob], ready.filename, {
-          type: ready.blob.type,
+          type: "application/pdf",
         });
         await navigator.share({
           files: [file],
