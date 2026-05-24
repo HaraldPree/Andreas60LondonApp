@@ -10,15 +10,19 @@ import {
 } from "lucide-react";
 import type { Trip } from "@/types/trip";
 import type { PhotoMeta } from "@/types/photo";
+import type { SharedPhotoView } from "@/types/sharedPhoto";
 import {
   buildPhotoBookZip,
   defaultZipFilename,
   type PhotoBookExportProgress,
 } from "@/lib/photoBookExport";
+import { combineForExport } from "@/lib/exportPhotosAdapter";
 
 interface Props {
   trip: Trip;
   photos: PhotoMeta[];
+  /** v1.11.0 — Geteilte Fotos aus der gemeinsamen Galerie (optional). */
+  sharedPhotos?: SharedPhotoView[];
 }
 
 interface ReadyZip {
@@ -28,7 +32,11 @@ interface ReadyZip {
   sizeMb: string;
 }
 
-export function PhotoBookExportButton({ trip, photos }: Props) {
+export function PhotoBookExportButton({
+  trip,
+  photos,
+  sharedPhotos = [],
+}: Props) {
   const [exporting, setExporting] = useState(false);
   const [progress, setProgress] = useState<PhotoBookExportProgress | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -38,6 +46,17 @@ export function PhotoBookExportButton({ trip, photos }: Props) {
   const [saveStatus, setSaveStatus] = useState<
     "idle" | "trying" | "opened-tab" | "anchor-click"
   >("idle");
+  // v1.11.0 — Toggle für geteilte Fotos
+  const [includeShared, setIncludeShared] = useState(false);
+
+  const exportPhotos = combineForExport(
+    photos,
+    sharedPhotos,
+    trip.slug,
+    includeShared,
+  );
+  const sharedAvailable = sharedPhotos.length > 0;
+  const extraSharedCount = exportPhotos.length - photos.length;
 
   useEffect(() => {
     return () => {
@@ -62,7 +81,7 @@ export function PhotoBookExportButton({ trip, photos }: Props) {
     try {
       const blob = await buildPhotoBookZip({
         trip,
-        photos,
+        photos: exportPhotos, // v1.11.0 — eigene + (optional) geteilte
         onProgress: setProgress,
       });
       const url = URL.createObjectURL(blob);
@@ -176,6 +195,28 @@ export function PhotoBookExportButton({ trip, photos }: Props) {
         {/* Initial / generating state */}
         {!ready && (
           <>
+            {/* v1.11.0 — Toggle: geteilte Fotos mit aufnehmen */}
+            {sharedAvailable && !exporting && (
+              <label className="flex items-start gap-2 mb-2 p-2 rounded-lg bg-cream-50 border border-cream-200 cursor-pointer hover:bg-cream-100 transition">
+                <input
+                  type="checkbox"
+                  checked={includeShared}
+                  onChange={(e) => setIncludeShared(e.target.checked)}
+                  className="mt-0.5 w-4 h-4 accent-gold-600"
+                />
+                <div className="flex-1 min-w-0">
+                  <p className="text-[11px] font-semibold text-ink-dark leading-tight">
+                    Auch geteilte Fotos einbeziehen
+                  </p>
+                  <p className="text-[10px] text-ink-mid mt-0.5 leading-snug">
+                    {includeShared
+                      ? `${photos.length} eigene + ${extraSharedCount} aus der Gemeinsamen Galerie = ${exportPhotos.length} im ZIP`
+                      : `${sharedPhotos.length} geteilte Fotos verfügbar — aktivieren um sie mit aufzunehmen`}
+                  </p>
+                </div>
+              </label>
+            )}
+
             <button
               type="button"
               onClick={handleExport}
@@ -191,6 +232,11 @@ export function PhotoBookExportButton({ trip, photos }: Props) {
                 <>
                   <BookOpen size={14} />
                   ZIP erstellen
+                  {includeShared && extraSharedCount > 0 && (
+                    <span className="text-[10px] opacity-80">
+                      ({exportPhotos.length} Fotos)
+                    </span>
+                  )}
                 </>
               )}
             </button>

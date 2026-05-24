@@ -16,7 +16,7 @@
  */
 
 import type { Trip } from "@/types/trip";
-import type { PhotoMeta } from "@/types/photo";
+import type { ExportPhoto, PhotoMeta } from "@/types/photo";
 import { getFullBlob } from "@/lib/photoStorage";
 import type { PdfPhotoEntry } from "./photoBookPdf";
 
@@ -28,7 +28,11 @@ export interface PdfBookProgress {
 
 export interface PdfBookOptions {
   trip: Trip;
-  photos: PhotoMeta[];
+  /**
+   * v1.11.0 — Akzeptiert sowohl eigene (PhotoMeta) als auch geteilte
+   * (ExportPhoto mit remoteUrl) Fotos. Backwards-kompatibel.
+   */
+  photos: ExportPhoto[] | PhotoMeta[];
   onProgress?: (p: PdfBookProgress) => void;
   /** Override the trip's heroImage URL with a different one for the cover. */
   customHeroUrl?: string;
@@ -135,10 +139,13 @@ export async function buildPhotoBookPdf({
   onProgress?.({ step: "loading-photos", current: 0, total });
 
   // Step 1: load + compress + encode every photo
+  // v1.11.0 — Photos können aus 2 Quellen kommen:
+  //   - Eigene (IndexedDB): getFullBlob(id) liefert Blob
+  //   - Geteilte (Vercel Blob): remoteUrl → fetch → Blob
   const entries: PdfPhotoEntry[] = [];
   for (let i = 0; i < photos.length; i++) {
-    const p = photos[i];
-    const blob = await getFullBlob(p.id);
+    const p = photos[i] as ExportPhoto;
+    const blob = await loadBlobForExport(p);
     if (!blob) {
       console.warn(`[photoBookPdf] skipping ${p.id} — blob missing`);
       onProgress?.({ step: "loading-photos", current: i + 1, total });
@@ -146,11 +153,14 @@ export async function buildPhotoBookPdf({
     }
     const compressed = await compressForPdf(blob);
     const dataUrl = await blobToDataUrl(compressed);
+    // v1.11.0 — Bei geteilten Fotos hängen wir "(geteilt von X)" an die
+    // Caption an, falls vorhanden. Bei keiner Caption: nur das.
+    const captionWithSource = buildCaptionWithSource(p);
     entries.push({
       id: p.id,
       fileName: p.fileName,
       takenAt: p.takenAt,
-      caption: p.caption,
+      caption: captionWithSource,
       aiNarrative: p.aiNarrative,
       dataUrl,
       dayIndex: typeof p.assignedDay === "number" ? p.assignedDay : null,
@@ -200,6 +210,41 @@ export async function buildPhotoBookPdf({
   const blob = await pdf(doc).toBlob();
   onProgress?.({ step: "done", current: 1, total: 1 });
   return blob;
+}
+
+/**
+ * v1.11.0 — Lädt Blob aus IndexedDB (eigene) oder Vercel Blob (geteilte).
+ * Geteilte werden via fetch geholt und können dadurch ~100-500ms pro
+ * Foto kosten. Bei vielen geteilten Fotos kann der Export merkbar
+ * länger dauern.
+ */
+async function loadBlobForExport(p: ExportPhoto): Promise<Blob | null> {
+  if (p.remoteUrl) {
+    try {
+      const res = await fetch(p.remoteUrl);
+      if (!res.ok) {
+        console.warn(`[photoBookPdf] fetch ${p.remoteUrl} returned ${res.status}`);
+        return null;
+      }
+      return await res.blob();
+    } catch (e) {
+      console.warn(`[photoBookPdf] fetch ${p.remoteUrl} failed:`, e);
+      return null;
+    }
+  }
+  return getFullBlob(p.id);
+}
+
+/**
+ * v1.11.0 — Caption mit Quellen-Hinweis bei geteilten Fotos.
+ * Eigene Fotos: nur Caption.
+ * Geteilt von X: " (geteilt von X)" Suffix wenn Caption existiert,
+ * sonst nur "Foto von X" als Caption.
+ */
+function buildCaptionWithSource(p: ExportPhoto): string | undefined {
+  if (!p.uploaderName) return p.caption;
+  if (p.caption) return `${p.caption} (geteilt von ${p.uploaderName})`;
+  return `Foto von ${p.uploaderName}`;
 }
 
 /**

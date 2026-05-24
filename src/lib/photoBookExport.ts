@@ -16,7 +16,7 @@
 // export feature is rarely used (once after a trip), so the small UX
 // delay when first clicking is well worth the smaller bundle.
 import type { Day, Trip } from "@/types/trip";
-import type { PhotoMeta } from "@/types/photo";
+import type { ExportPhoto, PhotoMeta } from "@/types/photo";
 import { getFullBlob } from "@/lib/photoStorage";
 
 /** Human-readable trip name combining destination + subtitle. */
@@ -34,7 +34,11 @@ export interface PhotoBookExportProgress {
 
 export interface PhotoBookExportOptions {
   trip: Trip;
-  photos: PhotoMeta[];
+  /**
+   * v1.11.0 — Akzeptiert sowohl eigene (PhotoMeta) als auch geteilte
+   * (ExportPhoto mit remoteUrl) Fotos. Backwards-kompatibel.
+   */
+  photos: ExportPhoto[] | PhotoMeta[];
   onProgress?: (p: PhotoBookExportProgress) => void;
 }
 
@@ -75,7 +79,7 @@ function dayIsoDate(day: Day | undefined, fallback: string): string {
  * Format: `Tag1_2026-05-18_01_Ankunft-Heathrow.jpg`
  */
 function buildPhotoFilename(
-  photo: PhotoMeta,
+  photo: ExportPhoto,
   trip: Trip,
   sequenceWithinDay: number,
 ): string {
@@ -91,8 +95,13 @@ function buildPhotoFilename(
   const captionSlug = slugifyForFilename(
     photo.caption ?? photo.fileName.replace(/\.[^.]+$/, ""),
   );
+  // v1.11.0 — Geteilte Fotos kriegen "_geteilt-von-X" Suffix damit
+  // beim Im­portieren ins Foto-Buch klar ist welche selber gemacht wurden.
+  const sourceSuffix = photo.uploaderName
+    ? `_geteilt-von-${slugifyForFilename(photo.uploaderName)}`
+    : "";
 
-  return `${dayPrefix}_${isoDate}_${seq}_${captionSlug}.jpg`;
+  return `${dayPrefix}_${isoDate}_${seq}_${captionSlug}${sourceSuffix}.jpg`;
 }
 
 /**
@@ -100,9 +109,9 @@ function buildPhotoFilename(
  * and assigns sequential numbers within each group, sorted by takenAt.
  */
 function groupAndSequence(
-  photos: PhotoMeta[],
-): Array<{ photo: PhotoMeta; seq: number }> {
-  const buckets = new Map<number | "unsorted", PhotoMeta[]>();
+  photos: ExportPhoto[],
+): Array<{ photo: ExportPhoto; seq: number }> {
+  const buckets = new Map<number | "unsorted", ExportPhoto[]>();
   for (const p of photos) {
     const key = typeof p.assignedDay === "number" ? p.assignedDay : "unsorted";
     const arr = buckets.get(key) ?? [];
@@ -110,12 +119,28 @@ function groupAndSequence(
     buckets.set(key, arr);
   }
 
-  const result: Array<{ photo: PhotoMeta; seq: number }> = [];
+  const result: Array<{ photo: ExportPhoto; seq: number }> = [];
   for (const [, arr] of buckets) {
     arr.sort((a, b) => a.takenAt.localeCompare(b.takenAt));
     arr.forEach((photo, seq) => result.push({ photo, seq }));
   }
   return result;
+}
+
+/**
+ * v1.11.0 — Lädt Blob aus IndexedDB (eigene) oder Vercel Blob (geteilte).
+ */
+async function loadBlobForExport(p: ExportPhoto): Promise<Blob | null> {
+  if (p.remoteUrl) {
+    try {
+      const res = await fetch(p.remoteUrl);
+      if (!res.ok) return null;
+      return await res.blob();
+    } catch {
+      return null;
+    }
+  }
+  return getFullBlob(p.id);
 }
 
 function buildReadme(trip: Trip, totalPhotos: number): string {
@@ -170,11 +195,13 @@ interface MetadataEntry {
   caption?: string;
   aiNarrative?: string;
   coordinates?: { lat: number; lng: number };
+  /** v1.11.0 — Wer hat's geteilt (nur bei geteilten Fotos gesetzt) */
+  sharedBy?: string;
 }
 
 function buildMetadata(
   trip: Trip,
-  ordered: Array<{ photo: PhotoMeta; seq: number; filename: string }>,
+  ordered: Array<{ photo: ExportPhoto; seq: number; filename: string }>,
 ): string {
   const entries: MetadataEntry[] = ordered.map(({ photo, filename }) => {
     const dayIdx = photo.assignedDay;
@@ -190,6 +217,7 @@ function buildMetadata(
       caption: photo.caption,
       aiNarrative: photo.aiNarrative,
       coordinates: photo.coordinates,
+      sharedBy: photo.uploaderName,
     };
   });
 
@@ -231,20 +259,20 @@ export async function buildPhotoBookZip({
   const { default: JSZip } = await import("jszip");
 
   const zip = new JSZip();
-  const sequenced = groupAndSequence(photos);
+  const sequenced = groupAndSequence(photos as ExportPhoto[]);
   const total = sequenced.length;
   const namedEntries: Array<{
-    photo: PhotoMeta;
+    photo: ExportPhoto;
     seq: number;
     filename: string;
   }> = [];
 
-  // Step 1: fetch each blob from IndexedDB, add to zip with stable name
+  // Step 1: fetch each blob (eigene: IndexedDB, geteilte: Vercel Blob)
   for (let i = 0; i < sequenced.length; i++) {
     const { photo, seq } = sequenced[i];
     onProgress?.({ current: i, total, step: "collecting" });
 
-    const blob = await getFullBlob(photo.id);
+    const blob = await loadBlobForExport(photo);
     if (!blob) {
       // Skip photos whose blob disappeared (shouldn't happen but be safe)
       continue;

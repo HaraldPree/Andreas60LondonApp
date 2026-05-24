@@ -10,10 +10,14 @@ import {
 } from "lucide-react";
 import type { Trip } from "@/types/trip";
 import type { PhotoMeta } from "@/types/photo";
+import type { SharedPhotoView } from "@/types/sharedPhoto";
+import { combineForExport } from "@/lib/exportPhotosAdapter";
 
 interface Props {
   trip: Trip;
   photos: PhotoMeta[];
+  /** v1.11.0 — Geteilte Fotos aus der gemeinsamen Galerie (optional). */
+  sharedPhotos?: SharedPhotoView[];
 }
 
 type ProgressState =
@@ -29,7 +33,7 @@ interface ReadyPdf {
   sizeMb: string;
 }
 
-export function PdfBookExportButton({ trip, photos }: Props) {
+export function PdfBookExportButton({ trip, photos, sharedPhotos = [] }: Props) {
   const [exporting, setExporting] = useState(false);
   const [progress, setProgress] = useState<ProgressState | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -39,6 +43,18 @@ export function PdfBookExportButton({ trip, photos }: Props) {
   const [saveStatus, setSaveStatus] = useState<
     "idle" | "trying" | "opened-tab" | "anchor-click"
   >("idle");
+  // v1.11.0 — Toggle: auch geteilte Fotos mit einbeziehen
+  const [includeShared, setIncludeShared] = useState(false);
+
+  // Effektiv exportierte Fotos = eigene + (optional) geteilte
+  const exportPhotos = combineForExport(
+    photos,
+    sharedPhotos,
+    trip.slug,
+    includeShared,
+  );
+  const sharedAvailable = sharedPhotos.length > 0;
+  const extraSharedCount = exportPhotos.length - photos.length;
 
   // Revoke the previous blob URL when a new one replaces it or the
   // component unmounts. We deliberately KEEP the URL alive while the
@@ -70,7 +86,7 @@ export function PdfBookExportButton({ trip, photos }: Props) {
       );
       const blob = await buildPhotoBookPdf({
         trip,
-        photos,
+        photos: exportPhotos, // v1.11.0 — eigene + (optional) geteilte
         onProgress: setProgress,
       });
       const url = URL.createObjectURL(blob);
@@ -202,6 +218,29 @@ export function PdfBookExportButton({ trip, photos }: Props) {
         {/* Initial / generating state */}
         {!ready && (
           <>
+            {/* v1.11.0 — Toggle: geteilte Fotos einbeziehen.
+                Nur sichtbar wenn überhaupt geteilte Fotos da sind. */}
+            {sharedAvailable && !exporting && (
+              <label className="flex items-start gap-2 mb-2 p-2 rounded-lg bg-cream-50 border border-cream-200 cursor-pointer hover:bg-cream-100 transition">
+                <input
+                  type="checkbox"
+                  checked={includeShared}
+                  onChange={(e) => setIncludeShared(e.target.checked)}
+                  className="mt-0.5 w-4 h-4 accent-gold-600"
+                />
+                <div className="flex-1 min-w-0">
+                  <p className="text-[11px] font-semibold text-ink-dark leading-tight">
+                    Auch geteilte Fotos einbeziehen
+                  </p>
+                  <p className="text-[10px] text-ink-mid mt-0.5 leading-snug">
+                    {includeShared
+                      ? `${photos.length} eigene + ${extraSharedCount} aus der Gemeinsamen Galerie = ${exportPhotos.length} im PDF`
+                      : `${sharedPhotos.length} geteilte Fotos verfügbar — aktivieren um sie mit aufzunehmen`}
+                  </p>
+                </div>
+              </label>
+            )}
+
             <button
               type="button"
               onClick={handleExport}
@@ -217,6 +256,11 @@ export function PdfBookExportButton({ trip, photos }: Props) {
                 <>
                   <FileText size={14} />
                   PDF generieren
+                  {includeShared && extraSharedCount > 0 && (
+                    <span className="text-[10px] opacity-80">
+                      ({exportPhotos.length} Fotos)
+                    </span>
+                  )}
                 </>
               )}
             </button>

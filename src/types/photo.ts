@@ -37,3 +37,18 @@ export interface PhotoMeta {
   aiNarrative?: string;
   addedAt: string;
 }
+
+/**
+ * v1.11.0 — Export-fähiges Foto, kann aus mehreren Quellen kommen:
+ *  - Eigene Fotos (IndexedDB): remoteUrl ist undefined, getFullBlob(id) liefert blob
+ *  - Geteilte Fotos (Vercel Blob): remoteUrl gesetzt → fetch zur Konvertierung
+ *
+ * Wird in PDF- + ZIP-Generator verwendet damit beide Quellen
+ * gleichberechtigt verarbeitet werden können.
+ */
+export interface ExportPhoto extends PhotoMeta {
+  /** Wenn gesetzt: Foto ist über HTTP zu fetchen (geteiltes Foto aus Blob). */
+  remoteUrl?: string;
+  /** Wer hat's geteilt (für Display in Captions, "Foto von Andrea") */
+  uploaderName?: string;
+}

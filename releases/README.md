@@ -49,6 +49,7 @@ Wenn ich (Claude) eine Code-Änderung mache:
 
 | Version | Datum | Titel | Status |
 |---|---|---|---|
+| [v1.11.0](./v1.11.0.md) | 23.05.2026 | Bilder-Auswahl für PDF + ZIP: Toggle „Auch geteilte Fotos einbeziehen" | deployed |
 | [v1.10.7](./v1.10.7.md) | 23.05.2026 | Save-Pfade umgebaut: Open-in-Tab als Primary (was Samsung kann zuerst), Direct-Download entfernt | deployed |
 | [v1.10.6](./v1.10.6.md) | 23.05.2026 | PDF/ZIP: expliziter MIME-Type für Share-API — Samsung-Bug fixt sich endlich | deployed |
 | [v1.10.5](./v1.10.5.md) | 23.05.2026 | PDF/ZIP: 3 sichtbare Save-Pfade nebeneinander (Samsung-Share-Stillschweigen umgangen) | deployed |

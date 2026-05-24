@@ -368,8 +368,19 @@ export function FotosTab({ trip, currentUserName = null }: FotosTabProps) {
             );
           })()}
 
-          <PdfBookExportButton trip={trip} photos={photos} />
-          <PhotoBookExportButton trip={trip} photos={photos} />
+          {/* v1.11.0 — Geteilte Fotos durchreichen damit der Export-Toggle
+              "Auch geteilte einbeziehen" funktioniert. sharedPhotos kommt
+              vom existing useSharedPhotos-Hook oben. */}
+          <PdfBookExportButton
+            trip={trip}
+            photos={photos}
+            sharedPhotos={sharedPhotos}
+          />
+          <PhotoBookExportButton
+            trip={trip}
+            photos={photos}
+            sharedPhotos={sharedPhotos}
+          />
 
           {selectionMode && (
             <button
