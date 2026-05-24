@@ -126,13 +126,15 @@ export default function HomePage() {
           ))}
         </ul>
 
-        {/* v1.10.0 — Veranstalter-Tools: AI-Event-Recherche pro Trip.
-            Bewusst dezent — nicht für End-Reisende, sondern für Harald als
-            Reise-Vorbereiter. */}
+        {/* v1.10.0 / v1.11.1 — KI-Event-Recherche pro Trip.
+            Bewusst dezent — nicht für End-Reisende, sondern für den
+            Reise-Vorbereiter. v1.11.1 umbenannt auf User-Wunsch:
+            "Veranstalter-Tools" war zweideutig (Event-Veranstalter vs.
+            Reise-Veranstalter) → klare Bezeichnung was es tut. */}
         {trips.length > 0 && (
           <details className="mt-6 rounded-2xl bg-white/60 border border-cream-200 px-4 py-3">
             <summary className="text-xs text-ink-mid font-semibold cursor-pointer inline-flex items-center gap-1">
-              <Sparkles size={11} className="text-gold-600" /> Veranstalter-Tools
+              <Sparkles size={11} className="text-gold-600" /> KI Event-Recherche
             </summary>
             <ul className="mt-2 space-y-1.5">
               {trips.map((t) => (
@@ -141,7 +143,7 @@ export default function HomePage() {
                     href={`/research/events?trip=${t.slug}`}
                     className="text-[11px] text-navy hover:text-gold transition inline-flex items-center gap-1"
                   >
-                    <Search size={11} /> Event-Recherche · {t.destination}
+                    <Search size={11} /> Events für {t.destination} suchen
                   </Link>
                 </li>
               ))}

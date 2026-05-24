@@ -114,10 +114,10 @@ export function EventResearchClient({ defaults }: Props) {
           )}
           <div className="flex-1 min-w-0">
             <p className="text-[10px] uppercase tracking-wider text-gold-600 font-bold flex items-center gap-1">
-              <Sparkles size={11} /> v1.10.0 — AI-Recherche
+              <Sparkles size={11} /> KI Event-Recherche
             </p>
             <h1 className="font-display text-2xl font-bold text-navy leading-tight">
-              Events recherchieren
+              Events suchen
             </h1>
             <p className="text-sm text-ink-mid mt-1">
               Claude sucht nach Festivals, Sport, Konzerten & Sonderausstellungen
