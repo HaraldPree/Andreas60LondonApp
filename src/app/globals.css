@@ -68,3 +68,19 @@ body {
   outline-offset: 2px;
   border-radius: 4px;
 }
+
+/* v1.13.3 — Leaflet-Karte darf NIE über den Sticky-Header rutschen.
+   Leaflet vergibt intern hohe z-index (Tile 200, Marker 600, Popup 700,
+   Control 1000). Der App-Header sitzt bei z-40 — ohne diese Regel
+   scrollt die Karte beim hochziehen über die Header-Leiste.
+
+   Fix via `isolation: isolate` statt z-index-Erhöhung am Header:
+   das erzeugt einen neuen Stacking-Context, in dem Leaflets interne
+   Z-Order weiter korrekt stackt (Marker > Tile usw.), aber die Karte
+   als Ganzes hat im umgebenden Layout effektive z-index 0 und liegt
+   damit garantiert unter dem z-40-Header und sämtlichen z-[55+]-Modals.
+
+   Vorteil: keine z-index-Kaskade quer durch alle Modals/Sheets nötig. */
+.leaflet-container {
+  isolation: isolate;
+}

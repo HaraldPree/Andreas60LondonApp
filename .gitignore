@@ -39,5 +39,10 @@ next-env.d.ts
 releases/workshop/
 releases/internal/
 
+# hp+ interne Recherchen (Wettbewerb, Marken, Print-Partner, Lastenheft,
+# Pflichtenheft, Brainstorming). NIE auf GitHub/Vercel — sind teils
+# vertrauliche Strategiepapiere bzw. Drittquellen.
+Recherchen/
+
 # Claude Code session state
 .claude/

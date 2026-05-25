@@ -49,6 +49,7 @@ Wenn ich (Claude) eine Code-Änderung mache:
 
 | Version | Datum | Titel | Status |
 |---|---|---|---|
+| [v1.13.3](./v1.13.3.md) | 25.05.2026 | Header-z-index-Fix für Leaflet-Karte (isolation: isolate statt z-Kaskade) | deployed |
 | [v1.13.2](./v1.13.2.md) | 25.05.2026 | Trust-Status-Badge: Anti-Halluzinations-Disziplin sichtbar (4 Stufen aus lastVerified) | deployed |
 | [v1.13.1](./v1.13.1.md) | 25.05.2026 | hp+ Eigentums-Umstellung (Doku-only): RCMK = erster Pilot, ÖVT/KTP = Vertriebskanäle | deployed |
 | [v1.13.0](./v1.13.0.md) | 25.05.2026 | Leaflet interaktive Karte (PLAN.md Phase 2, Lastenheft 7.9, Polarsteps-Benchmark) | deployed |
