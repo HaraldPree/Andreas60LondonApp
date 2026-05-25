@@ -233,15 +233,26 @@ export function PhotoDetail({
             </div>
           </div>
 
-          {/* Image */}
+          {/* Image / Video — v1.12.0 Branch */}
           <div className="flex-1 flex items-center justify-center p-3">
             {fullUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={fullUrl}
-                alt={photo.caption ?? photo.fileName}
-                className="max-w-full max-h-[60vh] object-contain rounded-lg shadow-elevated"
-              />
+              photo.mediaType === "video" ? (
+                <video
+                  src={fullUrl}
+                  controls
+                  playsInline
+                  className="max-w-full max-h-[60vh] rounded-lg shadow-elevated bg-black"
+                >
+                  Dein Browser unterstützt kein Video-Playback.
+                </video>
+              ) : (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={fullUrl}
+                  alt={photo.caption ?? photo.fileName}
+                  className="max-w-full max-h-[60vh] object-contain rounded-lg shadow-elevated"
+                />
+              )
             ) : (
               <div className="w-full h-48 bg-cream-300/30 rounded-lg animate-pulse" />
             )}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Sparkles, MapPin, AlertTriangle, Trash2, Check } from "lucide-react";
+import { Sparkles, MapPin, AlertTriangle, Trash2, Check, Play } from "lucide-react";
 import type { PhotoMeta } from "@/types/photo";
 import { useBlobUrlState } from "@/hooks/useBlobUrl";
 import { getThumbnailBlob } from "@/lib/photoStorage";
@@ -129,6 +129,22 @@ export function PhotoCard({
         </div>
       )}
 
+      {/* v1.12.0 — Video-Indikator: Play-Icon-Overlay + Dauer-Pill */}
+      {photo.mediaType === "video" && (
+        <>
+          <div className="absolute inset-0 flex items-center justify-center bg-black/25 pointer-events-none">
+            <div className="w-12 h-12 rounded-full bg-white/95 flex items-center justify-center shadow-elevated">
+              <Play size={22} fill="currentColor" className="text-navy ml-1" />
+            </div>
+          </div>
+          {typeof photo.videoDurationSec === "number" && photo.videoDurationSec > 0 && (
+            <span className="absolute bottom-1.5 left-1.5 text-[10px] font-mono font-semibold bg-black/65 text-white px-1.5 py-0.5 rounded backdrop-blur-sm">
+              {formatVideoDuration(photo.videoDurationSec)}
+            </span>
+          )}
+        </>
+      )}
+
       {/* v1.5.0 — Selection-Indikator (iOS Photos style) */}
       {selectionMode && (
         <div
@@ -163,4 +179,14 @@ export function PhotoCard({
       </div>
     </button>
   );
+}
+
+/** v1.12.0 — formatiert Video-Dauer als MM:SS oder H:MM:SS. */
+function formatVideoDuration(sec: number): string {
+  const total = Math.round(sec);
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = total % 60;
+  if (h > 0) return `${h}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+  return `${m}:${String(s).padStart(2, "0")}`;
 }

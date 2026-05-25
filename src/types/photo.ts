@@ -1,13 +1,21 @@
 import type { Coordinates } from "./trip";
 
+/**
+ * v1.12.0 — Medientyp pro Eintrag.
+ * "photo" (default, backwards-kompatibel) oder "video".
+ * Bei Video: fullBlob ist Video-File (mp4/mov/webm), thumbBlob ist
+ * extrahiertes Cover-Frame als JPEG.
+ */
+export type MediaType = "photo" | "video";
+
 export interface PhotoEntry {
   /** crypto.randomUUID() */
   id: string;
   /** Which trip this photo belongs to (e.g. "london-2026") */
   tripSlug: string;
-  /** Compressed full-resolution version (~1500px JPEG) */
+  /** Compressed full-resolution version (~1500px JPEG) — bei video: original-File */
   fullBlob: Blob;
-  /** Small thumbnail (~300px JPEG) for grid rendering */
+  /** Small thumbnail (~300px JPEG) — bei video: skalierter Poster-Frame */
   thumbBlob: Blob;
   /** Original file name (for download/display reference) */
   fileName: string;
@@ -23,6 +31,10 @@ export interface PhotoEntry {
   aiNarrative?: string;
   /** When this entry was added to the gallery */
   addedAt: string;
+  /** v1.12.0 — "photo" (default) oder "video" */
+  mediaType?: MediaType;
+  /** v1.12.0 — bei Videos: Dauer in Sekunden für Display-Pill */
+  videoDurationSec?: number;
 }
 
 /** Lightweight view used in grids – avoids loading full blobs */
@@ -36,6 +48,8 @@ export interface PhotoMeta {
   caption?: string;
   aiNarrative?: string;
   addedAt: string;
+  mediaType?: MediaType;
+  videoDurationSec?: number;
 }
 
 /**

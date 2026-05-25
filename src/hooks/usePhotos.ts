@@ -14,6 +14,10 @@ import {
   assignToDay,
   compressForStorage,
   extractExif,
+  isVideoFile,
+  processVideoForStorage,
+  videoPreflight,
+  videoTakenAt,
 } from "@/lib/photoProcessing";
 
 interface UsePhotosOptions {
@@ -39,9 +43,10 @@ const SUPPORTED_MIME_TYPES = new Set([
   "image/svg+xml",
 ]);
 
-/** Friendly file-format check. Returns a human-readable reason if the
- *  file is unlikely to work, or null if it should be fine. */
-function preflightCheck(file: File): string | null {
+/** Friendly file-format check for IMAGE files. Returns a human-readable
+ *  reason if the file is unlikely to work, or null if it should be fine.
+ *  v1.12.0 — Videos werden separat via videoPreflight() geprüft. */
+function imagePreflightCheck(file: File): string | null {
   // Empty file
   if (file.size === 0) {
     return "Datei ist leer (0 KB)";
@@ -101,36 +106,70 @@ export function usePhotos({ tripSlug, days }: UsePhotosOptions) {
       for (let i = 0; i < arr.length; i++) {
         const file = arr[i];
         try {
-          const preflight = preflightCheck(file);
-          if (preflight) {
-            throw new Error(preflight);
+          // v1.12.0 — Video vs Photo Branch
+          const isVideo = isVideoFile(file);
+
+          if (isVideo) {
+            // ── VIDEO-PFAD ──────────────────────────────────────
+            const preflight = videoPreflight(file);
+            if (preflight) throw new Error(preflight);
+
+            const { full, thumb, durationSec } = await processVideoForStorage(file);
+            if (!(full instanceof Blob) || full.size === 0) {
+              throw new Error("Video-Blob ist leer");
+            }
+            if (!(thumb instanceof Blob) || thumb.size === 0) {
+              throw new Error("Video-Cover-Frame ist leer");
+            }
+            const takenAt = videoTakenAt(file);
+            const id =
+              typeof crypto !== "undefined" && "randomUUID" in crypto
+                ? crypto.randomUUID()
+                : `v_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+            const entry: PhotoEntry = {
+              id,
+              tripSlug,
+              fullBlob: full,
+              thumbBlob: thumb,
+              fileName: file.name,
+              takenAt,
+              assignedDay: assignToDay(takenAt, days),
+              addedAt: new Date().toISOString(),
+              mediaType: "video",
+              videoDurationSec: durationSec,
+            };
+            await addPhoto(entry);
+          } else {
+            // ── PHOTO-PFAD (bestehend) ──────────────────────────
+            const preflight = imagePreflightCheck(file);
+            if (preflight) throw new Error(preflight);
+
+            const exif = await extractExif(file);
+            const { full, thumb } = await compressForStorage(file);
+            if (!(full instanceof Blob) || full.size === 0) {
+              throw new Error("Komprimiertes Bild ist leer");
+            }
+            if (!(thumb instanceof Blob) || thumb.size === 0) {
+              throw new Error("Thumbnail ist leer");
+            }
+            const id =
+              typeof crypto !== "undefined" && "randomUUID" in crypto
+                ? crypto.randomUUID()
+                : `p_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+            const entry: PhotoEntry = {
+              id,
+              tripSlug,
+              fullBlob: full,
+              thumbBlob: thumb,
+              fileName: file.name,
+              takenAt: exif.takenAt,
+              coordinates: exif.coordinates,
+              assignedDay: assignToDay(exif.takenAt, days),
+              addedAt: new Date().toISOString(),
+              mediaType: "photo",
+            };
+            await addPhoto(entry);
           }
-          const exif = await extractExif(file);
-          const { full, thumb } = await compressForStorage(file);
-          // Defensive check: don't insert ghosts if compression
-          // returned undefined/empty blobs.
-          if (!(full instanceof Blob) || full.size === 0) {
-            throw new Error("Komprimiertes Bild ist leer");
-          }
-          if (!(thumb instanceof Blob) || thumb.size === 0) {
-            throw new Error("Thumbnail ist leer");
-          }
-          const id =
-            typeof crypto !== "undefined" && "randomUUID" in crypto
-              ? crypto.randomUUID()
-              : `p_${Date.now()}_${Math.random().toString(36).slice(2)}`;
-          const entry: PhotoEntry = {
-            id,
-            tripSlug,
-            fullBlob: full,
-            thumbBlob: thumb,
-            fileName: file.name,
-            takenAt: exif.takenAt,
-            coordinates: exif.coordinates,
-            assignedDay: assignToDay(exif.takenAt, days),
-            addedAt: new Date().toISOString(),
-          };
-          await addPhoto(entry);
         } catch (e) {
           const reason = e instanceof Error ? e.message : String(e);
           console.error(`upload failed for ${file.name}: ${reason}`, e);

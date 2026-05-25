@@ -47,13 +47,19 @@ export function combineForExport(
   tripSlug: string,
   includeShared: boolean,
 ): ExportPhoto[] {
-  const ownAsExport: ExportPhoto[] = own.map((p) => ({ ...p }));
-  if (!includeShared) return ownAsExport;
+  // v1.12.0 — Videos werden NICHT in PDF/ZIP-Export aufgenommen (kommt
+  // erst in v1.12.2 — PDF kann nur Cover-Frame zeigen, ZIP könnte
+  // Video direkt enthalten). Heute filtern wir Videos raus, damit der
+  // Generator nicht versucht ein Video als JPEG zu rendern.
+  const ownPhotosOnly: ExportPhoto[] = own
+    .filter((p) => p.mediaType !== "video")
+    .map((p) => ({ ...p }));
+  if (!includeShared) return ownPhotosOnly;
 
-  const ownIds = new Set(ownAsExport.map((p) => p.id));
+  const ownIds = new Set(ownPhotosOnly.map((p) => p.id));
   const sharedFiltered = shared
     .filter((s) => !ownIds.has(s.id))
     .map((s) => fromShared(s, tripSlug));
 
-  return [...ownAsExport, ...sharedFiltered];
+  return [...ownPhotosOnly, ...sharedFiltered];
 }

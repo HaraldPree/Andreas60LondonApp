@@ -58,11 +58,13 @@ export function PhotoUpload({
 
   return (
     <div className="relative">
-      {/* Three hidden inputs — one for each picker variant */}
+      {/* Three hidden inputs — one for each picker variant.
+          v1.12.0 — accept erweitert um "video/*" damit Galerie auch
+          Videos zum Auswählen anbietet. */}
       <input
         ref={galleryRef}
         type="file"
-        accept="image/*"
+        accept="image/*,video/*"
         multiple
         className="hidden"
         onChange={handleChange}
@@ -80,7 +82,7 @@ export function PhotoUpload({
       <input
         ref={cameraRef}
         type="file"
-        accept="image/*"
+        accept="image/*,video/*"
         capture="environment"
         className="hidden"
         onChange={handleChange}

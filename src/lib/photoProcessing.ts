@@ -201,3 +201,214 @@ export function assignToDay(
   const idx = days.findIndex((d) => d.isoDate === dateOnly);
   return idx >= 0 ? idx : undefined;
 }
+
+// ═════════════════════════════════════════════════════════════
+// v1.12.0 — Video-Support
+// ═════════════════════════════════════════════════════════════
+
+/** Max Video-Größe — IndexedDB-Quota schützen + Mobile-RAM. */
+const VIDEO_MAX_SIZE = 100 * 1024 * 1024; // 100 MB
+
+const SUPPORTED_VIDEO_MIME_TYPES = new Set([
+  "video/mp4",
+  "video/quicktime", // .mov
+  "video/webm",
+  "video/x-m4v",
+]);
+
+/**
+ * Erkennt ob File ein Video ist (per MIME oder Extension).
+ * Mobile-Browser senden manchmal leere `type`-Werte → Extension-Check
+ * als Fallback.
+ */
+export function isVideoFile(file: File): boolean {
+  if (file.type && file.type.startsWith("video/")) return true;
+  if (/\.(mp4|mov|webm|m4v)$/i.test(file.name)) return true;
+  return false;
+}
+
+/**
+ * Pre-flight für Video-Files.
+ * Liefert Fehler-String oder null wenn OK.
+ */
+export function videoPreflight(file: File): string | null {
+  if (file.size === 0) return "Video-Datei ist leer (0 KB)";
+  if (file.size > VIDEO_MAX_SIZE) {
+    return `Video zu groß (${(file.size / 1024 / 1024).toFixed(0)} MB, max ${VIDEO_MAX_SIZE / 1024 / 1024} MB). Tipp: Video auf dem Handy vorher kürzen oder komprimieren.`;
+  }
+  if (file.type && !SUPPORTED_VIDEO_MIME_TYPES.has(file.type.toLowerCase())) {
+    return `Video-Format ${file.type} wird nicht unterstützt — bitte MP4 oder MOV verwenden`;
+  }
+  return null;
+}
+
+/**
+ * Extrahiert ein Cover-Frame aus einem Video.
+ * Springt zu ~10 % der Dauer (oder min 1 s) um schwarze Frames zu vermeiden.
+ *
+ * Returns Blob (JPEG) + Metadaten (Dauer, Original-Dimensionen).
+ */
+async function extractVideoFrame(file: File): Promise<{
+  posterBlob: Blob;
+  durationSec: number;
+  width: number;
+  height: number;
+}> {
+  const url = URL.createObjectURL(file);
+  try {
+    const video = document.createElement("video");
+    video.src = url;
+    video.muted = true;
+    video.playsInline = true;
+    video.preload = "auto";
+    // Mobile Safari braucht das damit es im DOM erlaubt ist zu dekodieren
+    video.style.position = "absolute";
+    video.style.opacity = "0";
+    video.style.pointerEvents = "none";
+    document.body.appendChild(video);
+
+    try {
+      // Metadaten laden (Dimensionen + Dauer)
+      await new Promise<void>((resolve, reject) => {
+        const timer = window.setTimeout(
+          () => reject(new Error("Video-Metadaten Timeout (>15 s)")),
+          15000,
+        );
+        video.onloadedmetadata = () => {
+          window.clearTimeout(timer);
+          resolve();
+        };
+        video.onerror = () => {
+          window.clearTimeout(timer);
+          reject(new Error("Video konnte nicht dekodiert werden"));
+        };
+        video.load();
+      });
+
+      const w = video.videoWidth;
+      const h = video.videoHeight;
+      const duration = video.duration || 0;
+      if (!w || !h) throw new Error("Video hat keine Dimensionen");
+
+      // Seek zu sinnvoller Position für Cover (vermeide schwarzen Anfang)
+      const targetTime = Math.min(1, duration * 0.1);
+
+      await new Promise<void>((resolve, reject) => {
+        const timer = window.setTimeout(
+          () => reject(new Error("Video-Seek Timeout")),
+          10000,
+        );
+        video.onseeked = () => {
+          window.clearTimeout(timer);
+          resolve();
+        };
+        video.onerror = () => {
+          window.clearTimeout(timer);
+          reject(new Error("Video-Seek fehlgeschlagen"));
+        };
+        video.currentTime = targetTime;
+      });
+
+      // Frame ins Canvas malen (auf max 1500 px skaliert)
+      const { width, height } = scaleToFit(w, h, FULL_MAX_SIZE);
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) throw new Error("Canvas-Context nicht verfügbar");
+      ctx.drawImage(video, 0, 0, width, height);
+
+      const posterBlob = await new Promise<Blob>((resolve, reject) => {
+        canvas.toBlob(
+          (blob) =>
+            blob
+              ? resolve(blob)
+              : reject(new Error("Poster-Generierung fehlgeschlagen")),
+          "image/jpeg",
+          FULL_QUALITY,
+        );
+      });
+
+      return { posterBlob, durationSec: duration, width: w, height: h };
+    } finally {
+      document.body.removeChild(video);
+    }
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
+/**
+ * v1.12.0 — Verarbeitung für Video-Upload.
+ *
+ * Returns:
+ *  - full = Original-Video-Blob (NICHT komprimiert — Browser haben keine
+ *    sinnvolle Video-Komprimierungs-API)
+ *  - thumb = kleines JPEG-Thumbnail vom Cover-Frame (für Galerie-Grid)
+ *  - durationSec = Video-Dauer für Display-Pill
+ *
+ * Anders als Fotos: das "full" bleibt das Original — das wird durch
+ * VIDEO_MAX_SIZE-Limit kontrolliert (heute 100 MB pro File).
+ */
+export async function processVideoForStorage(file: File): Promise<{
+  full: Blob;
+  thumb: Blob;
+  durationSec: number;
+}> {
+  const { posterBlob, durationSec } = await extractVideoFrame(file);
+
+  // Thumb aus Poster generieren (kleiner für Galerie-Grid)
+  const thumb = await thumbnailFromPoster(posterBlob);
+
+  return {
+    full: file, // Original-Video bleibt unkomprimiert
+    thumb,
+    durationSec,
+  };
+}
+
+/**
+ * Skaliert einen Poster-JPEG-Blob auf Thumbnail-Größe.
+ */
+async function thumbnailFromPoster(posterBlob: Blob): Promise<Blob> {
+  const url = URL.createObjectURL(posterBlob);
+  try {
+    const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const i = new Image();
+      i.onload = () => resolve(i);
+      i.onerror = () => reject(new Error("Poster-Decode fehlgeschlagen"));
+      i.src = url;
+    });
+    const { width, height } = scaleToFit(
+      img.naturalWidth,
+      img.naturalHeight,
+      THUMB_MAX_SIZE,
+    );
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("Canvas-Context nicht verfügbar");
+    ctx.drawImage(img, 0, 0, width, height);
+    return await new Promise<Blob>((resolve, reject) => {
+      canvas.toBlob(
+        (blob) =>
+          blob
+            ? resolve(blob)
+            : reject(new Error("Thumb-Generierung fehlgeschlagen")),
+        "image/jpeg",
+        THUMB_QUALITY,
+      );
+    });
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
+/**
+ * Liest takenAt aus File.lastModified — Videos haben kein EXIF wie Fotos.
+ * Gibt fallweise auch undefined zurück.
+ */
+export function videoTakenAt(file: File): string {
+  return new Date(file.lastModified).toISOString();
+}
