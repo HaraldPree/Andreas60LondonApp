@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import type { Place, PlaceStatus, WeekDay } from "@/types/place";
 import { classNames, mapsUrl } from "@/lib/formatters";
+import { TrustBadge } from "@/components/ui/TrustBadge";
 
 interface PlaceCardProps {
   place: Place;
@@ -121,6 +122,12 @@ export function PlaceCard({
                 🎬 Film
               </span>
             )}
+            {/* v1.13.2 — Trust-Badge: zeigt Aktualität + Quelle der Info */}
+            <TrustBadge
+              lastVerified={availability.lastVerified}
+              source={availability.source}
+              size="xs"
+            />
           </div>
         </button>
 

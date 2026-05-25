@@ -15,6 +15,7 @@ import {
   EVENT_CATEGORY_META,
 } from "@/types/event";
 import { classNames, mapsUrl } from "@/lib/formatters";
+import { TrustBadge } from "@/components/ui/TrustBadge";
 
 interface Props {
   trip: Trip;
@@ -142,11 +143,19 @@ function EventRow({
               </span>
             )}
           </p>
-          {event.cost && (
-            <span className="inline-block mt-1 text-[10px] px-1.5 py-0.5 rounded bg-cream-100 text-ink-mid font-mono">
-              {event.cost}
-            </span>
-          )}
+          <div className="flex items-center flex-wrap gap-1.5 mt-1">
+            {event.cost && (
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-cream-100 text-ink-mid font-mono">
+                {event.cost}
+              </span>
+            )}
+            {/* v1.13.2 — Trust-Badge: Aktualität + Quelle */}
+            <TrustBadge
+              lastVerified={event.lastVerified}
+              source={event.source}
+              size="xs"
+            />
+          </div>
         </div>
         <ChevronDown
           size={14}
