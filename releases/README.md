@@ -49,7 +49,8 @@ Wenn ich (Claude) eine Code-Änderung mache:
 
 | Version | Datum | Titel | Status |
 |---|---|---|---|
-| [v1.14.3](./v1.14.3.md) | 25.05.2026 | Cluster-Split bei GPS-losen Fotos + Programm-Item als Fallback-Match | deployed |
+| [v1.14.4](./v1.14.4.md) | 26.05.2026 | Revert von v1.14.3 — ProgramItem-Match attribuierte Orte falsch (Anti-Halluzinations-Verstoß) | deployed |
+| v1.14.3 | 25.05.2026 | ~~Programm-Item-Match Fallback bei GPS-losen Fotos~~ — reverted in v1.14.4 | rollback |
 | [v1.14.2](./v1.14.2.md) | 25.05.2026 | Geplant=Original wiederhergestellt + Cluster lockerer + Reverse-Geocoding + 3 Fotos | deployed |
 | [v1.14.1](./v1.14.1.md) | 25.05.2026 | Karten-„Groß"-Link rutschte noch über Header (z-[400] → z-10) | deployed |
 | [v1.14.0](./v1.14.0.md) | 25.05.2026 | Reise-Rückblick „Erlebt" aus Foto-EXIF (0-Cent, Polarsteps-Parität-Move) | deployed |
