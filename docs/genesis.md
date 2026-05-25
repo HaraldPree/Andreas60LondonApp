@@ -7,6 +7,19 @@
 > **Hinweis**: Anti-Halluzinations-Regel — was in den Quellen nicht steht, steht
 > hier auch nicht. Lücken sind als „TODO: Harald ergänzt" markiert.
 
+## Heutiger Eigentums-Status (Stand 25.05.2026)
+
+Code-IP gehört **hp+ consulting & marketing gmbh, Leonding (OÖ)**. RCMK ist
+**erster Pilot-Kunde** und namensgebender Test-Trip. Plan ist die Vermarktung
+als B2B-Plattform an Reisebüros und Veranstalter über ÖVT-Netzwerk, KTP und
+direkte Kundenakquise.
+
+Vor der Repositionierung 25.05.2026 war das Projekt ein RCMK-internes
+Werkzeug ohne explizite Vermarktungs-Strategie. Die Wettbewerbs- und
+Markt-Recherche-Phase (Polarsteps-Tiefenanalyse, Wayli, Mitbewerber-
+Inventur, Print-Partner-Vergleich, Namen-Recherche) erfolgte am 24./25.
+Mai 2026.
+
 ---
 
 ## Zeitlinie
@@ -41,6 +54,24 @@ April–Mai 2026      35+ Commits ohne formelle Versionierung
   · Live-Phase abgeschlossen
   · Lessons in `releases/internal/london-2026-retro.md` festgehalten
   · v1.9.0 Events-Datenklasse in Vorbereitung
+
+23.–25.05.2026      Iterations-Phase (v1.9.0 – v1.13.0)
+  · Events-Datenklasse + KI Event-Recherche
+  · PDF-Layout-Marathon (v1.10.x)
+  · Bilder-Auswahl PDF/ZIP + Selection-Sheet
+  · Video-Support
+  · Leaflet interaktive Karte
+
+25.05.2026          Strategische Repositionierung
+  · Wettbewerbs-Recherchen (Polarsteps-Tiefenanalyse, Wayli,
+    Mitbewerber-Inventur, Print-Partner-Vergleich, Namen-Recherche,
+    Lasten-/Pflichtenheft)
+  · Klar: Projekt ist eine HP+ CONSULTING-PLATTFORM, nicht ÖVT/RCMK-
+    intern. RCMK = erster Pilot-Kunde. ÖVT/KTP/weitere = Vertriebskanäle.
+  · Hybrid-Strategie verabschiedet (Komplement → Daten → Substitut)
+  · Marken-Name „Travel Life" wegen ABTA-/TravelLife-AG-Konflikten
+    verworfen. KURATIO/VIORA/REISARA als Kandidaten.
+  · Doku-Stand auf hp+-Eigentum umgestellt (v1.13.1)
 ```
 
 ---

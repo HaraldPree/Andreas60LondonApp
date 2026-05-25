@@ -1,7 +1,40 @@
-# RCMK Travel Companion
+# Travel-Companion-Plattform (hp+ consulting)
+
+## Eigentum & Strategische Positionierung
+**Eigentümer**: hp+ consulting & marketing gmbh, Leonding, Oberösterreich.
+**Geschäftsführer**: Harald Pree.
+
+**Vertriebsstrategie**: Travel-Companion-Plattform als B2B-Lizenz an Reisebüros
+und Touristik-Veranstalter im DACH-Raum. **Erste Pilot-Implementierung** und
+namensgebender Test-Trip: ReiseCenter Mader-Kuoni (RCMK, Wien-Liesing) — die
+„60. Geburtstag Andrea, London Mai 2026"-Reise war der Initial-Use-Case und
+ist weiterhin im Code als Referenz-Trip enthalten.
+
+**Geplante Vertriebskanäle**: ÖVT (Österreichischer Verein für Touristik —
+Harald Pree ist Vizepräsident + Digitalisierungs-Ressortleiter), KTP
+(Kuoni Tumlare Pluto), weitere Reisebüro-Verbände und Einzelbüros.
+
+**Hybrid-Strategie** (aus Wettbewerbs-Recherche Mai 2026):
+- **Phase 1 — Komplement** (2026/27): Travel-Life als Reisebüro-Addon
+  inkl. Print-Foto-Buch als Premium-Anker (Polarsteps-Modell)
+- **Phase 2 — Daten + API** (2027): Multi-Tenant + automatisierte Provisionen
+- **Phase 3 — Substitut** (2028+): Eigene Travel-Memory-Plattform für DACH
+
+Details: `releases/internal/` (gitignored) — Strategiepapiere, Wettbewerbs-
+Recherchen (Polarsteps, Wayli, Mitbewerber, Print-Partner), Namens-
+Untersuchung, Lasten-/Pflichtenheft, Brainstorming.
+
+**Marken-Name**: noch offen. „Travel Life" wegen ABTA/TravelLife AG-
+Konflikten verworfen. Top-3-Recherche-Empfehlung: KURATIO, VIORA, REISARA
+— finale Entscheidung steht aus.
 
 ## Was ist das?
-Interaktive Reise-Companion-Webapp für Kunden des ReiseCenter Mader-Kuoni. Mobile-first App, die ein Reiseprogramm lebendig macht: Live-Wetter, Karte, Reservierungstracker, Tagesplaner, Hidden Places.
+Interaktive Reise-Companion-Webapp. Mobile-first PWA, die ein Reiseprogramm
+lebendig macht: Live-Wetter, interaktive Karte, Reservierungstracker,
+Tagesplaner, Hidden Places, AI-Companion, Foto-Sharing, KI Event-Recherche.
+
+Heute live als RCMK-Pilot unter `birthdaytravelguidelondon.vercel.app` (URL
+wird mit Marken-Entscheidung umgezogen).
 
 ## Tech-Stack
 - Next.js 14 (App Router) + TypeScript
@@ -27,18 +60,24 @@ Interaktive Reise-Companion-Webapp für Kunden des ReiseCenter Mader-Kuoni. Mobi
   - **Warum nicht `ANTHROPIC_API_KEY`?** Auf manchen Dev-Maschinen (z.B. mit Claude Code CLI) ist
     `ANTHROPIC_API_KEY` global leer gesetzt – das würde `.env.local` überschreiben. Daher app-eigener Var-Name.
   - Fallback: Falls `RCMK_ANTHROPIC_KEY` nicht gesetzt aber `ANTHROPIC_API_KEY` einen Wert hat, wird der genutzt.
+  - **Historischer Name** (`RCMK_…`) bleibt vorerst aus Kompatibilitätsgründen — bei Multi-Tenant-Umbau (Phase 2) wird auf `APP_ANTHROPIC_KEY` umgeschwenkt.
 - `AVIATIONSTACK_API_KEY` – Optional für Live-Flugstatus
   - Free Tier 100 Calls/Monat: https://aviationstack.com/signup/free
   - Server-seitig 5 Min gecached, daher reichen wenige Calls
   - Ohne Key: Flightradar24-Tracker-Link als Fallback
 
-## Corporate Identity
+## Corporate Identity (aktuell: RCMK-Pilot-Branding)
+
+**Wichtig**: Die heutige CI-Palette + der Footer sind die **RCMK-Pilot-CI**.
+Für künftige Reisebüro-Kunden wird das per Tenant-Branding überschreibbar
+(geplant Phase 2). Solange nur RCMK live ist, bleibt RCMK-CI hardgecodet.
+
 - Dunkelblau: #003366 (Primär) → Tailwind: `navy`
 - Gold: #E5A00D (Akzent) → Tailwind: `gold`
 - Warmweiß: #F8F6F1 (Hintergrund) → Tailwind: `cream`
 - Font Display: Playfair Display
 - Font Body: DM Sans
-- Footer immer: "ReiseCenter Mader-Kuoni | www.meinreisecenter.at"
+- Footer (RCMK-Pilot): "ReiseCenter Mader-Kuoni | www.meinreisecenter.at"
 
 ## Ordnerstruktur
 - `src/app/` – Next.js Routen (App Router)
@@ -218,3 +257,12 @@ beobachtet werden.
 - Standard: `claude-opus-4-7` (1M Context, adaptive thinking, kein `budget_tokens` mehr)
 - Bei Kostendruck: `claude-sonnet-4-6` (3x billiger, etwas schneller)
 - NIE alte Model-IDs mit Datum-Suffix verwenden (`claude-opus-4-7-XXXX` existiert nicht)
+
+## Lizenz & Eigentum
+
+Code-IP gehört **hp+ consulting & marketing gmbh, Leonding (AT)**.
+Nicht öffentlich lizenziert. Internes Pilotprodukt mit RCMK als
+erstem Vertriebskanal. Spätere kommerzielle Lizenzierung an Reisebüros
+und Veranstalter geplant.
+
+Bei Fragen: Harald Pree, hp+ consulting & marketing gmbh.

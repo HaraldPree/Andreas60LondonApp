@@ -49,6 +49,7 @@ Wenn ich (Claude) eine Code-Änderung mache:
 
 | Version | Datum | Titel | Status |
 |---|---|---|---|
+| [v1.13.1](./v1.13.1.md) | 25.05.2026 | hp+ Eigentums-Umstellung (Doku-only): RCMK = erster Pilot, ÖVT/KTP = Vertriebskanäle | deployed |
 | [v1.13.0](./v1.13.0.md) | 25.05.2026 | Leaflet interaktive Karte (PLAN.md Phase 2, Lastenheft 7.9, Polarsteps-Benchmark) | deployed |
 | [v1.12.0](./v1.12.0.md) | 23.05.2026 | Video-Support Phase 1: Upload + IndexedDB + Galerie-Player (Polarsteps-USP-Lücke) | deployed |
 | [v1.11.2](./v1.11.2.md) | 23.05.2026 | Per-Foto-Auswahl mit Selection-Sheet (granulare Bilder-Wahl für PDF/ZIP) | deployed |

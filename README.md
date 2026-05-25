@@ -1,13 +1,18 @@
-# RCMK Travel Companion
+# Travel-Companion-Plattform (hp+ consulting)
 
-> Interaktive Reise-Companion-Webapp für Kunden des **ReiseCenter Mader-Kuoni**.
-> Verwandelt ein statisches Reiseprogramm in eine lebendige, mobile-first
-> Webapp mit Live-Wetter, Karte, Reservierungstracker, AI-Companion (Claude),
-> Foto-Sharing und Wunschliste.
+> **Eigentümer**: hp+ consulting & marketing gmbh, Leonding (AT)
+> **Erster Pilot-Kunde**: ReiseCenter Mader-Kuoni (RCMK) — namensgebender
+> Trip „60. Geburtstag Andrea, London Mai 2026"
+>
+> Mobile-first PWA für die Zeit **während** und **nach** einer Reise:
+> Live-Wetter, interaktive Karte, Reservierungstracker, AI-Companion (Claude
+> Opus 4.7 mit Tool-Use), Wunschliste, gemeinsame Foto-Galerie, PDF/ZIP-Export,
+> KI Event-Recherche, Video-Support.
 
 **Aktuelle Version**: siehe `package.json` → `version`
 **Hosting**: Vercel (Auto-Deploy via GitHub-Main)
-**Erste Live-Reise**: London 18.–22. Mai 2026 (5 Personen, Andreas 60. Geburtstag)
+**Live unter** (RCMK-Pilot): https://birthdaytravelguidelondon.vercel.app
+**Marken-Name** (final): noch offen — siehe Recherche in `Recherchen/`
 
 ---
 
@@ -185,7 +190,15 @@ Volltext: [`CLAUDE.md`](./CLAUDE.md).
 
 ## Lizenz & Kontakt
 
-Internes Produkt von **hp+ consulting & marketing gmbh** für RCMK ReiseCenter
-Mader-Kuoni. Nicht öffentlich lizenziert.
+Code-IP gehört **hp+ consulting & marketing gmbh, Leonding (AT)**.
+Nicht öffentlich lizenziert.
 
-Bei Fragen: Harald Pree.
+Strategische Positionierung: B2B-Lizenz an Reisebüros und Veranstalter
+(DACH-Markt). RCMK ist erster Pilot-Kunde; spätere Vertriebskanäle:
+ÖVT-Mitgliedsbetriebe, KTP, weitere Reisebüro-Verbände.
+
+Details + Wettbewerbs-/Markt-Recherchen (Polarsteps, Wayli, Print-Partner,
+Namen, Lasten-/Pflichtenheft) in `Recherchen/` + `releases/internal/`
+(beide gitignored — interne Strategiepapiere).
+
+Bei Fragen: Harald Pree, hp+ consulting & marketing gmbh.
