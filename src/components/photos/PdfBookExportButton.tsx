@@ -1,17 +1,19 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   FileText,
   Loader2,
   Download,
   Share2,
   RotateCcw,
+  Filter,
 } from "lucide-react";
 import type { Trip } from "@/types/trip";
 import type { PhotoMeta } from "@/types/photo";
 import type { SharedPhotoView } from "@/types/sharedPhoto";
 import { combineForExport } from "@/lib/exportPhotosAdapter";
+import { PhotoSelectionSheet } from "@/components/photos/PhotoSelectionSheet";
 
 interface Props {
   trip: Trip;
@@ -45,16 +47,32 @@ export function PdfBookExportButton({ trip, photos, sharedPhotos = [] }: Props) 
   >("idle");
   // v1.11.0 — Toggle: auch geteilte Fotos mit einbeziehen
   const [includeShared, setIncludeShared] = useState(false);
-
-  // Effektiv exportierte Fotos = eigene + (optional) geteilte
-  const exportPhotos = combineForExport(
-    photos,
-    sharedPhotos,
-    trip.slug,
-    includeShared,
+  // v1.11.2 — Explizite Auswahl via Selection-Sheet (null = alle).
+  const [explicitSelection, setExplicitSelection] = useState<Set<string> | null>(
+    null,
   );
+  const [selectionSheetOpen, setSelectionSheetOpen] = useState(false);
+
+  // Alle kombiniert (eigene + optional geteilte)
+  const allCombined = useMemo(
+    () => combineForExport(photos, sharedPhotos, trip.slug, includeShared),
+    [photos, sharedPhotos, trip.slug, includeShared],
+  );
+
+  // Wenn User Toggle ändert → Auswahl resetten (sonst verwirrende Edge-Cases).
+  useEffect(() => {
+    setExplicitSelection(null);
+  }, [includeShared]);
+
+  // Effektiv exportierte Fotos: bei expliziter Auswahl filtern, sonst alle.
+  const exportPhotos = useMemo(() => {
+    if (!explicitSelection) return allCombined;
+    return allCombined.filter((p) => explicitSelection.has(p.id));
+  }, [allCombined, explicitSelection]);
+
   const sharedAvailable = sharedPhotos.length > 0;
-  const extraSharedCount = exportPhotos.length - photos.length;
+  const extraSharedCount = allCombined.length - photos.length;
+  const hasCustomSelection = !!explicitSelection;
 
   // Revoke the previous blob URL when a new one replaces it or the
   // component unmounts. We deliberately KEEP the URL alive while the
@@ -241,10 +259,26 @@ export function PdfBookExportButton({ trip, photos, sharedPhotos = [] }: Props) 
               </label>
             )}
 
+            {/* v1.11.2 — Per-Foto-Auswahl-Trigger.
+                Sichtbar wenn überhaupt was zum Auswählen da ist.
+                Bei aktiver Auswahl zeigt Label "N von M". */}
+            {allCombined.length > 0 && !exporting && (
+              <button
+                type="button"
+                onClick={() => setSelectionSheetOpen(true)}
+                className="w-full inline-flex items-center justify-center gap-2 px-3 py-2 mb-2 rounded-xl bg-gold/10 text-gold-600 text-xs font-semibold hover:bg-gold/20 transition border border-gold/30"
+              >
+                <Filter size={12} />
+                {hasCustomSelection
+                  ? `Auswahl ändern (${exportPhotos.length} von ${allCombined.length} Fotos)`
+                  : `Bilder einzeln auswählen (aktuell alle ${allCombined.length})`}
+              </button>
+            )}
+
             <button
               type="button"
               onClick={handleExport}
-              disabled={exporting}
+              disabled={exporting || exportPhotos.length === 0}
               className="w-full inline-flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-navy text-cream text-sm font-semibold hover:bg-navy-700 disabled:opacity-60 disabled:cursor-not-allowed transition"
             >
               {exporting ? (
@@ -256,11 +290,11 @@ export function PdfBookExportButton({ trip, photos, sharedPhotos = [] }: Props) 
                 <>
                   <FileText size={14} />
                   PDF generieren
-                  {includeShared && extraSharedCount > 0 && (
+                  {(includeShared && extraSharedCount > 0) || hasCustomSelection ? (
                     <span className="text-[10px] opacity-80">
-                      ({exportPhotos.length} Fotos)
+                      ({exportPhotos.length} {exportPhotos.length === 1 ? "Foto" : "Fotos"})
                     </span>
-                  )}
+                  ) : null}
                 </>
               )}
             </button>
@@ -332,6 +366,19 @@ export function PdfBookExportButton({ trip, photos, sharedPhotos = [] }: Props) 
         {error && (
           <p className="text-xs text-warning font-medium mt-2">{error}</p>
         )}
+
+        {/* v1.11.2 — Selection-Sheet als Modal */}
+        <PhotoSelectionSheet
+          open={selectionSheetOpen}
+          photos={allCombined}
+          currentSelection={explicitSelection}
+          onConfirm={(next) => {
+            setExplicitSelection(next);
+            setSelectionSheetOpen(false);
+          }}
+          onClose={() => setSelectionSheetOpen(false)}
+          exportLabel="PDF"
+        />
 
         <details className="mt-3 group">
           <summary className="text-[11px] text-ink-light cursor-pointer hover:text-ink-mid select-none">

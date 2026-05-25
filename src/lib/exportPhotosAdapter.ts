@@ -29,6 +29,7 @@ export function fromShared(s: SharedPhotoView, tripSlug: string): ExportPhoto {
     caption: s.caption,
     addedAt: s.uploadedAt,
     remoteUrl: s.blobUrl,
+    remoteThumbUrl: s.thumbBlobUrl, // v1.11.2 — für Selection-Sheet Grid
     uploaderName: s.uploaderName,
   };
 }

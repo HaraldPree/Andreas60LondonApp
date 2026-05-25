@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   BookOpen,
   Download,
   Loader2,
   Share2,
   RotateCcw,
+  Filter,
 } from "lucide-react";
 import type { Trip } from "@/types/trip";
 import type { PhotoMeta } from "@/types/photo";
@@ -17,6 +18,7 @@ import {
   type PhotoBookExportProgress,
 } from "@/lib/photoBookExport";
 import { combineForExport } from "@/lib/exportPhotosAdapter";
+import { PhotoSelectionSheet } from "@/components/photos/PhotoSelectionSheet";
 
 interface Props {
   trip: Trip;
@@ -48,15 +50,29 @@ export function PhotoBookExportButton({
   >("idle");
   // v1.11.0 — Toggle für geteilte Fotos
   const [includeShared, setIncludeShared] = useState(false);
-
-  const exportPhotos = combineForExport(
-    photos,
-    sharedPhotos,
-    trip.slug,
-    includeShared,
+  // v1.11.2 — Explizite Auswahl via Selection-Sheet.
+  const [explicitSelection, setExplicitSelection] = useState<Set<string> | null>(
+    null,
   );
+  const [selectionSheetOpen, setSelectionSheetOpen] = useState(false);
+
+  const allCombined = useMemo(
+    () => combineForExport(photos, sharedPhotos, trip.slug, includeShared),
+    [photos, sharedPhotos, trip.slug, includeShared],
+  );
+
+  useEffect(() => {
+    setExplicitSelection(null);
+  }, [includeShared]);
+
+  const exportPhotos = useMemo(() => {
+    if (!explicitSelection) return allCombined;
+    return allCombined.filter((p) => explicitSelection.has(p.id));
+  }, [allCombined, explicitSelection]);
+
   const sharedAvailable = sharedPhotos.length > 0;
-  const extraSharedCount = exportPhotos.length - photos.length;
+  const extraSharedCount = allCombined.length - photos.length;
+  const hasCustomSelection = !!explicitSelection;
 
   useEffect(() => {
     return () => {
@@ -217,10 +233,24 @@ export function PhotoBookExportButton({
               </label>
             )}
 
+            {/* v1.11.2 — Per-Foto-Auswahl-Trigger. */}
+            {allCombined.length > 0 && !exporting && (
+              <button
+                type="button"
+                onClick={() => setSelectionSheetOpen(true)}
+                className="w-full inline-flex items-center justify-center gap-2 px-3 py-2 mb-2 rounded-xl bg-gold/10 text-gold-600 text-xs font-semibold hover:bg-gold/20 transition border border-gold/30"
+              >
+                <Filter size={12} />
+                {hasCustomSelection
+                  ? `Auswahl ändern (${exportPhotos.length} von ${allCombined.length} Fotos)`
+                  : `Bilder einzeln auswählen (aktuell alle ${allCombined.length})`}
+              </button>
+            )}
+
             <button
               type="button"
               onClick={handleExport}
-              disabled={exporting}
+              disabled={exporting || exportPhotos.length === 0}
               className="w-full inline-flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-navy text-cream text-sm font-semibold hover:bg-navy-700 disabled:opacity-60 disabled:cursor-not-allowed transition"
             >
               {exporting ? (
@@ -232,11 +262,11 @@ export function PhotoBookExportButton({
                 <>
                   <BookOpen size={14} />
                   ZIP erstellen
-                  {includeShared && extraSharedCount > 0 && (
+                  {(includeShared && extraSharedCount > 0) || hasCustomSelection ? (
                     <span className="text-[10px] opacity-80">
-                      ({exportPhotos.length} Fotos)
+                      ({exportPhotos.length} {exportPhotos.length === 1 ? "Foto" : "Fotos"})
                     </span>
-                  )}
+                  ) : null}
                 </>
               )}
             </button>
@@ -300,6 +330,19 @@ export function PhotoBookExportButton({
         {error && (
           <p className="text-xs text-warning font-medium mt-2">{error}</p>
         )}
+
+        {/* v1.11.2 — Selection-Sheet als Modal */}
+        <PhotoSelectionSheet
+          open={selectionSheetOpen}
+          photos={allCombined}
+          currentSelection={explicitSelection}
+          onConfirm={(next) => {
+            setExplicitSelection(next);
+            setSelectionSheetOpen(false);
+          }}
+          onClose={() => setSelectionSheetOpen(false)}
+          exportLabel="ZIP"
+        />
 
         <details className="mt-3 group">
           <summary className="text-[11px] text-ink-light cursor-pointer hover:text-ink-mid select-none">

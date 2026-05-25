@@ -49,6 +49,7 @@ Wenn ich (Claude) eine Code-Änderung mache:
 
 | Version | Datum | Titel | Status |
 |---|---|---|---|
+| [v1.11.2](./v1.11.2.md) | 23.05.2026 | Per-Foto-Auswahl mit Selection-Sheet (granulare Bilder-Wahl für PDF/ZIP) | deployed |
 | [v1.11.1](./v1.11.1.md) | 23.05.2026 | Umbenennung „Veranstalter-Tools" → „KI Event-Recherche" (Wording-Klarheit) | deployed |
 | [v1.11.0](./v1.11.0.md) | 23.05.2026 | Bilder-Auswahl für PDF + ZIP: Toggle „Auch geteilte Fotos einbeziehen" | deployed |
 | [v1.10.7](./v1.10.7.md) | 23.05.2026 | Save-Pfade umgebaut: Open-in-Tab als Primary (was Samsung kann zuerst), Direct-Download entfernt | deployed |

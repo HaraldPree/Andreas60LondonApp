@@ -49,6 +49,12 @@ export interface PhotoMeta {
 export interface ExportPhoto extends PhotoMeta {
   /** Wenn gesetzt: Foto ist über HTTP zu fetchen (geteiltes Foto aus Blob). */
   remoteUrl?: string;
+  /**
+   * v1.11.2 — Thumbnail-URL für Selection-Sheet-Grid.
+   * Bei geteilten Fotos: aus SharedPhotoView.thumbBlobUrl.
+   * Bei eigenen Fotos: undefined → Selection-Sheet nutzt getThumbnailBlob().
+   */
+  remoteThumbUrl?: string;
   /** Wer hat's geteilt (für Display in Captions, "Foto von Andrea") */
   uploaderName?: string;
 }
