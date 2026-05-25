@@ -8,6 +8,7 @@ import {
 } from "@/lib/tripReconstruction";
 import { classNames } from "@/lib/formatters";
 import { useBlobUrlState } from "@/hooks/useBlobUrl";
+import { useNearbyLabel } from "@/hooks/useNearbyLabel";
 import { getThumbnailBlob } from "@/lib/photoStorage";
 
 interface Props {
@@ -145,6 +146,25 @@ function ErlebtStopRow({
   sharedThumbUrls: Record<string, string>;
 }) {
   const isUnmatched = !stop.placeId;
+
+  // v1.14.2 — Wenn kein Place-Match aber GPS vorhanden ist, fragen wir
+  // OSM Nominatim nach dem Stadtteil. Cached, daher nach erstem
+  // Lookup instant. Hilft enorm gegen die „Stopp ohne Place-Match"-
+  // Flut wenn der User an Orten war die nicht in der Library sind.
+  const nearbyLabel = useNearbyLabel(isUnmatched ? stop.coords : undefined);
+
+  // Display-Name in 3 Stufen: Place-Name > „bei Stadtteil" > Fallback
+  const displayName = stop.placeId
+    ? stop.placeName
+    : nearbyLabel
+      ? `Stopp bei ${nearbyLabel}`
+      : stop.coords
+        ? "Stopp ohne Place-Match" // GPS da, aber weder Place noch Nominatim
+        : "Stopp ohne GPS";
+
+  // Italic-Style nur noch wenn wir wirklich gar nichts haben
+  const isReallyUnknown = isUnmatched && !nearbyLabel;
+
   return (
     <li className="p-3 flex items-start gap-3">
       <span
@@ -159,10 +179,10 @@ function ErlebtStopRow({
         <p
           className={classNames(
             "text-sm font-semibold leading-tight",
-            isUnmatched ? "text-ink-mid italic" : "text-ink-dark",
+            isReallyUnknown ? "text-ink-mid italic" : "text-ink-dark",
           )}
         >
-          {stop.placeName}
+          {displayName}
         </p>
         <p className="text-[11px] text-ink-mid mt-0.5">
           {formatStopTimeRange(stop.startAt, stop.endAt)}
@@ -177,7 +197,8 @@ function ErlebtStopRow({
           </span>
         </p>
 
-        {/* Thumbnail-Reihe — max 4 sichtbar, „+N" Hinweis bei mehr */}
+        {/* Thumbnail-Reihe — max 3 sichtbar (v1.14.2, vorher 4),
+            „+N" Hinweis bei mehr. User-Feedback: 3 reichen, nicht 100. */}
         <StopThumbRow
           photoIds={stop.photoIds}
           sources={stop.photoSources}
@@ -197,7 +218,7 @@ function StopThumbRow({
   sources: Array<"own" | "shared">;
   sharedThumbUrls: Record<string, string>;
 }) {
-  const MAX = 4;
+  const MAX = 3;
   const visible = photoIds.slice(0, MAX);
   const extra = photoIds.length - MAX;
 

@@ -33,12 +33,31 @@ import { distanceMeters } from "@/hooks/useGeolocation";
 // Tuning-Konstanten (bewusst exportiert für mögliches Per-Trip-Tuning)
 // ═══════════════════════════════════════════════════════════════
 
-/** Pause zwischen zwei Fotos die einen neuen Stop einläutet. */
-export const CLUSTER_TIME_GAP_MIN = 45;
-/** Sprung-Distanz die einen neuen Stop einläutet (nur bei GPS-Vergleich). */
-export const CLUSTER_DISTANCE_M = 250;
-/** Maximaler Abstand zwischen Cluster-Center und Place für Match. */
-export const PLACE_MATCH_RADIUS_M = 150;
+/**
+ * Pause zwischen zwei Fotos die einen neuen Stop einläutet.
+ * v1.14.2 — von 45 auf 60 Min hochgezogen: London-Reisende
+ * verbringen oft mehr als 45 Min an einem Ort ohne zu fotografieren
+ * (Restaurant, Tour-Pause, Museum-Detail).
+ */
+export const CLUSTER_TIME_GAP_MIN = 60;
+
+/**
+ * Sprung-Distanz die einen neuen Stop einläutet (nur bei GPS-Vergleich).
+ * v1.14.2 — von 250 auf 400 m: bei sehr großzügigem Indoor-GPS-Drift
+ * (Tower of London, V&A etc., ±50–150 m) führten 250 m zu künstlichen
+ * Cluster-Splits innerhalb ein und desselben Ortes.
+ */
+export const CLUSTER_DISTANCE_M = 400;
+
+/**
+ * Maximaler Abstand zwischen Cluster-Center und Place für Match.
+ * v1.14.2 — von 150 auf 300 m hochgezogen: viele Place-Library-
+ * Koordinaten zeigen aufs Building-Center, GPS aus Indoor-Aufnahmen
+ * kann aber leicht 100–200 m daneben sein. 300 m fängt das ab, ohne
+ * Nachbar-Places falsch zu matchen (typischer Place-Abstand in der
+ * London-Library: 500 m+).
+ */
+export const PLACE_MATCH_RADIUS_M = 300;
 
 // ═══════════════════════════════════════════════════════════════
 // Public types
