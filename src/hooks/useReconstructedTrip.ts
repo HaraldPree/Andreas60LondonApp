@@ -139,7 +139,16 @@ export function useReconstructedTrip({
     const days: number[] = [];
     for (const [dayIdx, photos] of byDay.entries()) {
       if (dayIdx < 0) continue; // Foto außerhalb Reisezeit — überspringen
-      const stops = reconstructDay(photos, trip.places ?? []);
+      // v1.14.3 — Day-Items als Fallback-Match-Quelle durchreichen.
+      // Wenn ein Foto-Cluster kein GPS-Place-Match bekommt, schaut
+      // reconstructDay() welcher Programm-Eintrag zeitlich am nächsten
+      // liegt und nimmt dessen Label/Icon ("Cedric Grolet @ The
+      // Berkeley" statt "Stopp ohne GPS").
+      const stops = reconstructDay(
+        photos,
+        trip.places ?? [],
+        trip.days[dayIdx]?.items,
+      );
       if (stops.length > 0) {
         result.set(dayIdx, stops);
         days.push(dayIdx);
