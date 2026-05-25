@@ -66,6 +66,8 @@ export async function GET(
       thumbBlobUrl: p.thumbBlobUrl,
       fileName: p.fileName,
       takenAt: p.takenAt,
+      // v1.14.0 — Coordinates durchschleifen für „Erlebt"-Rekonstruktion
+      coordinates: p.coordinates,
       caption: p.caption,
       assignedDay: p.assignedDay,
       uploadedAt: p.uploadedAt,

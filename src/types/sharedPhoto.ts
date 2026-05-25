@@ -68,6 +68,14 @@ export interface SharedPhotoView {
   thumbBlobUrl: string;
   fileName: string;
   takenAt?: string;
+  /**
+   * v1.14.0 — GPS-Koordinaten werden jetzt auch in der View durchgereicht,
+   * weil der „Erlebt"-Rückblick (Reise-Rekonstruktion aus Fotos) sowohl
+   * eigene als auch geteilte Fotos zum Cluster-Matching nutzt. Vorher
+   * wurden Coords zwar im Storage gespeichert, aber clientseitig
+   * weggefiltert — was die Rekonstruktion ungenau gemacht hätte.
+   */
+  coordinates?: Coordinates;
   caption?: string;
   assignedDay?: number;
   uploadedAt: string;

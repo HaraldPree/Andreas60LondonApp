@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Film } from "lucide-react";
 import type { Trip } from "@/types/trip";
@@ -11,6 +11,11 @@ import { DayCard } from "@/components/trip/DayCard";
 import { TripHero } from "@/components/trip/TripHero";
 import { TripVariantSwitcher } from "@/components/trip/TripVariantSwitcher";
 import { EventBanner } from "@/components/trip/EventBanner";
+import {
+  RueckblickSwitcher,
+  type RueckblickMode,
+} from "@/components/trip/RueckblickSwitcher";
+import { ErlebtView } from "@/components/trip/ErlebtView";
 import { GoodbyeReel } from "@/components/reel/GoodbyeReel";
 import { useWeather } from "@/hooks/useWeather";
 import type { TripVariant } from "@/hooks/useTripVariant";
@@ -18,6 +23,7 @@ import { getDisruptionsForDay } from "@/lib/disruptions";
 import { useUserPlaces } from "@/hooks/useUserPlaces";
 import { usePlaceStatus } from "@/hooks/usePlaceStatus";
 import { useSharedPhotos } from "@/hooks/useSharedPhotos";
+import { useReconstructedTrip } from "@/hooks/useReconstructedTrip";
 
 interface ProgrammTabProps {
   trip: Trip;
@@ -96,6 +102,60 @@ export function ProgrammTab({
     return last.isoDate <= todayIso; // letzter Tag ODER danach
   }, [trip.days, todayIso]);
 
+  // ─────────────────────────────────────────────────────────────
+  // v1.14.0 — Reise-Rückblick „Erlebt" aus Foto-EXIF
+  // ─────────────────────────────────────────────────────────────
+  // Switch zwischen Geplant (trip.days wie immer) und Erlebt
+  // (rekonstruiert aus Foto-GPS + Cluster + Place-Library-Match).
+  // Erscheint nur wenn die Reise vorbei ist UND mind. 1 Foto da ist.
+  // Persistiert pro Trip im localStorage.
+  const isPastTrip = useMemo(() => {
+    const last = trip.days[trip.days.length - 1];
+    if (!last?.isoDate) return false;
+    return last.isoDate < todayIso;
+  }, [trip.days, todayIso]);
+
+  const rueckblickKey = `rcmk:rueckblick:${trip.slug}`;
+  const [rueckblickMode, setRueckblickModeState] =
+    useState<RueckblickMode>("geplant");
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const stored = window.localStorage.getItem(rueckblickKey);
+      if (stored === "geplant" || stored === "erlebt") {
+        setRueckblickModeState(stored);
+      }
+    } catch {
+      // ignore
+    }
+  }, [rueckblickKey]);
+
+  const setRueckblickMode = useCallback(
+    (next: RueckblickMode) => {
+      setRueckblickModeState(next);
+      if (typeof window === "undefined") return;
+      try {
+        window.localStorage.setItem(rueckblickKey, next);
+      } catch {
+        // ignore
+      }
+    },
+    [rueckblickKey],
+  );
+
+  // Rückblick nur rechnen wenn überhaupt sinnvoll (Reise vorbei).
+  // Spart eine IndexedDB-Lese-Operation bei jedem Tab-Mount während
+  // der Reise.
+  const reconstructed = useReconstructedTrip({
+    trip,
+    currentUserName: currentUserName ?? null,
+    enabled: isPastTrip,
+  });
+
+  const showRueckblickSwitcher = isPastTrip && reconstructed.totalPhotos > 0;
+  const showErlebt = showRueckblickSwitcher && rueckblickMode === "erlebt";
+
   // v1.8.0 — Auto-Open des Reels beim ersten Besuch am letzten Tag.
   // localStorage-Flag verhindert dass es bei jedem Tab-Wechsel aufpoppt.
   // Banner bleibt sichtbar zum erneuten Ansehen (siehe showReelBanner).
@@ -168,7 +228,13 @@ export function ProgrammTab({
         </button>
       )}
 
-      {trip.alternativeDays && onVariantChange && (
+      {/* v1.14.0 — Erlebt/Geplant-Switcher hat den alten Leger-Switcher
+          nach Reise-Ende ersetzt. Wenn beide Trip-Daten den alten
+          alternativeDays-Mechanismus weiter nutzen (z.B. künftiger
+          Wetter-Switch während Reise), bleibt der alte Switcher
+          während der Reise sichtbar — er rendert nichts wenn keine
+          alternativeDaysMeta vorhanden sind. */}
+      {trip.alternativeDays && onVariantChange && !showRueckblickSwitcher && (
         <TripVariantSwitcher
           trip={trip}
           variant={variant}
@@ -176,59 +242,93 @@ export function ProgrammTab({
         />
       )}
 
-      <WeatherWidget
-        lat={trip.weatherLocation.lat}
-        lng={trip.weatherLocation.lng}
-        timezone={trip.weatherLocation.timezone}
-        locationName={trip.weatherLocation.name}
-      />
-
-      <div>
-        <h3 className="text-[10px] uppercase tracking-wider text-ink-light font-semibold mb-2 px-1">
-          5-Tage-Vorschau
-        </h3>
-        <ForecastBar
-          lat={trip.weatherLocation.lat}
-          lng={trip.weatherLocation.lng}
-          timezone={trip.weatherLocation.timezone}
+      {showRueckblickSwitcher && (
+        <RueckblickSwitcher
+          mode={rueckblickMode}
+          onChange={setRueckblickMode}
+          totalPhotos={reconstructed.totalPhotos}
+          matchedStops={reconstructed.matchedStops}
+          unmatchedStops={reconstructed.unmatchedStops}
+          photosWithGps={reconstructed.photosWithGps}
         />
-      </div>
+      )}
 
-      <AlertBanner alerts={trip.alerts} />
+      {/* Wetter + Alerts machen im „Erlebt"-Rückblick keinen Sinn —
+          die Reise ist vorbei. Im „Geplant"-Modus zeigen wir sie weiter
+          (auch nach Reise hilfreich falls jemand das Programm nochmal
+          durchscrollt). */}
+      {!showErlebt && (
+        <>
+          <WeatherWidget
+            lat={trip.weatherLocation.lat}
+            lng={trip.weatherLocation.lng}
+            timezone={trip.weatherLocation.timezone}
+            locationName={trip.weatherLocation.name}
+          />
 
-      <div>
-        <h3 className="text-[10px] uppercase tracking-wider text-ink-light font-semibold mb-2 px-1">
-          Euer Tagesprogramm
-        </h3>
-        <div className="space-y-3">
-          {trip.days.map((day, i) => (
-            <DayCard
-              key={day.date}
-              day={day}
-              dayNumber={i}
-              defaultOpen={day.isoDate === todayIso}
-              rainProbability={
-                day.isoDate ? precipByDate.get(day.isoDate) : undefined
-              }
-              disruptions={
-                day.isoDate
-                  ? getDisruptionsForDay(day.isoDate, trip.disruptions)
-                  : []
-              }
-              userPlaces={listForDay(i)}
-              onRemoveUserPlace={removeUserPlace}
-              // v1.6.0: In-App-Editor (Phase 1+2) deaktiviert — keine
-              // itemStateFor/onToggleItemDone/onCommitItemState/etc.
-              // Props mehr durchgereicht. DayCard rendert ohne Circle-
-              // Button, ohne Action-Menu und ohne Stats-Badge.
-
-              // v1.7.1 — Place-Status-Sync mit Wunschliste-Tab
-              placeStatusOf={placeStatusOf}
-              onSetPlaceStatus={setPlaceStatus}
+          <div>
+            <h3 className="text-[10px] uppercase tracking-wider text-ink-light font-semibold mb-2 px-1">
+              5-Tage-Vorschau
+            </h3>
+            <ForecastBar
+              lat={trip.weatherLocation.lat}
+              lng={trip.weatherLocation.lng}
+              timezone={trip.weatherLocation.timezone}
             />
-          ))}
+          </div>
+
+          <AlertBanner alerts={trip.alerts} />
+        </>
+      )}
+
+      {showErlebt ? (
+        <div>
+          <h3 className="text-[10px] uppercase tracking-wider text-ink-light font-semibold mb-2 px-1">
+            Was wir erlebt haben
+          </h3>
+          <ErlebtView
+            trip={trip}
+            stopsByDay={reconstructed.stopsByDay}
+            daysWithStops={reconstructed.daysWithStops}
+            sharedThumbUrls={reconstructed.sharedThumbUrls}
+            todayIso={todayIso}
+          />
         </div>
-      </div>
+      ) : (
+        <div>
+          <h3 className="text-[10px] uppercase tracking-wider text-ink-light font-semibold mb-2 px-1">
+            Euer Tagesprogramm
+          </h3>
+          <div className="space-y-3">
+            {trip.days.map((day, i) => (
+              <DayCard
+                key={day.date}
+                day={day}
+                dayNumber={i}
+                defaultOpen={day.isoDate === todayIso}
+                rainProbability={
+                  day.isoDate ? precipByDate.get(day.isoDate) : undefined
+                }
+                disruptions={
+                  day.isoDate
+                    ? getDisruptionsForDay(day.isoDate, trip.disruptions)
+                    : []
+                }
+                userPlaces={listForDay(i)}
+                onRemoveUserPlace={removeUserPlace}
+                // v1.6.0: In-App-Editor (Phase 1+2) deaktiviert — keine
+                // itemStateFor/onToggleItemDone/onCommitItemState/etc.
+                // Props mehr durchgereicht. DayCard rendert ohne Circle-
+                // Button, ohne Action-Menu und ohne Stats-Badge.
+
+                // v1.7.1 — Place-Status-Sync mit Wunschliste-Tab
+                placeStatusOf={placeStatusOf}
+                onSetPlaceStatus={setPlaceStatus}
+              />
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* v1.8.0 — Goodbye-Reel-Modal */}
       <GoodbyeReel
