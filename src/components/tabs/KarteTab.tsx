@@ -1,11 +1,26 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
 import { MapPin, Filter, ExternalLink, Navigation, LocateFixed, X } from "lucide-react";
 import type { Trip, MapPoint, MapPointCategory } from "@/types/trip";
 import { mapsUrl, classNames } from "@/lib/formatters";
 import { useGeolocation, distanceMeters, formatDistance } from "@/hooks/useGeolocation";
+
+// v1.13.0 — Leaflet darf erst client-seitig laden (window-Zugriff beim Mount).
+// dynamic({ssr:false}) verhindert SSR-Render und damit "window is not defined".
+const TripMap = dynamic(
+  () => import("@/components/map/TripMap").then((m) => m.TripMap),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-full bg-cream-200 animate-pulse flex items-center justify-center">
+        <p className="text-xs text-ink-mid">Karte wird geladen…</p>
+      </div>
+    ),
+  },
+);
 
 interface KarteTabProps {
   trip: Trip;
@@ -108,32 +123,24 @@ export function KarteTab({ trip }: KarteTabProps) {
       transition={{ duration: 0.3 }}
       className="space-y-4"
     >
-      {/* Open big map link */}
-      <a
-        href={`https://www.openstreetmap.org/?mlat=${trip.mapCenter.lat}&mlon=${trip.mapCenter.lng}&zoom=${trip.mapZoom}#map=${trip.mapZoom}/${trip.mapCenter.lat}/${trip.mapCenter.lng}`}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="block rounded-2xl bg-gradient-to-br from-info to-navy text-cream p-5 shadow-card relative overflow-hidden"
-      >
-        <div className="absolute inset-0 opacity-10 pointer-events-none"
-          style={{
-            backgroundImage: `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" stroke="white" fill="none" stroke-width="0.5"/></svg>')`,
-            backgroundSize: "60px 60px",
-          }}
-        />
-        <div className="relative flex items-center gap-3">
-          <MapPin size={36} strokeWidth={1.5} />
-          <div className="flex-1 min-w-0">
-            <p className="text-[10px] uppercase tracking-wider opacity-75">Karte</p>
-            <h3 className="font-display text-xl font-semibold leading-tight">
-              {trip.destination} auf OpenStreetMap
-            </h3>
-            <p className="text-xs opacity-85 mt-1 inline-flex items-center gap-1">
-              In großer Karte öffnen <ExternalLink size={11} />
-            </p>
-          </div>
+      {/* v1.13.0 — Interaktive Leaflet-Karte (Vollersatz für alten OSM-Link).
+          Auto-Fit auf alle gefilterten Points + UserPosition. */}
+      <div className="rounded-2xl overflow-hidden shadow-card border border-cream-200/50 relative">
+        <div className="h-[380px] w-full">
+          <TripMap trip={trip} points={filtered} userPosition={geo.coords} />
         </div>
-      </a>
+        {/* "Großer öffnen"-Link bleibt als sekundäre Option für Fullscreen */}
+        <a
+          href={`https://www.openstreetmap.org/?mlat=${trip.mapCenter.lat}&mlon=${trip.mapCenter.lng}&zoom=${trip.mapZoom}#map=${trip.mapZoom}/${trip.mapCenter.lat}/${trip.mapCenter.lng}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="absolute top-2 right-2 z-[400] inline-flex items-center gap-1 px-2 py-1 rounded-md bg-white/95 text-navy text-[10px] font-semibold hover:bg-white shadow"
+          title="In OpenStreetMap-Vollansicht öffnen"
+        >
+          <ExternalLink size={11} />
+          Groß
+        </a>
+      </div>
 
       {/* Geolocation */}
       <div className="rounded-2xl bg-white shadow-card border border-cream-200/50 p-3">
