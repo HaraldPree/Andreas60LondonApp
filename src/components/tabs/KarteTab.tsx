@@ -129,12 +129,19 @@ export function KarteTab({ trip }: KarteTabProps) {
         <div className="h-[380px] w-full">
           <TripMap trip={trip} points={filtered} userPosition={geo.coords} />
         </div>
-        {/* "Großer öffnen"-Link bleibt als sekundäre Option für Fullscreen */}
+        {/* "Großer öffnen"-Link bleibt als sekundäre Option für Fullscreen.
+            v1.14.1 — z-index von z-[400] auf z-10 reduziert: durch
+            `.leaflet-container { isolation: isolate }` (v1.13.3) hat
+            die Karte selber nur noch effektive z-0 in diesem Container.
+            Das vorherige z-[400] war damit nicht mehr nur „über der
+            Karte" sondern auch über dem Sticky-Header (z-40) — Link
+            wanderte beim Hochscrollen sichtbar über die Navi-Leiste.
+            z-10 reicht völlig: über der Karte, garantiert unter Header. */}
         <a
           href={`https://www.openstreetmap.org/?mlat=${trip.mapCenter.lat}&mlon=${trip.mapCenter.lng}&zoom=${trip.mapZoom}#map=${trip.mapZoom}/${trip.mapCenter.lat}/${trip.mapCenter.lng}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="absolute top-2 right-2 z-[400] inline-flex items-center gap-1 px-2 py-1 rounded-md bg-white/95 text-navy text-[10px] font-semibold hover:bg-white shadow"
+          className="absolute top-2 right-2 z-10 inline-flex items-center gap-1 px-2 py-1 rounded-md bg-white/95 text-navy text-[10px] font-semibold hover:bg-white shadow"
           title="In OpenStreetMap-Vollansicht öffnen"
         >
           <ExternalLink size={11} />
