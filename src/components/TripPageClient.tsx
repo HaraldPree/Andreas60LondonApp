@@ -1,17 +1,19 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import type { Trip } from "@/types/trip";
 import { Header } from "@/components/layout/Header";
-import { Navigation, type TabKey } from "@/components/layout/Navigation";
+import {
+  Navigation,
+  migrateTabKey,
+  type TabKey,
+} from "@/components/layout/Navigation";
 import { Footer } from "@/components/layout/Footer";
 import { ScrollToTop } from "@/components/layout/ScrollToTop";
-import { ProgrammTab } from "@/components/tabs/ProgrammTab";
-import { WunschlisteTab } from "@/components/tabs/WunschlisteTab";
-import { KarteTab } from "@/components/tabs/KarteTab";
-import { FotosTab } from "@/components/tabs/FotosTab";
-import { ReservierungenTab } from "@/components/tabs/ReservierungenTab";
+import { PlanenTab } from "@/components/tabs/PlanenTab";
+import { ErlebenTab } from "@/components/tabs/ErlebenTab";
+import { ErinnernTab } from "@/components/tabs/ErinnernTab";
 import { SOSTab } from "@/components/tabs/SOSTab";
 import { InfoTab } from "@/components/tabs/InfoTab";
 import { CompanionWidget } from "@/components/companion/CompanionWidget";
@@ -19,6 +21,7 @@ import { PersonPicker } from "@/components/identity/PersonPicker";
 import { UserAvatarButton } from "@/components/identity/UserAvatarButton";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useTripVariant } from "@/hooks/useTripVariant";
+import { useTripPhase } from "@/hooks/useTripPhase";
 import { useTripPageBackToHome } from "@/hooks/useTripPageBackToHome";
 import { UpdateBanner } from "@/components/pwa/UpdateBanner";
 
@@ -27,31 +30,20 @@ interface TripPageClientProps {
 }
 
 export function TripPageClient({ trip }: TripPageClientProps) {
-  const [tab, setTab] = useState<TabKey>("programm");
-  const { currentUserName, hydrated, skipped, setUser, skip, clear } = useCurrentUser(
-    trip.slug,
-  );
+  const { currentUserName, hydrated, skipped, setUser, skip, clear } =
+    useCurrentUser(trip.slug);
   const [pickerOpen, setPickerOpen] = useState(false);
 
-  // Variante (Original vs. Alternative) — pro Gerät in localStorage.
-  // useTripVariant fällt auf trip.defaultVariant zurück wenn nichts
-  // gespeichert ist.
+  // v1.17.0 — Variant-System bleibt fürs Trip-Datenmodell (alternativeDays
+  // können künftige Reisen weiter nutzen), wird aber für London nicht mehr
+  // aktiv geschaltet.
   const { variant, setVariant } = useTripVariant(
     trip.slug,
     trip.defaultVariant ?? "original",
   );
 
-  // PWA-Retour-UX: wenn die App via Home-Screen-Shortcut direkt hier
-  // landet (history.length === 1), pusht der Hook einen Sentinel der
-  // bei popstate zur Übersicht "/" navigiert. Damit funktioniert die
-  // iOS-Swipe-Back / Android-System-Back-Geste auch im PWA-Direct-
-  // Mode konsistent (sonst grauer Bildschirm).
   useTripPageBackToHome();
 
-  // effectiveTrip: bei aktiver Alternative die alternativen Tage
-  // einblenden, an null-Stellen das Original beibehalten. Alle Tabs
-  // (Programm, Karte, Companion-Kontext, KI-Prompt) sehen ab hier
-  // dieselbe Wahrheit.
   const effectiveTrip: Trip = useMemo(() => {
     if (
       variant !== "alternative" ||
@@ -68,7 +60,56 @@ export function TripPageClient({ trip }: TripPageClientProps) {
     };
   }, [trip, variant]);
 
-  // Auto-open picker on first visit (once hydrated)
+  // v1.17.0 — Default-Tab abhängig von Reise-Phase:
+  //   future  → Planen (was muss noch organisiert werden)
+  //   current → Erleben (Tages-Programm aktiv)
+  //   past    → Erinnern (Reel, Feedback, Rückblick)
+  // Wenn der User aber bereits aktiv einen Tab gewählt hat,
+  // gewinnt die User-Wahl (localStorage).
+  const { phase } = useTripPhase(effectiveTrip);
+  const phaseDefaultTab: TabKey = useMemo(() => {
+    if (phase === "future") return "planen";
+    if (phase === "current") return "erleben";
+    return "erinnern";
+  }, [phase]);
+
+  const tabStorageKey = `rcmk:tab:${trip.slug}`;
+  const [tab, setTabState] = useState<TabKey>(phaseDefaultTab);
+  const [tabHydrated, setTabHydrated] = useState(false);
+
+  // Beim Mount: gespeicherten Tab lesen + migrieren wenn alte Key
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const stored = window.localStorage.getItem(tabStorageKey);
+      const migrated = migrateTabKey(stored);
+      if (migrated) {
+        setTabState(migrated);
+      } else {
+        setTabState(phaseDefaultTab);
+      }
+    } catch {
+      setTabState(phaseDefaultTab);
+    } finally {
+      setTabHydrated(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tabStorageKey]);
+
+  const setTab = useCallback(
+    (next: TabKey) => {
+      setTabState(next);
+      if (typeof window === "undefined") return;
+      try {
+        window.localStorage.setItem(tabStorageKey, next);
+      } catch {
+        // ignore quota / storage disabled
+      }
+    },
+    [tabStorageKey],
+  );
+
+  // Person-Picker auto-open
   useEffect(() => {
     if (
       hydrated &&
@@ -79,7 +120,6 @@ export function TripPageClient({ trip }: TripPageClientProps) {
       const t = setTimeout(() => setPickerOpen(true), 600);
       return () => clearTimeout(t);
     }
-    // participants kommen aus dem rohen trip (Variante ändert sie nicht)
   }, [hydrated, currentUserName, skipped, trip.participants]);
 
   const currentUser =
@@ -108,32 +148,28 @@ export function TripPageClient({ trip }: TripPageClientProps) {
 
       <main className="mx-auto max-w-app px-4 py-4">
         <AnimatePresence mode="wait">
-          {tab === "programm" && (
-            <ProgrammTab
-              key="programm"
+          {tab === "planen" && (
+            <PlanenTab
+              key="planen"
+              trip={effectiveTrip}
+              currentUserName={currentUserName}
+            />
+          )}
+          {tab === "erleben" && (
+            <ErlebenTab
+              key="erleben"
               trip={effectiveTrip}
               variant={variant}
               onVariantChange={setVariant}
               currentUserName={currentUserName}
             />
           )}
-          {tab === "wunschliste" && (
-            <WunschlisteTab
-              key="wunschliste"
+          {tab === "erinnern" && (
+            <ErinnernTab
+              key="erinnern"
               trip={effectiveTrip}
               currentUserName={currentUserName}
             />
-          )}
-          {tab === "karte" && <KarteTab key="karte" trip={effectiveTrip} />}
-          {tab === "fotos" && (
-            <FotosTab
-              key="fotos"
-              trip={effectiveTrip}
-              currentUserName={currentUserName}
-            />
-          )}
-          {tab === "reservierungen" && (
-            <ReservierungenTab key="reservierungen" trip={effectiveTrip} />
           )}
           {tab === "sos" && (
             <SOSTab
