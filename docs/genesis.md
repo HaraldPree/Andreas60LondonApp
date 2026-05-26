@@ -7,7 +7,7 @@
 > **Hinweis**: Anti-Halluzinations-Regel — was in den Quellen nicht steht, steht
 > hier auch nicht. Lücken sind als „TODO: Harald ergänzt" markiert.
 
-## Heutiger Eigentums-Status (Stand 25.05.2026)
+## Heutiger Eigentums-Status (Stand 26.05.2026, v1.14.4)
 
 Code-IP gehört **hp+ consulting & marketing gmbh, Leonding (OÖ)**. RCMK ist
 **erster Pilot-Kunde** und namensgebender Test-Trip. Plan ist die Vermarktung
@@ -19,6 +19,19 @@ Werkzeug ohne explizite Vermarktungs-Strategie. Die Wettbewerbs- und
 Markt-Recherche-Phase (Polarsteps-Tiefenanalyse, Wayli, Mitbewerber-
 Inventur, Print-Partner-Vergleich, Namen-Recherche) erfolgte am 24./25.
 Mai 2026.
+
+**Hybrid-Strategie** (verabschiedet 25.05.2026):
+- Phase 1 Komplement (Reisebüro-Addon + Print-Anker) — heute
+- Phase 2 Daten + API (Multi-Tenant + white-label CI) — 2027
+- Phase 3 Substitut optional (B2C-DACH-Memory-Plattform) — 2028+
+
+**Aktueller Status**: Reise vorbei, App in Iterations-/Plattform-Phase.
+Foto-Buch-Marge wird strategisch hinterfragt (User-Diskussion 25.05.):
+das Reisebüro will auch dran verdienen, gleichzeitiger Doppel-Margen-
+Anspruch lässt für beide wenig übrig. Vermutlich pivot zu „App als
+digitaler Reiseführer-Ersatz pro Reise lizenziert", Foto-Buch wird
+Up-Sell statt Hauptcashflow. Demografie-Test (App-affin vs. haptik-
+affin) bei RCMK-Kunden steht aus.
 
 ---
 
@@ -59,8 +72,8 @@ April–Mai 2026      35+ Commits ohne formelle Versionierung
   · Events-Datenklasse + KI Event-Recherche
   · PDF-Layout-Marathon (v1.10.x)
   · Bilder-Auswahl PDF/ZIP + Selection-Sheet
-  · Video-Support
-  · Leaflet interaktive Karte
+  · Video-Support (v1.12.0)
+  · Leaflet interaktive Karte (v1.13.0)
 
 25.05.2026          Strategische Repositionierung
   · Wettbewerbs-Recherchen (Polarsteps-Tiefenanalyse, Wayli,
@@ -72,6 +85,32 @@ April–Mai 2026      35+ Commits ohne formelle Versionierung
   · Marken-Name „Travel Life" wegen ABTA-/TravelLife-AG-Konflikten
     verworfen. KURATIO/VIORA/REISARA als Kandidaten.
   · Doku-Stand auf hp+-Eigentum umgestellt (v1.13.1)
+  · Trust-Badge sichtbar gemacht (v1.13.2)
+  · Header-z-index-Fix für Leaflet (v1.13.3)
+
+25.–26.05.2026      Reise-Rückblick „Erlebt" + Foto-Buch-Strategie-Debatte
+  · v1.14.0: „Geplant" ↔ „Erlebt"-Switcher im ProgrammTab. „Erlebt"
+    rekonstruiert aus Foto-EXIF (GPS + Zeitstempel via Haversine zur
+    Place-Library). 0-Cent (vs. ~€1,50–2,00 Claude Vision pro Reise).
+    Polarsteps-Parität-Move. Leger-Daten aus london-2026.ts entfernt.
+  · v1.14.1: „Groß"-Karten-Link Stack-Folgefix (z-[400] → z-10)
+  · v1.14.2: Geplant=Original wiederhergestellt (war Leger-Stand),
+    Cluster-Parameter lockerer, Nominatim-Reverse-Geocoding als
+    zweite Match-Quelle, max. 3 Fotos pro Stop statt 4.
+  · v1.14.3: ProgramItem-Match als 3. Fallback bei GPS-losen Fotos
+    → reverted in v1.14.4 (attribuierte Orte falsch wenn Realität vom
+    Plan abwich, Anti-Halluzinations-Verstoß).
+  · v1.14.4: clean Revert auf v1.14.2-Stand. Lessons-Learned-
+    Eintrag: ehrliche Datenlücke > kreative Annahme, auch für
+    Algorithmen nicht nur für Texte.
+  · Strategiedebatte Foto-Buch-Marge (User-Einwand 25.05.): wenn
+    Reisebüro UND hp+ beide am Foto-Buch verdienen wollen, bleibt
+    für beide zu wenig. Vermutliches Pivot zu „App als digitaler
+    Reiseführer pro Reise lizenziert" — Foto-Buch als optionaler
+    Up-Sell. Demografie-Test offen (App-affin vs. haptik-affin).
+  · 6 nächste Schritte verabschiedet: CLAUDE.md/docs Update (jetzt),
+    Print-Adapter, NPS, Tenant-Branding, Service-Worker.
+    GPS-Live-Tracker auf der Liste, nicht vorrangig.
 ```
 
 ---
@@ -169,4 +208,4 @@ nur die Bereiche:
 
 ---
 
-**Diese Datei wird ergänzt sobald neue Details verfügbar sind. Stand: 23.05.2026.**
+**Diese Datei wird ergänzt sobald neue Details verfügbar sind. Stand: 26.05.2026.**

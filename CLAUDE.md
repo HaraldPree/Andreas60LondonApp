@@ -30,20 +30,34 @@ Konflikten verworfen. Top-3-Recherche-Empfehlung: KURATIO, VIORA, REISARA
 
 ## Was ist das?
 Interaktive Reise-Companion-Webapp. Mobile-first PWA, die ein Reiseprogramm
-lebendig macht: Live-Wetter, interaktive Karte, Reservierungstracker,
-Tagesplaner, Hidden Places, AI-Companion, Foto-Sharing, KI Event-Recherche.
+**vor**, **während** und **nach** der Reise lebendig macht: Live-Wetter,
+interaktive Leaflet-Karte, Reservierungstracker, Tagesplaner, Hidden Places,
+AI-Companion (Claude Opus 4.7 mit Tool-Use), Wunschliste mit Place-Library
+und WhatsApp-Polls, gemeinsame Foto-Galerie + Video-Upload, PDF-/ZIP-Export,
+KI Event-Recherche, **Reise-Rückblick „Erlebt"** (rekonstruiert aus
+Foto-EXIF nach Reise-Ende).
 
 Heute live als RCMK-Pilot unter `birthdaytravelguidelondon.vercel.app` (URL
 wird mit Marken-Entscheidung umgezogen).
+
+**Aktueller Stand**: London-Live-Reise ist abgeschlossen (18.–22.05.2026),
+das Projekt ist in der **Iterations-/Plattformisierungs-Phase**. Releases
+v1.9.0 – v1.14.x: Features für hp+ Vermarktung und Polarsteps-Parität
+(Karte, Events, Video, Rückblick, Trust-Badge).
 
 ## Tech-Stack
 - Next.js 14 (App Router) + TypeScript
 - Tailwind CSS
 - Framer Motion (Animationen)
 - @anthropic-ai/sdk (AI Companion mit Claude Opus 4.7, Streaming + Tool Use)
-- Leaflet (Karten, Phase 2)
+- **Leaflet + React-Leaflet** (interaktive Karte, live seit v1.13.0)
+- **idb** (IndexedDB-Wrapper für eigene Fotos + Videos)
+- **@vercel/blob** (geteilte Foto-Galerie, KV-frei seit v1.1.3)
+- **exifr** (Foto-EXIF-Parsing für Reise-Rückblick „Erlebt")
+- **@react-pdf/renderer + jszip** (Foto-Buch PDF + ZIP-Export)
 - Open-Meteo (Wetter, kein API-Key)
 - TfL API (Londoner U-Bahn, kein API-Key)
+- Nominatim (OSM Reverse-Geocoding für Stops ohne Place-Match, 1 req/sec, gratis)
 - Web Speech API (Voice Input + TTS, Browser-nativ)
 - Lucide React (Icons)
 - Vercel (Hosting)
@@ -54,17 +68,22 @@ wird mit Marken-Entscheidung umgezogen).
 - `npm run lint` – Linting
 
 ## Environment Variables (.env.local)
-- `RCMK_ANTHROPIC_KEY` – Pflicht für AI-Companion (Format `sk-ant-api03-...`)
-  - Erstellen unter https://console.anthropic.com/settings/keys
-  - Wenn nicht gesetzt: AI-Chat liefert 500, App funktioniert sonst normal
-  - **Warum nicht `ANTHROPIC_API_KEY`?** Auf manchen Dev-Maschinen (z.B. mit Claude Code CLI) ist
+- `APP_ANTHROPIC_KEY` – **Aktueller Name** (Pflicht für AI-Companion + KI Event-Recherche)
+  - Format `sk-ant-api03-...`, erstellen unter https://console.anthropic.com/settings/keys
+  - Fallback-Reihenfolge: `APP_ANTHROPIC_KEY` → `RCMK_ANTHROPIC_KEY` → `ANTHROPIC_API_KEY`
+  - Wenn keiner gesetzt: AI-Chat liefert 500, App funktioniert sonst normal
+  - **Warum nicht `ANTHROPIC_API_KEY` direkt?** Auf manchen Dev-Maschinen (z.B. mit Claude Code CLI) ist
     `ANTHROPIC_API_KEY` global leer gesetzt – das würde `.env.local` überschreiben. Daher app-eigener Var-Name.
-  - Fallback: Falls `RCMK_ANTHROPIC_KEY` nicht gesetzt aber `ANTHROPIC_API_KEY` einen Wert hat, wird der genutzt.
-  - **Historischer Name** (`RCMK_…`) bleibt vorerst aus Kompatibilitätsgründen — bei Multi-Tenant-Umbau (Phase 2) wird auf `APP_ANTHROPIC_KEY` umgeschwenkt.
+  - **Historische Namen** (`RCMK_ANTHROPIC_KEY`) bleiben im Fallback bestehen — werden bei Tenant-Branding-Umstellung (Phase 2) entsorgt.
+- `APP_PIN` – Optional, 4-stelliger Code für PIN-Gate. Ohne PIN ist die App offen (Dev-Modus).
+- `BLOB_READ_WRITE_TOKEN` – Vercel-Blob-Token für die geteilte Galerie. Wird automatisch gesetzt sobald Blob-Storage im Vercel-Project aktiviert ist.
 - `AVIATIONSTACK_API_KEY` – Optional für Live-Flugstatus
   - Free Tier 100 Calls/Monat: https://aviationstack.com/signup/free
   - Server-seitig 5 Min gecached, daher reichen wenige Calls
   - Ohne Key: Flightradar24-Tracker-Link als Fallback
+- `NEXT_PUBLIC_HARALD_WHATSAPP` – Optional, „Problem melden"-Link. Default im Code.
+
+Diagnose welche Env-Vars erkannt sind: `GET /api/version` (kein Secret-Leak).
 
 ## Corporate Identity (aktuell: RCMK-Pilot-Branding)
 
@@ -80,15 +99,35 @@ Für künftige Reisebüro-Kunden wird das per Tenant-Branding überschreibbar
 - Footer (RCMK-Pilot): "ReiseCenter Mader-Kuoni | www.meinreisecenter.at"
 
 ## Ordnerstruktur
-- `src/app/` – Next.js Routen (App Router)
-- `src/app/[tripSlug]/page.tsx` – Dynamische Reise-Seite
-- `src/app/api/chat/route.ts` – Streaming Chat API mit Tool Use
-- `src/components/` – React-Komponenten (layout, trip, weather, map, reservations, info, companion, ui)
-- `src/components/companion/` – AI-Chat-Widget + Voice
-- `src/data/trips/` – Reisedaten als TypeScript-Objekte (eine Datei pro Reise)
-- `src/types/trip.ts` – TypeScript Interfaces
-- `src/lib/` – Helper-Funktionen (weather, formatters, transportLinks, companionPrompt, companionTools)
-- `src/hooks/` – Custom Hooks (useWeather, useReservations, useCompanion, useSpeech, useTflStatus, useGeolocation)
+- `src/app/` – Next.js Routen (App Router) + API-Routes
+- `src/app/[tripSlug]/page.tsx` – Dynamische Reise-Seite (SSG via `generateStaticParams`)
+- `src/app/api/chat/route.ts` – Streaming AI-Chat mit Tool Use
+- `src/app/api/photos/{list,share}/route.ts` – Geteilte Galerie CRUD
+- `src/app/api/research/events/route.ts` – KI Event-Recherche (v1.10.0)
+- `src/app/api/photo-narrate/route.ts` – Claude-Vision Foto-Erzählung
+- `src/components/` – React-Komponenten in **17 Unterordnern** (~75 Files):
+  - `layout/` Header, Footer, Navigation, ScrollToTop
+  - `tabs/` Programm, Karte, Wunschliste, Fotos, Reservierungen, SOS, Info
+  - `trip/` TripHero, DayCard, EventBanner, **RueckblickSwitcher, ErlebtView** (v1.14.0), TripVariantSwitcher
+  - `places/` PlaceCard, WunschPollShare
+  - `photos/` SharedGallery, PhotoUpload, BulkShareSheet, PhotoDetail, PhotoSelectionSheet
+  - `reservations/`, `reel/` (GoodbyeReel), `companion/`, `identity/`, `info/`, `sos/`,
+    `expenses/`, `activities/`, `organize/`, `pwa/`, `privacy/`, `support/`, `ai/`,
+    `dining/`, `discover/`, `map/` (Leaflet TripMap), `ui/`
+- `src/data/trips/` – Reise-Daten als TypeScript-Objekte (eine Datei pro Reise) + `london-2026-places.ts` (75 Places) + `london-2026-events.ts` (15 Events)
+- `src/types/` – TypeScript Interfaces (trip, place, event, photo, sharedPhoto, restaurant, …)
+- `src/lib/` – Helpers ohne React (weather, formatters, companionPrompt, companionTools,
+  photoStorage, photoProcessing, photoBookExport, sharedPhotoStore, **tripReconstruction** (v1.14.0),
+  eventResearchPrompt, exportPhotosAdapter, expenseSettlement, exchangeRate, …)
+- `src/hooks/` – ~25 Custom Hooks (useWeather, useReservations, useCompanion, useSpeech,
+  useTflStatus, useGeolocation, useTripVariant, usePlaceStatus, useSharedPhotos,
+  **useReconstructedTrip** + **useNearbyLabel** (v1.14.0/.2), useFlightStatus, …)
+- `src/middleware.ts` – Edge-Middleware: PIN-Gate
+- `releases/` – Pro Version eine vX.Y.Z.md (siehe `releases/README.md`)
+- `releases/internal/` + `releases/workshop/` – **gitignored** interne Strategiepapiere
+- `Recherchen/` – **gitignored** Wettbewerbs- + Markt-Recherchen (Polarsteps, Wayli, Print-Partner, Namen, Lasten-/Pflichtenheft)
+- `todo/` – Verbesserungsvorschläge (git-tracked, siehe `todo/README.md`)
+- `docs/` – Architektur, API, Genesis
 
 ## AI Companion (Claude Opus 4.7)
 - API Route `/api/chat` mit Streaming (Server-Sent Events)

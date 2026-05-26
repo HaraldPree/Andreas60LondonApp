@@ -1,6 +1,20 @@
-# Architektur — RCMK Travel Companion
+# Architektur — Travel-Companion-Plattform (hp+ consulting)
 
-> Stand: v1.8.1 (Mai 2026). Wird bei jeder MAJOR/MINOR-Änderung mitgezogen.
+> **Eigentümer**: hp+ consulting & marketing gmbh, Leonding (AT)
+> **Erster Pilot**: RCMK „60. Geburtstag Andrea, London Mai 2026" (Live-Reise abgeschlossen)
+> **Stand**: v1.14.4 (Mai 2026). Wird bei jeder MAJOR/MINOR-Änderung mitgezogen.
+
+**Strategischer Kontext**: Plattform ist in der **Iterations-/
+Plattformisierungs-Phase** nach Abschluss der London-Live-Reise.
+Hybrid-Strategie (siehe `CLAUDE.md`):
+
+1. **Phase 1 — Komplement** (2026/27): Reisebüro-Addon + Print-Anker
+2. **Phase 2 — Daten + API** (2027): Multi-Tenant, automatisierte Provisionen, Tenant-Branding
+3. **Phase 3 — Substitut** (optional, 2028+): Eigene Travel-Memory-Plattform DACH
+
+Architektur-Entscheidungen heute orientieren sich daran was Phase 2
+ermöglicht (Tenant-Trennung, Multi-Trip, white-label-fähige CI), ohne
+Phase 1 zu blockieren.
 
 ---
 
@@ -67,11 +81,17 @@ app/[tripSlug]/page.tsx                         ─ Server Component, lädt Trip
     ├── Navigation                              ─ Bottom-Tabs (7 Stück)
     ├── <Tabs>
     │   ├── ProgrammTab                         ─ TripHero, EventBanner (v1.9.0),
-    │   │                                         DayCard × N, TripVariantSwitcher
-    │   ├── WunschlisteTab                      ─ PlaceCard, WunschPollShare
-    │   ├── KarteTab                            ─ Leaflet (Phase 2)
+    │   │                                         DayCard × N, TripVariantSwitcher,
+    │   │                                         RueckblickSwitcher + ErlebtView (v1.14.0,
+    │   │                                         nach Reise-Ende automatisch)
+    │   ├── WunschlisteTab                      ─ PlaceCard mit TrustBadge (v1.13.2),
+    │   │                                         WunschPollShare
+    │   ├── KarteTab                            ─ TripMap (Leaflet, v1.13.0):
+    │   │                                         DivIcon-Marker, Filter, Auto-Fit,
+    │   │                                         GPS-User-Position
     │   ├── FotosTab                            ─ SharedGallery (v1.8.0 tagweise),
-    │   │                                         GoodbyeReel, PhotoUpload
+    │   │                                         PhotoUpload mit Video-Support (v1.12.0),
+    │   │                                         GoodbyeReel-Trigger, PDF/ZIP-Export
     │   ├── ReservierungenTab                   ─ ReservationCard × N
     │   ├── SOSTab                              ─ Emergency, HealthCard
     │   └── InfoTab                             ─ AccommodationCard, FlightCard,
@@ -120,6 +140,8 @@ selbst in `localStorage`. Pattern: `use*` gibt `{value, setter, hydrated}` zurü
 | `useGeolocation` | Browser Geo | In-Memory |
 | `useUserPlaces` | User-eigene Place-Notizen | localStorage |
 | `useIdentificationHistory` | Wo-ist-das-Verlauf | localStorage |
+| `useReconstructedTrip` (v1.14.0) | Foto-EXIF → Stops pro Tag | berechnet aus IndexedDB + Shared-Photos |
+| `useNearbyLabel` (v1.14.2) | OSM-Nominatim Reverse-Geocoding für Stops ohne Place-Match | localStorage-Cache, rate-limited 1 req/sec |
 
 **Konvention**: Jeder Hook hat ein `hydrated`-Flag. Vor `hydrated === true` keine
 Schreibvorgänge → vermeidet Hydration-Mismatches in SSR.
@@ -134,13 +156,16 @@ Helper-Funktionen ohne React. Werden aus Hooks oder Server-Routes genutzt.
 |---|---|
 | `companionPrompt.ts` | Baut System-Prompt für Claude aus Trip-Objekt |
 | `companionTools.ts` | Tool-Definitionen `get_live_weather`, `get_tfl_status` |
+| `eventResearchPrompt.ts` (v1.10.0) | System-Prompt für KI Event-Recherche-Pipeline |
 | `weather.ts` | Open-Meteo-Fetcher + Forecast-Parser |
 | `flightStatus.ts` | AviationStack-Fetcher + Fallback-Logik |
 | `disruptions.ts` | Filter aktiver Transport-Disruptions (24h-Fenster) |
 | `sharedPhotoStore.ts` | Vercel-Blob CRUD + Manifest-Pattern (KV-frei) |
-| `photoStorage.ts` | IndexedDB-Wrapper für eigene Fotos |
-| `photoProcessing.ts` | Resize/Thumbnail (`createImageBitmap`, Samsung HDR safe) |
+| `photoStorage.ts` | IndexedDB-Wrapper für eigene Fotos + Videos |
+| `photoProcessing.ts` | Resize/Thumbnail + EXIF-Extract (`createImageBitmap`, Samsung HDR safe) |
 | `photoBookExport.ts` | PDF + ZIP-Export für Foto-Bücher |
+| `exportPhotosAdapter.ts` (v1.11.0) | Vereinheitlicht own/shared Photos für Selection-Sheet |
+| `tripReconstruction.ts` (v1.14.0) | Cluster + Place-Match-Algorithmus für „Erlebt"-Rückblick aus Foto-EXIF |
 | `dataExport.ts` | DSGVO-Datenexport |
 | `phrasebook.ts` | DE→EN Phrasen mit Aussprache |
 | `expenseSettlement.ts` | Wer-zahlt-wem Algorithmus |
@@ -225,18 +250,34 @@ PIN-Wert wird via `POST /api/login` gesetzt (httpOnly, 30 Tage MaxAge).
 
 ---
 
-## 9. Variant-System (Original ↔ Alternative)
+## 9. Programm-Ansichten — „Geplant" und „Erlebt"
 
-In `src/types/trip.ts`:
-- `trip.days[]` = die Standard-Version
-- `trip.alternativeDays[]` = parallele Version (z.B. „Leger"-Variante, „Plan B bei Regen")
+### TripVariantSwitcher (während Reise)
+In `src/types/trip.ts` definiert, im Code optional:
+- `trip.days[]` = Standard-Version (Original-Programm)
+- `trip.alternativeDays[]` = parallele Version (z.B. „Plan B bei Regen", „Wetter-Anpassung")
 - `trip.defaultVariant` = welche neue Besucher sehen
 - `useTripVariant`-Hook merkt sich pro Gerät die Wahl
-- `TripPageClient.effectiveTrip` berechnet den effektiven Tagesplan
 
-Das spart Duplikate und erlaubt Live-Switching während der Reise. Wurde z.B.
-verwendet, um eine entspannte Tag-4-Version (Borough Market → Uber Boat → Greenwich)
-einzubauen, ohne das Original zu verlieren.
+Wurde während der London-Live-Reise für eine Wetter-/Leger-Variante genutzt.
+**Hinweis**: London-Trip hat seit v1.14.0 keinen `alternativeDays`-Block mehr
+(Leger-Daten entfernt — Reise vorbei). Mechanismus bleibt aber im Code für
+künftige Reisen.
+
+### RueckblickSwitcher + ErlebtView (nach Reise-Ende, v1.14.0)
+Wenn die Reise vorbei ist UND mind. 1 Foto vorhanden:
+- Switcher **„Geplant" ↔ „Erlebt"** erscheint im ProgrammTab
+- **Geplant**: zeigt `trip.days[]` wie immer
+- **Erlebt**: zeigt aus Foto-EXIF rekonstruierte Stops (`useReconstructedTrip`)
+  - GPS+Place-Library-Match → Place-Name + Icon
+  - GPS+Nominatim-Reverse-Geocode → „Stopp bei [Stadtteil]"
+  - kein GPS → ehrliches „Stopp ohne GPS" (Anti-Halluzinations-Regel)
+- Wetter/Forecast/Alerts werden im Erlebt-Modus ausgeblendet (Reise vorbei)
+- Persistiert pro Trip im `localStorage`: `rcmk:rueckblick:<slug>`
+
+**Bewusst NICHT umgesetzt**: zeit-basierter ProgramItem-Match (war v1.14.3,
+reverted v1.14.4 — attribuierte Orte falsch wenn die Realität vom geplanten
+Programm abwich, Anti-Halluzinations-Verstoß).
 
 ---
 
@@ -260,18 +301,24 @@ Wichtig: Update-Banner am **unteren** Bildrand wegen iPhone Dynamic Island.
 
 ---
 
-## 11. Was bewusst NICHT gebaut wurde (Stand v1.8.1)
+## 11. Was bewusst NICHT gebaut wurde (Stand v1.14.4)
 
 | Feature | Warum nicht | Wo es hingehört |
 |---|---|---|
-| Gruppen-Chat in der App | WhatsApp ist da | Travel-Live Phase D |
-| Per-Device Programm-Editor live | „bei jedem anders, verwirrt" (v1.6.0) | Travel-Live Phase C (Server-Sync) |
+| Gruppen-Chat in der App | WhatsApp ist da | später (Phase 2/3) |
+| Per-Device Programm-Editor live | „bei jedem anders, verwirrt" (v1.6.0) | Phase 2 (Server-Sync) |
 | HEIC-Foto-Dekodierung | kein Browser-Decoder | Wäre Server-side ImageMagick |
-| Echter Offline-Modus | Service-Worker-Komplexität | später, sobald Trip eingefroren ist |
-| Multi-Trip-Erstellungs-UI | Trips heute via Code-Datei | Phase B+C |
-| Auth-System | PIN reicht für aktuelle Gruppe | Phase B+C/D (Magic-Link) |
-| Externe Place-APIs (Google Places, OSM-Datenbank) | Plattform-Unabhängigkeit, Qualitäts-Hoheit | Travel-Live nutzt eigenes Curator-Netzwerk |
-| Voting-Server | WhatsApp-Bridge reicht (v1.7.2) | Phase C: in-App Polls mit Persistenz |
+| Echter Offline-Modus (Service-Worker) | bislang nicht priorisiert | als v1.15.0 in Pipeline (Polarsteps-Benchmark) |
+| Multi-Trip-Erstellungs-UI | Trips heute via Code-Datei | Phase 2 |
+| Auth-System | PIN reicht für aktuelle Gruppe | Phase 2 (Magic-Link / SSO für Reisebüro-Mitarbeiter) |
+| Tenant-Branding (white-label CI) | RCMK-CI heute hardgecodet | Vorbereitung für Phase 2 — in Pipeline |
+| AI-Vision für Reise-Rückblick | EXIF-only ist 0-Cent + anti-halluzinations-konform | nur als Hybrid wenn nötig (Phase 2+) |
+| ProgramItem-Match bei GPS-losen Fotos | v1.14.3 versuchte, attribuierte falsch — reverted v1.14.4 | nie wieder ohne User-Bestätigungs-Dialog |
+| Externe Place-APIs (Google Places, OSM-Datenbank) | Plattform-Unabhängigkeit, Qualitäts-Hoheit + Anti-Halluzinations-Disziplin | wir bleiben bei kurierten Places + OSM-Nominatim als Fallback |
+| Voting-Server | WhatsApp-Bridge reicht (v1.7.2) | Phase 2: in-App Polls mit Persistenz |
+| GPS-Live-Tracker während Reise | nicht vorrangig — Foto-EXIF reicht für Rückblick wenn GPS aktiv | als Task #26 in Pipeline (Polarsteps-Parität) |
+| Print-Provider-Adapter (HappyFoto/CEWE/Saal) | wird Phase 1 nach Strategie-Klärung Foto-Buch vs. Programm-Heft | in Pipeline |
+| NPS-Messung im Cockpit | Polarsteps' Killer-KPI — kommt | in Pipeline |
 
 ---
 
@@ -292,13 +339,25 @@ Vollständiger Plan zur Markt-Reife: siehe Antwort vom 23.05.2026 im Chat-Verlau
 
 ---
 
-## 13. Wo die Reise hingeht (Phasen-Roadmap)
+## 13. Wo die Reise hingeht (Hybrid-Strategie hp+ consulting)
 
-| Phase | Inhalt | Aufwand |
+Aus der Wettbewerbs-Recherche Mai 2026 (Polarsteps-Tiefenanalyse, Wayli,
+Print-Partner-Vergleich) abgeleitet — überlagert die alte
+A/B/C/D-Roadmap:
+
+| Phase | Inhalt | Zeithorizont |
 |---|---|---|
-| A (laufend) | Bucketliste-Modus (v1.7.x) | ✓ teilweise |
-| B | AI-Plan-Generator (Tempo, Wetter, Routing) | ~3 Wochen |
-| C | Echter Gruppen-Sync via Blob-Manifest | ~2-3 Tage |
-| D | Friend-Network mit DSGVO + viralem Einladen | ~3-4 Wochen |
+| **1 — Komplement** | Reisebüro-Addon als „digitaler Reiseführer-Ersatz" pro Reise lizenziert. Print-Anker als Up-Sell (Foto-Buch oder Programm-Heft, je nach Marktforschung). RCMK-Pilot live. | 2026/27 |
+| **2 — Daten + API** | Multi-Tenant + automatisierte Provisionen + anonymisierte Insights. Tenant-Branding (white-label CI). Service-Worker für echte Offline-Fähigkeit. NPS-Auswertung. | 2027 |
+| **3 — Substitut (Option)** | Eigene B2C-Travel-Memory-Plattform für DACH. Endkunden-Marke vs. Polarsteps/Wayli. Option offen halten, Entscheidung nach Phase-2-Erfolg. | optional 2028+ |
 
-Details: `releases/internal/travel-live-vision.md` (gitignored, internes Strategiepapier).
+**Welche bestehenden Bausteine machen Phase 3 möglich ohne Phase 1 zu blockieren**:
+- Generische Architektur (kein RCMK-Hardcode außer CI)
+- Trust-Badge sichtbar (v1.13.2) — USP gegen Polarsteps
+- Anti-Halluzinations-Disziplin als Pflicht-Pattern
+- Print-Adapter-Interface (in Pipeline)
+- Reise-Rückblick „Erlebt" (v1.14.0) — Polarsteps-Parität-Move
+
+Details + Wettbewerbs-/Markt-Recherchen + Pflichtenheft/Lastenheft:
+`Recherchen/` + `releases/internal/` (beide gitignored — interne
+Strategiepapiere).

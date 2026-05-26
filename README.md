@@ -57,7 +57,9 @@ Mit `APP_PIN` setzt sich ein PIN-Gate (Edge-Middleware) vor alle Seiten.
 | Flugstatus | AviationStack | 100 Calls/Monat Free Tier (optional) |
 | Voice | Web Speech API + SpeechSynthesis | Browser-nativ |
 | Icons | Lucide React | leichtgewichtig |
-| Karten | Leaflet + OpenStreetMap | gratis (in Roadmap, siehe Phase 2) |
+| Karten | Leaflet + OpenStreetMap + React-Leaflet | gratis, live seit v1.13.0 (interaktive Karte mit DivIcon-Markern, Filter, Auto-Fit) |
+| Foto-EXIF | exifr | gratis, lokal — Basis für „Erlebt"-Rückblick (v1.14.0) |
+| Reverse-Geocode | Nominatim (OSM) | gratis, 1 req/sec, lokal gecached |
 | Hosting | Vercel | Auto-Deploy, Edge-Functions |
 
 Vollständige Dependency-Liste: `package.json`.
