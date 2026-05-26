@@ -36,33 +36,22 @@ const withPWA = require("next-pwa")({
   // nicht versehentlich von der HTML-NetworkFirst-Regel gefangen werden.
   runtimeCaching: [
     // ═══════════════════════════════════════════════════════════════
-    // v1.21.0 — API-Caching (Schritt b)
+    // v1.21.0/.1 — API-Caching (Schritt b, korrigiert)
+    //
+    // v1.21.0 hatte versucht externe Cross-Origin-APIs (Open-Meteo,
+    // TfL) zu cachen — Workbox-NetworkFirst-Handler hat dabei
+    // offenbar Cross-Origin-Responses blockiert statt durchzulassen,
+    // Resultat: Wetter offline UND ONLINE nicht geladen.
+    //
+    // v1.21.1 (Hotfix): externe APIs aus dem SW-Interception raus
+    // (kein Caching, aber sicher kein Bruch). Same-Origin-APIs
+    // (eigene /api/-Routes) bleiben gecacht — die sind unproblematisch.
+    //
+    // Künftige Iteration (vermutlich v1.22.0 oder eigene v1.21.2):
+    // Wetter über Server-API-Proxy `/api/weather` legen → wird damit
+    // Same-Origin und cache-fähig ohne CORS-Stress. Bis dahin: Wetter
+    // braucht Netz.
     // ═══════════════════════════════════════════════════════════════
-    {
-      // Open-Meteo Wetter-API. NetworkFirst mit 3s-Timeout: aktuell
-      // wenn online, Cache wenn nicht. 30 Min Cache-Frische — Wetter
-      // ändert sich nicht alle 5 Min.
-      urlPattern: /^https:\/\/api\.open-meteo\.com\/.*/i,
-      handler: "NetworkFirst",
-      options: {
-        cacheName: "weather-api",
-        networkTimeoutSeconds: 3,
-        expiration: { maxEntries: 50, maxAgeSeconds: 60 * 30 },
-        cacheableResponse: { statuses: [0, 200] },
-      },
-    },
-    {
-      // TfL Tube-Status. Kurzer Cache (10 Min) — Streiks/Delays sind
-      // zeitkritisch, aber offline lieber „letzter Stand" als gar nichts.
-      urlPattern: /^https:\/\/api\.tfl\.gov\.uk\/.*/i,
-      handler: "NetworkFirst",
-      options: {
-        cacheName: "tfl-api",
-        networkTimeoutSeconds: 3,
-        expiration: { maxEntries: 30, maxAgeSeconds: 60 * 10 },
-        cacheableResponse: { statuses: [0, 200] },
-      },
-    },
     {
       // Eigene App-API-Routes — nur idempotente Read-Calls cachen.
       // Bewusst NICHT in dieser Whitelist:
@@ -77,7 +66,7 @@ const withPWA = require("next-pwa")({
       options: {
         cacheName: "app-api",
         expiration: { maxEntries: 50, maxAgeSeconds: 60 * 60 },
-        cacheableResponse: { statuses: [0, 200] },
+        cacheableResponse: { statuses: [200] },
       },
     },
 
