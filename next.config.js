@@ -1,27 +1,30 @@
 /** @type {import('next').NextConfig} */
 
-// Service-Worker via next-pwa (schrittweise Polarsteps-Parität).
-//   v1.20.0  static caching + offline fallback page (done)
-//   v1.21.0  API-Caching: Open-Meteo Wetter, TfL Tube, /api/photos/list,
-//             /api/flight-status (jetzt aktiv)
-//   v1.22.0  Foto-Thumbnail-Caching (Vercel-Blob-URLs der geteilten
-//             Galerie) — letzte Etappe für voll-offline-Erlebnis
+// v1.21.2 — Package-Version für User-sichtbare Anzeige (Info-Tab Footer).
+const pkg = require("./package.json");
+
+// v1.21.2 — Service-Worker komplett deaktiviert (Rollback der
+// v1.20-v1.21.1-Initiative).
 //
-// AUSGESCHLOSSEN vom Caching (bleiben immer online-frisch):
-//   /api/version   → sonst funktioniert Update-Detection nicht
-//   /api/chat      → LLM-Cost, jeder Call frisch
-//   /api/photo-narrate → LLM-Cost
-//   /api/research/events → LLM-Cost
+// Grund: Trotz Schritt-für-Schritt-Vorgehen und Hotfix v1.21.1 blieb
+// Wetter online tot — wahrscheinlich kombiniert: Cross-Origin-Workbox-
+// Bug + alter SW-Cache der nicht sauber gepurged wurde.
 //
-// Library-Wahl: next-pwa wraps Workbox (Google-Standard). Vorteile gegenüber
-// Vanilla-SW: keine Edge-Cases selbst bauen (iOS Safari, Samsung Internet),
-// versionierte Caches mit Auto-Purge, sauberer Update-Flow.
+// Pragmatische Entscheidung: SW-Initiative zurück nehmen, Wetter
+// funktioniert online wieder zuverlässig. Cleanup-Hook in
+// `<ServiceWorkerCleanup/>` (RootLayout) deregistert beim ersten
+// Page-Mount alte SWs + Workbox-Caches → User landet auf SW-frei
+// nach 1–2 Reloads.
+//
+// Frühere Stand (v1.20-v1.21.1, dokumentiert in releases/): static
+// caching + offline-fallback + same-origin API-caching. Funktional
+// gewollt, aber praktisch zu fragil mit Update-Flow + Cross-Origin.
+// Falls SW später nochmal kommt, vermutlich als Server-API-Proxy +
+// Same-Origin-only.
 const withPWA = require("next-pwa")({
   dest: "public",
-  // SW im Dev-Modus deaktiviert — kein versehentliches Caching beim Entwickeln
-  disable: process.env.NODE_ENV === "development",
-  // Neuer SW übernimmt sofort beim nächsten App-Open. User-Update-Banner
-  // (existing useVersionCheck) bleibt der eigentliche „Reload jetzt"-Trigger.
+  // v1.21.2 — komplett aus. Cleanup-Hook im Code räumt alte SWs auf.
+  disable: true,
   register: true,
   skipWaiting: true,
   // Offline-Fallback: wenn User eine ungecachte Route offline aufruft,
@@ -154,6 +157,10 @@ const nextConfig = {
       process.env.VERCEL_GIT_COMMIT_SHA ||
       process.env.GITHUB_SHA ||
       `local-${Date.now()}`,
+    // v1.21.2 — Semver-Version aus package.json für User-sichtbare
+    // Anzeige (Info-Tab Footer). Build-SHA bleibt zusätzlich für
+    // Debug-Reports.
+    NEXT_PUBLIC_APP_VERSION: pkg.version,
   },
   async headers() {
     return [

@@ -1,6 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { Playfair_Display, DM_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+// v1.21.2 — Cleanup-Hook für alte Service-Worker aus v1.20.0–v1.21.1.
+// Entfernen wenn SW später wieder aktiv geschaltet wird.
+import { ServiceWorkerCleanup } from "@/components/pwa/ServiceWorkerCleanup";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -93,7 +96,10 @@ export default function RootLayout({
       lang="de"
       className={`${playfair.variable} ${dmSans.variable} ${jetBrains.variable}`}
     >
-      <body className="font-body antialiased">{children}</body>
+      <body className="font-body antialiased">
+        <ServiceWorkerCleanup />
+        {children}
+      </body>
     </html>
   );
 }

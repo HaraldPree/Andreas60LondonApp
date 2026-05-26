@@ -18,6 +18,8 @@ import { MyDataSection } from "@/components/privacy/MyDataSection";
 import { RestaurantsList } from "@/components/dining/RestaurantsList";
 import { Phrasebook } from "@/components/info/Phrasebook";
 import { ReportIssueCard } from "@/components/support/ReportIssueCard";
+// v1.21.2 — Markenname für Versions-Block unten (Tenant-Brand).
+import { getBrandName } from "@/lib/tenant/current";
 
 interface InfoTabProps {
   trip: Trip;
@@ -149,6 +151,33 @@ export function InfoTab({ trip, currentUserName, onRequestIdentity }: InfoTabPro
         hint="Deine Daten exportieren oder löschen"
       />
       <MyDataSection tripSlug={trip.slug} />
+
+      {/* v1.21.2 — Versions-Block ganz unten für Bug-Reports.
+          User-Wunsch: „eventuell bei Info ganz unten irgendwo die Version
+          hinschreiben, dann kann ich künftig auch die Version sagen." */}
+      <VersionInfoBlock />
     </motion.div>
+  );
+}
+
+function VersionInfoBlock() {
+  const appVersion = process.env.NEXT_PUBLIC_APP_VERSION ?? "dev";
+  const buildSha =
+    process.env.NEXT_PUBLIC_BUILD_VERSION?.slice(0, 7) ?? "local";
+  return (
+    <div className="mt-4 rounded-2xl bg-cream-50 border border-cream-200 px-4 py-3 text-center space-y-0.5">
+      <p className="text-[10px] uppercase tracking-wider text-ink-light font-semibold">
+        App-Version
+      </p>
+      <p className="text-[13px] font-mono text-ink-dark">
+        {getBrandName()} <strong>v{appVersion}</strong>
+      </p>
+      <p className="text-[10px] text-ink-light font-mono">
+        build {buildSha}
+      </p>
+      <p className="text-[10px] text-ink-light italic pt-1">
+        Wenn du einen Bug meldest: bitte diese Version mitschicken.
+      </p>
+    </div>
   );
 }
