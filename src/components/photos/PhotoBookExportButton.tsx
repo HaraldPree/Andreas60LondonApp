@@ -12,11 +12,14 @@ import {
 import type { Trip } from "@/types/trip";
 import type { PhotoMeta } from "@/types/photo";
 import type { SharedPhotoView } from "@/types/sharedPhoto";
-import {
-  buildPhotoBookZip,
-  defaultZipFilename,
-  type PhotoBookExportProgress,
-} from "@/lib/photoBookExport";
+// v1.15.0 — Aufruf jetzt über Print-Provider-Abstraktion statt direkter
+// Lib-Import. Heute liefert der Default-Provider („mock") intern dieselbe
+// `buildPhotoBookZip`-Pipeline wie vorher — verhalten 1:1 identisch.
+// Vorteil: künftige Provider (HappyFoto-/CEWE-/Saal-API) werden ohne
+// UI-Refactor einfach über die env-Var `NEXT_PUBLIC_PRINT_PROVIDER`
+// aktiviert.
+import { getActivePrintProvider } from "@/lib/print/registry";
+import type { PrintOrderProgress } from "@/lib/print/types";
 import { combineForExport } from "@/lib/exportPhotosAdapter";
 import { PhotoSelectionSheet } from "@/components/photos/PhotoSelectionSheet";
 
@@ -40,7 +43,7 @@ export function PhotoBookExportButton({
   sharedPhotos = [],
 }: Props) {
   const [exporting, setExporting] = useState(false);
-  const [progress, setProgress] = useState<PhotoBookExportProgress | null>(null);
+  const [progress, setProgress] = useState<PrintOrderProgress | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [ready, setReady] = useState<ReadyZip | null>(null);
   const previousUrlRef = useRef<string | null>(null);
@@ -95,14 +98,27 @@ export function PhotoBookExportButton({
     }
     setProgress({ current: 0, total: photos.length, step: "collecting" });
     try {
-      const blob = await buildPhotoBookZip({
-        trip,
-        photos: exportPhotos, // v1.11.0 — eigene + (optional) geteilte
-        onProgress: setProgress,
-      });
+      // v1.15.0 — Route über aktiven Print-Provider. Heute „mock":
+      // erzeugt ZIP exakt wie vorher. Künftige Provider (HappyFoto etc.)
+      // könnten stattdessen direkt an deren API submitten und
+      // `trackingUrl` statt `localAsset` zurückgeben.
+      const provider = getActivePrintProvider();
+      const order = await provider.createOrder(
+        {
+          trip,
+          productType: "photoBook",
+          photos: exportPhotos, // v1.11.0 — eigene + (optional) geteilte
+        },
+        { onProgress: setProgress },
+      );
+      if (!order.localAsset) {
+        throw new Error(
+          `Provider „${provider.name}" hat kein lokales Asset zurückgegeben — möglicherweise wurde die Order an einen externen Anbieter geschickt (heute noch nicht unterstützt im UI).`,
+        );
+      }
+      const { blob, suggestedFilename: filename } = order.localAsset;
       const url = URL.createObjectURL(blob);
       previousUrlRef.current = url;
-      const filename = defaultZipFilename(trip);
       const sizeMb = (blob.size / 1024 / 1024).toFixed(1);
       setReady({ blob, url, filename, sizeMb });
     } catch (e) {
