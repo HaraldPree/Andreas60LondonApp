@@ -37,7 +37,21 @@ export async function fetchWeather(
   url.searchParams.set("forecast_days", days.toString());
 
   const res = await fetch(url.toString());
-  if (!res.ok) throw new Error(`Wetter konnte nicht geladen werden (${res.status})`);
+  if (!res.ok) {
+    // v1.21.4 — spezifischere Error-Messages je nach HTTP-Status, damit
+    // bei API-Ausfällen (Open-Meteo war am 26.05.2026 mit 502 down,
+    // halben Tag SW-Bugs gejagt für einen API-Bug der nicht bei uns lag)
+    // der User direkt sieht dass es eine externe Störung ist.
+    if (res.status === 502 || res.status === 503 || res.status === 504) {
+      throw new Error(
+        `Wetter-Server hat gerade Probleme (HTTP ${res.status} ${res.statusText || "Bad Gateway"})`,
+      );
+    }
+    if (res.status === 429) {
+      throw new Error("Zu viele Wetter-Anfragen — kurz warten + erneut versuchen");
+    }
+    throw new Error(`Wetter konnte nicht geladen werden (HTTP ${res.status})`);
+  }
 
   const data = await res.json();
 
@@ -57,6 +71,79 @@ export async function fetchWeather(
       precipitationProbability: data.daily.precipitation_probability_max[i] ?? 0,
     })),
   };
+}
+
+// ═══════════════════════════════════════════════════════════════
+// v1.21.4 — localStorage-Cache für Wetter (Resilienz gegen API-Ausfälle)
+// ═══════════════════════════════════════════════════════════════
+
+const WEATHER_CACHE_PREFIX = "weather:cache:";
+const WEATHER_CACHE_MAX_AGE_MS = 24 * 60 * 60 * 1000; // 24 h
+
+interface CachedWeatherEntry {
+  data: WeatherData;
+  cachedAt: number;
+}
+
+function weatherCacheKey(lat: number, lng: number): string {
+  // 4 Nachkommastellen ~ 11 m Genauigkeit, reicht für Wetter (Stadt-Level)
+  return `${WEATHER_CACHE_PREFIX}${lat.toFixed(4)}:${lng.toFixed(4)}`;
+}
+
+/**
+ * Lädt gecachte Wetter-Daten aus localStorage. Returns null wenn kein
+ * Cache da oder älter als 24h.
+ */
+export function loadCachedWeather(
+  lat: number,
+  lng: number,
+): { data: WeatherData; cachedAt: number; ageMs: number } | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(weatherCacheKey(lat, lng));
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as CachedWeatherEntry;
+    if (!parsed?.data?.current || typeof parsed.cachedAt !== "number") {
+      return null;
+    }
+    const ageMs = Date.now() - parsed.cachedAt;
+    if (ageMs > WEATHER_CACHE_MAX_AGE_MS) return null;
+    return { data: parsed.data, cachedAt: parsed.cachedAt, ageMs };
+  } catch {
+    return null;
+  }
+}
+
+/** Speichert die zuletzt erfolgreich geladenen Wetter-Daten. */
+export function saveCachedWeather(
+  lat: number,
+  lng: number,
+  data: WeatherData,
+): void {
+  if (typeof window === "undefined") return;
+  try {
+    const payload: CachedWeatherEntry = { data, cachedAt: Date.now() };
+    window.localStorage.setItem(
+      weatherCacheKey(lat, lng),
+      JSON.stringify(payload),
+    );
+  } catch {
+    // Quota voll oder localStorage disabled — silent fail, kein Schaden
+  }
+}
+
+/**
+ * Formatiert „vor X Min" / „vor X Std" / „vor X Tagen" für UI-Anzeige
+ * des Cache-Alters.
+ */
+export function formatRelativeAge(ms: number): string {
+  const minutes = Math.floor(ms / 60000);
+  if (minutes < 1) return "gerade eben";
+  if (minutes < 60) return `vor ${minutes} Min`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `vor ${hours} Std`;
+  const days = Math.floor(hours / 24);
+  return `vor ${days} ${days === 1 ? "Tag" : "Tagen"}`;
 }
 
 /**
