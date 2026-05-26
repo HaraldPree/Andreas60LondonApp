@@ -14,6 +14,8 @@ const PUBLIC_PATH_PREFIXES = [
   "/impressum", // imprint should also be accessible without auth
   "/agb", // terms of use must be reviewable without PIN
   "/diagnose", // device diagnostic page — needs to work without PIN so users can troubleshoot without being locked out
+  "/offline", // v1.20.0 — Service-Worker-Fallback muss ohne PIN erreichbar sein,
+  //            sonst landet der Offline-User in einer Redirect-Schleife auf /login
   "/api/login",
   "/api/logout",
   "/_next",
@@ -22,6 +24,9 @@ const PUBLIC_PATH_PREFIXES = [
   "/icon",
   "/apple-icon",
   "/images",
+  "/sw.js", // v1.20.0 — Service-Worker selbst muss ohne PIN ausgeliefert werden
+  "/workbox-", // v1.20.0 — Workbox-Runtime-Chunks (next-pwa generiert)
+  "/fallback-", // v1.20.0 — next-pwa Fallback-Chunks
   "/api/version", // version checks don't need auth
 ];
 

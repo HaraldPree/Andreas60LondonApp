@@ -39,6 +39,16 @@ next-env.d.ts
 releases/workshop/
 releases/internal/
 
+# v1.20.0 — next-pwa generated Service-Worker artefacts in public/
+# (sw.js, workbox-*.js, *.js.map). Werden bei jedem Build neu erzeugt,
+# gehören nicht in git.
+public/sw.js
+public/sw.js.map
+public/workbox-*.js
+public/workbox-*.js.map
+public/fallback-*.js
+public/fallback-*.js.map
+
 # hp+ interne Recherchen (Wettbewerb, Marken, Print-Partner, Lastenheft,
 # Pflichtenheft, Brainstorming). NIE auf GitHub/Vercel — sind teils
 # vertrauliche Strategiepapiere bzw. Drittquellen.
