@@ -40,6 +40,10 @@ export const RCMK_PILOT: TenantConfig = {
   },
   contact: {
     whatsapp: "4369918888002",
+    // v1.22.1 — Dedizierte Feedback-/Anfragen-Mail-Adresse bei hp+
+    // (sauberer trennbar von Haralds privater Mail, kann später an
+    // Team weiterverteilt werden ohne Adress-Wechsel beim User).
+    email: "travelconcierge@hpplus.at",
     phoneDisplay: "+43 699 18 88 80 02",
     displayName: "Harald, hp+",
   },

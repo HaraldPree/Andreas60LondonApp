@@ -197,11 +197,15 @@ function ErlebtStopRow({
           </span>
         </p>
 
-        {/* Thumbnail-Reihe — max 3 sichtbar (v1.14.2, vorher 4),
-            „+N" Hinweis bei mehr. User-Feedback: 3 reichen, nicht 100. */}
+        {/* Thumbnail-Reihe — max 3 sichtbar (v1.14.2 erstmals, vorher 4).
+            v1.22.1 — `stop.thumbnails` ist eine VORGEWÄHLTE 3er-Auswahl
+            mit Sub-Cluster-Dedup (vermeidet 3× dasselbe Foto wenn 5
+            Reisende dieselbe Szene aufgenommen haben) + Visual-Spread
+            (zeitlich verteilte Picks statt erste 3 in Folge).
+            „+N" zeigt die Differenz zur Gesamt-Foto-Anzahl. */}
         <StopThumbRow
-          photoIds={stop.photoIds}
-          sources={stop.photoSources}
+          thumbnails={stop.thumbnails}
+          totalPhotos={stop.photoIds.length}
           sharedThumbUrls={sharedThumbUrls}
         />
       </div>
@@ -210,28 +214,26 @@ function ErlebtStopRow({
 }
 
 function StopThumbRow({
-  photoIds,
-  sources,
+  thumbnails,
+  totalPhotos,
   sharedThumbUrls,
 }: {
-  photoIds: string[];
-  sources: Array<"own" | "shared">;
+  thumbnails: Array<{ id: string; source: "own" | "shared" }>;
+  totalPhotos: number;
   sharedThumbUrls: Record<string, string>;
 }) {
-  const MAX = 3;
-  const visible = photoIds.slice(0, MAX);
-  const extra = photoIds.length - MAX;
+  if (thumbnails.length === 0) return null;
 
-  if (visible.length === 0) return null;
+  const extra = totalPhotos - thumbnails.length;
 
   return (
     <div className="mt-2 flex items-center gap-1">
-      {visible.map((id, i) => (
+      {thumbnails.map((t) => (
         <StopThumb
-          key={id}
-          photoId={id}
-          source={sources[i]}
-          sharedUrl={sharedThumbUrls[id]}
+          key={t.id}
+          photoId={t.id}
+          source={t.source}
+          sharedUrl={sharedThumbUrls[t.id]}
         />
       ))}
       {extra > 0 && (
