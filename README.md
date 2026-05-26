@@ -1,13 +1,15 @@
-# Travel-Companion-Plattform (hp+ consulting)
+# Travel Concierge — Reise-Plattform (hp+ consulting)
 
+> **Produktname**: Travel Concierge (Entwicklungs-Markenname seit v1.16.0; final noch zu prüfen)
 > **Eigentümer**: hp+ consulting & marketing gmbh, Leonding (AT)
 > **Erster Pilot-Kunde**: ReiseCenter Mader-Kuoni (RCMK) — namensgebender
 > Trip „60. Geburtstag Andrea, London Mai 2026"
 >
-> Mobile-first PWA für die Zeit **während** und **nach** einer Reise:
-> Live-Wetter, interaktive Karte, Reservierungstracker, AI-Companion (Claude
-> Opus 4.7 mit Tool-Use), Wunschliste, gemeinsame Foto-Galerie, PDF/ZIP-Export,
-> KI Event-Recherche, Video-Support.
+> Mobile-first PWA für die Zeit **vor**, **während** und **nach** einer
+> Reise: Live-Wetter, interaktive Leaflet-Karte, Reservierungstracker,
+> AI-Companion (Claude Opus 4.7 mit Tool-Use), Wunschliste mit Place-Library
+> und WhatsApp-Polls, gemeinsame Foto-Galerie + Video-Upload, PDF-/ZIP-Export,
+> KI Event-Recherche, Reise-Rückblick „Erlebt" aus Foto-EXIF.
 
 **Aktuelle Version**: siehe `package.json` → `version`
 **Hosting**: Vercel (Auto-Deploy via GitHub-Main)

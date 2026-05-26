@@ -17,6 +17,7 @@ import {
 } from "@/components/trip/RueckblickSwitcher";
 import { ErlebtView } from "@/components/trip/ErlebtView";
 import { GoodbyeReel } from "@/components/reel/GoodbyeReel";
+import { FeedbackCard } from "@/components/feedback/FeedbackCard";
 import { useWeather } from "@/hooks/useWeather";
 import type { TripVariant } from "@/hooks/useTripVariant";
 import { getDisruptionsForDay } from "@/lib/disruptions";
@@ -240,6 +241,14 @@ export function ProgrammTab({
           variant={variant}
           onChange={onVariantChange}
         />
+      )}
+
+      {/* v1.16.0 — Feedback-Karte: erscheint nach Reise-Ende für
+          identifizierte User. Drei-Schichten-Modell (App-NPS +
+          score-abhängige Folge-Frage + optionale Reise-Bewertung).
+          Submission per WhatsApp/Mail an Travel-Concierge-Team. */}
+      {isPastTrip && currentUserName && (
+        <FeedbackCard trip={trip} userName={currentUserName} />
       )}
 
       {showRueckblickSwitcher && (

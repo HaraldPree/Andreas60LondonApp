@@ -84,7 +84,7 @@ function LoginContent() {
             <Lock size={24} />
           </div>
           <p className="font-display text-[11px] tracking-[0.22em] text-gold font-semibold uppercase">
-            Travel Companion
+            Travel Concierge
           </p>
           <GoldDivider width="sm" className="mx-auto my-3" />
           <h1 className="font-display text-2xl font-semibold text-navy">

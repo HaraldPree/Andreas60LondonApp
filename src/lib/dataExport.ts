@@ -116,7 +116,7 @@ export async function exportAllDataForTrip(
   }
 
   return {
-    app: "Andrea London Travel Companion",
+    app: "Travel Concierge — Andrea London 2026 (RCMK-Pilot, hp+ consulting)",
     exportedAt: new Date().toISOString(),
     tripSlug,
     localStorage: data,

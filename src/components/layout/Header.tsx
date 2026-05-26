@@ -60,7 +60,7 @@ export function Header({
             </span>
           )}
           <span className="text-[10px] text-cream/70 tracking-wider uppercase">
-            Travel Companion
+            Travel Concierge
           </span>
         </div>
         <GoldDivider width="full" className="opacity-90 h-[1px]" />

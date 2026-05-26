@@ -1,4 +1,4 @@
-# NEXT-STEPS – RCMK Travel Companion
+# NEXT-STEPS – Travel Concierge (vormals „RCMK Travel Companion")
 
 Was nach dem ersten Prototyp (London 2026, Andrea-Geburtstag) noch ansteht.
 

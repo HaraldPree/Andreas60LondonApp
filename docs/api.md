@@ -1,4 +1,4 @@
-# API-Referenz — RCMK Travel Companion
+# API-Referenz — Travel Concierge (hp+ consulting)
 
 > Alle API-Routes liegen unter `src/app/api/*`. PIN-Gate via Edge-Middleware
 > blockiert unauthenticated Requests (siehe `src/middleware.ts`).

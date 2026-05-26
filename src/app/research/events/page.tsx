@@ -3,7 +3,7 @@ import { getTripBySlug } from "@/data/trips";
 import { EventResearchClient } from "@/components/research/EventResearchClient";
 
 export const metadata: Metadata = {
-  title: "Event-Recherche · RCMK Travel Companion",
+  title: "Event-Recherche · Travel Concierge",
   robots: { index: false, follow: false },
 };
 

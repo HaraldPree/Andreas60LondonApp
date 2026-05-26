@@ -1,4 +1,8 @@
-# PLAN.md – RCMK Travel Companion App
+# PLAN.md – Ur-Plan vom April 2026
+
+> Historisches Dokument aus der Projektstart-Phase. Damals noch „RCMK
+> Travel Companion App" genannt. Seit v1.16.0 (26.05.2026) heißt das
+> Produkt **Travel Concierge** (hp+ consulting, RCMK = erster Pilot).
 
 ## Projekt-Übersicht
 Eine interaktive **Reise-Companion-Webapp** für Kunden des ReiseCenter Mader-Kuoni. Die App verwandelt ein statisches Reiseprogramm (DOCX/PDF) in eine lebendige, mobile-first Webapp mit Live-Wetter, interaktiver Karte, Reservierungstracker und Tagesplaner. Kunden bekommen einen Link (z.B. `reise.meinreisecenter.at/london-2026`) und haben ihren gesamten Reiseplan in der Tasche.

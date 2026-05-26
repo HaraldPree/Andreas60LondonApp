@@ -16,7 +16,7 @@ export default function HomePage() {
       <header className="bg-navy text-cream">
         <div className="mx-auto max-w-app px-4 pt-6 pb-8 text-center">
           <p className="font-display text-[11px] tracking-[0.22em] text-gold font-semibold uppercase">
-            Travel Companion
+            Travel Concierge
           </p>
           <GoldDivider width="sm" className="mx-auto my-3" />
           <h1 className="font-display text-3xl font-semibold leading-tight">

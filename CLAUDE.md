@@ -1,10 +1,16 @@
-# Travel-Companion-Plattform (hp+ consulting)
+# Travel Concierge — Reise-Plattform (hp+ consulting)
+
+> **Produktname (Stand)**: „Travel Concierge" ist seit v1.16.0 (26.05.2026)
+> der aktuelle **Entwicklungs-Markenname** und wird in allen UI-Texten,
+> User-Updates und der Doku verwendet. Der finale Markenname ist noch
+> nicht final geklärt (siehe Marken-Name-Absatz unten). Solange unter
+> diesem Namen positionieren.
 
 ## Eigentum & Strategische Positionierung
 **Eigentümer**: hp+ consulting & marketing gmbh, Leonding, Oberösterreich.
 **Geschäftsführer**: Harald Pree.
 
-**Vertriebsstrategie**: Travel-Companion-Plattform als B2B-Lizenz an Reisebüros
+**Vertriebsstrategie**: Travel Concierge als B2B-Lizenz an Reisebüros
 und Touristik-Veranstalter im DACH-Raum. **Erste Pilot-Implementierung** und
 namensgebender Test-Trip: ReiseCenter Mader-Kuoni (RCMK, Wien-Liesing) — die
 „60. Geburtstag Andrea, London Mai 2026"-Reise war der Initial-Use-Case und
@@ -24,9 +30,16 @@ Details: `releases/internal/` (gitignored) — Strategiepapiere, Wettbewerbs-
 Recherchen (Polarsteps, Wayli, Mitbewerber, Print-Partner), Namens-
 Untersuchung, Lasten-/Pflichtenheft, Brainstorming.
 
-**Marken-Name**: noch offen. „Travel Life" wegen ABTA/TravelLife AG-
-Konflikten verworfen. Top-3-Recherche-Empfehlung: KURATIO, VIORA, REISARA
-— finale Entscheidung steht aus.
+**Marken-Name**: aktuell **„Travel Concierge"** als Entwicklungs- und
+Test-Marke (eingeführt v1.16.0, 26.05.2026). Vorher kurz „Travel
+Companion" — abgelöst weil der Brand stärker positioniert werden soll
+als Companion-/Begleiter-Begriff. „Travel Life" wurde davor wegen
+ABTA/TravelLife-AG-Konflikten komplett verworfen.
+
+**Markenfreiheit von „Travel Concierge" noch zu prüfen** — Recherche-
+Empfehlungen aus Mai 2026 waren KURATIO, VIORA, REISARA als finaler
+Kandidaten; finale Entscheidung steht aus. Bis dahin gilt Travel
+Concierge als Arbeitsname in allen User-sichtbaren Texten.
 
 ## Was ist das?
 Interaktive Reise-Companion-Webapp. Mobile-first PWA, die ein Reiseprogramm
@@ -193,7 +206,7 @@ die per WhatsApp / Mail an die Reisegruppe gehen:
 ### Pflicht-Struktur
 
 ```
-Update in der Travel-Companion-App 🎉
+Update in der Travel Concierge 🎉
 Neu seit [Datum] | Short:
 • [Bullet 1 — wichtigstes Feature]
 • [Bullet 2]
@@ -203,7 +216,7 @@ App neu laden, dann ist alles da.
 
 
 DetailInfo | Lang-Variante (mit allen Details, falls du mehr wissen willst)
-🎉 Update Travel-Companion-App
+🎉 Update Travel Concierge
 
 [Emoji] [Feature-Titel]
    [1-3 Zeilen Beschreibung]

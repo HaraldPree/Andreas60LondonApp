@@ -1,4 +1,4 @@
-# Architektur — Travel-Companion-Plattform (hp+ consulting)
+# Architektur — Travel Concierge (hp+ consulting)
 
 > **Eigentümer**: hp+ consulting & marketing gmbh, Leonding (AT)
 > **Erster Pilot**: RCMK „60. Geburtstag Andrea, London Mai 2026" (Live-Reise abgeschlossen)
