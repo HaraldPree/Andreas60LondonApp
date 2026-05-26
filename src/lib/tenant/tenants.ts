@@ -26,10 +26,12 @@ export const RCMK_PILOT: TenantConfig = {
     name: "ReiseCenter Mader-Kuoni",
     shortName: "RCMK",
     website: "www.meinreisecenter.at",
-    // v1.21.2 — Korrektur User-Feedback 26.05.2026: RCMK ist NICHT in
-    // Wien-Liesing, sondern hat Filialen in Linz, Leonding, Marchtrenk,
-    // St. Valentin, Steyr und Wien. „Linz" als Hauptstandort gewählt.
-    city: "Linz · OÖ + Wien",
+    // v1.21.3 — Stadt-Update auf User-Wunsch 26.05.2026: Harald testet
+    // aktuell mit der RCMK-Filiale in St. Valentin (NÖ). Filialen-
+    // Liste insgesamt: Linz, Leonding, Marchtrenk, St. Valentin, Steyr,
+    // Wien. Bei Multi-Tenant-Erweiterung könnte hier ein optionales
+    // `branches: string[]`-Feld dazukommen — heute reicht das Test-Büro.
+    city: "St. Valentin",
   },
   owner: {
     name: "hp+ consulting & marketing gmbh",
