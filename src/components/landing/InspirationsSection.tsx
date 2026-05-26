@@ -1,5 +1,11 @@
-import { INSPIRATIONS, type InspirationCategory } from "@/data/inspirations";
+import type { InspirationCategory } from "@/data/inspirations";
 import { Sparkles } from "lucide-react";
+// v1.19.0 — Inspirations-Quelle aus Tenant (heute Default-Set, später
+// per Tenant überschreibbar).
+import {
+  getCurrentTenant,
+  getInspirationsForTenant,
+} from "@/lib/tenant/current";
 
 /**
  * v1.18.0 — Inspirations-Sektion der Landing-Page.
@@ -12,6 +18,7 @@ import { Sparkles } from "lucide-react";
  * Hotelnamen. Nur Konzept + was Travel Concierge dabei leistet.
  */
 export function InspirationsSection() {
+  const inspirations = getInspirationsForTenant(getCurrentTenant());
   return (
     <section>
       <div className="mb-3">
@@ -27,7 +34,7 @@ export function InspirationsSection() {
       </div>
 
       <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {INSPIRATIONS.map((entry) => (
+        {inspirations.map((entry) => (
           <li
             key={entry.id}
             className="rounded-2xl bg-white shadow-card border border-cream-200/50 p-4 hover:shadow-elevated transition"

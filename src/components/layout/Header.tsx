@@ -2,6 +2,8 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { ChevronLeft } from "lucide-react";
 import { GoldDivider } from "@/components/ui/GoldDivider";
+// v1.19.0 — Brand-Name aus Tenant (heute „Travel Concierge", später per Tenant).
+import { getBrandName } from "@/lib/tenant/current";
 
 interface HeaderProps {
   destination: string;
@@ -60,7 +62,7 @@ export function Header({
             </span>
           )}
           <span className="text-[10px] text-cream/70 tracking-wider uppercase">
-            Travel Concierge
+            {getBrandName()}
           </span>
         </div>
         <GoldDivider width="full" className="opacity-90 h-[1px]" />

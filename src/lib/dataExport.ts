@@ -8,6 +8,17 @@
  */
 
 import { clearTripPhotos, listPhotos, getFullBlob } from "@/lib/photoStorage";
+import { getCurrentTenant } from "@/lib/tenant/current";
+
+/**
+ * v1.19.0 — DSGVO-Export-Header-Label aus Tenant ableiten, damit der
+ * Export pro Tenant das richtige Branding zeigt (Markenname + Pilot-
+ * Reisebüro + Plattform-Eigentümer).
+ */
+function dataExportAppLabel(tripSlug: string): string {
+  const t = getCurrentTenant();
+  return `${t.brand.name} — Trip "${tripSlug}" (${t.agency.shortName}-Pilot, ${t.owner.name})`;
+}
 
 // All localStorage key patterns owned by this app
 const TRIP_SCOPED_PATTERNS = [
@@ -116,7 +127,7 @@ export async function exportAllDataForTrip(
   }
 
   return {
-    app: "Travel Concierge — Andrea London 2026 (RCMK-Pilot, hp+ consulting)",
+    app: dataExportAppLabel(tripSlug),
     exportedAt: new Date().toISOString(),
     tripSlug,
     localStorage: data,

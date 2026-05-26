@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { MessageCircle, Mail, Phone, Plus, X } from "lucide-react";
+import { getCurrentTenant } from "@/lib/tenant/current";
 
 /**
  * v1.18.0 — „Nächste Reise anlegen"-Call-to-Action auf der Landing-Page.
@@ -13,14 +14,13 @@ import { MessageCircle, Mail, Phone, Plus, X } from "lucide-react";
  * Phase 2 (später, Multi-Tenant): wird zu einem echten Trip-Wizard
  * der eine Reise-Spec generiert + an das gewählte Reisebüro schickt.
  *
- * Default-Kontakt: Harald / hp+ (gleiche Nummer wie reportIssue.ts).
- * Wird in Phase 2 pro Tenant überschrieben.
+ * v1.19.0 — Kontakt-Daten aus Tenant-Config (`contact.whatsapp`,
+ * `contact.phoneDisplay`, `contact.displayName`).
  */
-
-const DEFAULT_HARALD_WHATSAPP = "4369918888002";
 
 export function NextTripCTA() {
   const [open, setOpen] = useState(false);
+  const tenant = getCurrentTenant();
 
   return (
     <div className="rounded-2xl bg-gradient-to-br from-navy via-navy-700 to-navy text-cream p-5 shadow-card">
@@ -33,7 +33,7 @@ export function NextTripCTA() {
             Bereit für die nächste Reise?
           </p>
           <h3 className="font-display text-lg font-semibold leading-tight mt-1">
-            Wir kuratieren deine Travel-Concierge-Reise
+            Wir kuratieren deine {tenant.brand.name}-Reise
           </h3>
           <p className="text-[12px] text-cream/85 mt-1.5 leading-relaxed">
             Sag uns wohin und wann — wir bauen die App für deine
@@ -56,12 +56,16 @@ export function NextTripCTA() {
 }
 
 function ContactSheet({ onClose }: { onClose: () => void }) {
+  const tenant = getCurrentTenant();
   const message = encodeURIComponent(
-    "Hallo, ich interessiere mich für eine Travel-Concierge-Reise. Bitte ruf mich zurück oder antworte einfach hier.",
+    `Hallo, ich interessiere mich für eine ${tenant.brand.name}-Reise. Bitte ruf mich zurück oder antworte einfach hier.`,
   );
-  const whatsappUrl = `https://wa.me/${DEFAULT_HARALD_WHATSAPP}?text=${message}`;
-  const mailUrl = `mailto:?subject=Travel%20Concierge%20-%20Reise-Anfrage&body=${message}`;
-  const telUrl = `tel:+${DEFAULT_HARALD_WHATSAPP}`;
+  const whatsappUrl = `https://wa.me/${tenant.contact.whatsapp}?text=${message}`;
+  const mailSubject = encodeURIComponent(
+    `${tenant.brand.name} – Reise-Anfrage`,
+  );
+  const mailUrl = `mailto:${tenant.contact.email ?? ""}?subject=${mailSubject}&body=${message}`;
+  const telUrl = `tel:+${tenant.contact.whatsapp}`;
 
   return (
     <>
@@ -128,7 +132,10 @@ function ContactSheet({ onClose }: { onClose: () => void }) {
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold">Anrufen</p>
               <p className="text-[11px] opacity-70">
-                +43 699 18 88 80 02 (Harald, hp+)
+                {tenant.contact.phoneDisplay ?? `+${tenant.contact.whatsapp}`}
+                {tenant.contact.displayName
+                  ? ` (${tenant.contact.displayName})`
+                  : ""}
               </p>
             </div>
           </a>

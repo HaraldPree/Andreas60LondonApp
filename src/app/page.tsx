@@ -11,8 +11,11 @@ import { UpdateBanner } from "@/components/pwa/UpdateBanner";
 import { NextTripCTA } from "@/components/landing/NextTripCTA";
 import { InspirationsSection } from "@/components/landing/InspirationsSection";
 import { ThreePhaseExplainer } from "@/components/landing/ThreePhaseExplainer";
+// v1.19.0 — Brand-Name + Tagline + Reisebüro-/Plattform-Hinweis aus Tenant.
+import { getCurrentTenant } from "@/lib/tenant/current";
 
 export default function HomePage() {
+  const tenant = getCurrentTenant();
   return (
     <div className="min-h-screen bg-cream">
       <UpdateBanner />
@@ -20,14 +23,14 @@ export default function HomePage() {
       <header className="bg-navy text-cream">
         <div className="mx-auto max-w-app px-4 pt-6 pb-8 text-center">
           <p className="font-display text-[11px] tracking-[0.22em] text-gold font-semibold uppercase">
-            Travel Concierge
+            {tenant.brand.name}
           </p>
           <GoldDivider width="sm" className="mx-auto my-3" />
           <h1 className="font-display text-3xl font-semibold leading-tight">
-            Dein persönlicher Reisebegleiter
+            {tenant.brand.tagline}
           </h1>
           <p className="text-sm text-cream/80 mt-2">
-            Deine Reise – elegant in der Tasche
+            {tenant.brand.description}
           </p>
         </div>
       </header>
@@ -177,8 +180,8 @@ export default function HomePage() {
 
         <div className="mt-6 rounded-2xl bg-white/60 border border-cream-200 p-4 text-center">
           <p className="text-xs text-ink-mid leading-relaxed">
-            Travel Concierge — eine Plattform von hp+ consulting &amp; marketing
-            gmbh, Leonding. Pilot-Kunde: ReiseCenter Mader-Kuoni.
+            {tenant.brand.name} — eine Plattform von {tenant.owner.name},{" "}
+            {tenant.owner.city}. Pilot-Kunde: {tenant.agency.name}.
           </p>
         </div>
 

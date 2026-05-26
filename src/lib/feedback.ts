@@ -8,11 +8,9 @@
 
 import type { FeedbackEntry } from "@/types/feedback";
 import { npsCategoryOf } from "@/types/feedback";
+import { getCurrentTenant } from "./tenant/current";
 
 const KEY_PREFIX = "travelConcierge:feedback:";
-
-/** Default-WhatsApp = Harald (gleicher Wert wie reportIssue.ts). */
-const DEFAULT_HARALD_WHATSAPP = "4369918888002";
 
 function key(tripSlug: string, userName: string): string {
   return `${KEY_PREFIX}${tripSlug}:${userName}`;
@@ -56,8 +54,9 @@ export function buildFeedbackWhatsappMessage(
   entry: FeedbackEntry,
   tripLabel: string,
 ): string {
+  const tenant = getCurrentTenant();
   const lines: string[] = [];
-  lines.push("🎯 Travel Concierge — Feedback");
+  lines.push(`🎯 ${tenant.brand.name} — Feedback`);
   lines.push("");
   lines.push(`Von: ${entry.userName}`);
   lines.push(`Reise: ${tripLabel}`);
@@ -96,7 +95,7 @@ export function buildFeedbackWhatsappMessage(
   }
 
   lines.push(
-    `— Travel Concierge v${entry.appVersion}, abgegeben ${formatTimestamp(entry.submittedAt)}`,
+    `— ${tenant.brand.name} v${entry.appVersion}, abgegeben ${formatTimestamp(entry.submittedAt)}`,
   );
   return lines.join("\n");
 }
@@ -109,8 +108,9 @@ export function buildFeedbackWhatsappUrl(
   entry: FeedbackEntry,
   tripLabel: string,
 ): string | null {
+  const tenant = getCurrentTenant();
   const raw =
-    process.env.NEXT_PUBLIC_HARALD_WHATSAPP || DEFAULT_HARALD_WHATSAPP;
+    process.env.NEXT_PUBLIC_HARALD_WHATSAPP || tenant.contact.whatsapp;
   const sanitised = raw.replace(/[^\d]/g, "").replace(/^00/, "");
   if (sanitised.length < 8) return null;
   const text = buildFeedbackWhatsappMessage(entry, tripLabel);
@@ -126,9 +126,10 @@ export function buildFeedbackMailtoUrl(
   entry: FeedbackEntry,
   tripLabel: string,
 ): string {
+  const tenant = getCurrentTenant();
   const text = buildFeedbackWhatsappMessage(entry, tripLabel);
-  const subject = `Travel Concierge Feedback — ${entry.userName} · ${tripLabel}`;
-  return `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(text)}`;
+  const subject = `${tenant.brand.name} Feedback — ${entry.userName} · ${tripLabel}`;
+  return `mailto:${tenant.contact.email ?? ""}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(text)}`;
 }
 
 function npsCategoryLabel(score: number): string {

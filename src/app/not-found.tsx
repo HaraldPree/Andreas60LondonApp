@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { GoldDivider } from "@/components/ui/GoldDivider";
+import { getBrandName } from "@/lib/tenant/current";
 
 export default function NotFound() {
   return (
     <div className="min-h-screen bg-cream flex flex-col items-center justify-center p-6 text-center">
       <p className="font-display text-[11px] tracking-[0.22em] text-gold font-semibold uppercase">
-        Travel Concierge
+        {getBrandName()}
       </p>
       <GoldDivider width="sm" className="my-4" />
       <h1 className="font-display text-3xl font-semibold text-navy">

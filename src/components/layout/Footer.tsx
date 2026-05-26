@@ -1,14 +1,17 @@
 import Link from "next/link";
 import { GoldDivider } from "@/components/ui/GoldDivider";
+// v1.19.0 — Tagline + Reisebüro-/Plattform-Block aus Tenant-Config.
+import { getCurrentTenant } from "@/lib/tenant/current";
 
 export function Footer() {
+  const tenant = getCurrentTenant();
   return (
     <footer className="mt-12 pb-32 px-4">
       <div className="mx-auto max-w-app text-center space-y-4">
         <GoldDivider width="sm" className="mx-auto" />
 
         <p className="font-display text-base text-navy font-semibold tracking-wide">
-          Dein persönlicher Reisebegleiter
+          {tenant.brand.tagline}
         </p>
 
         {/* "erstellt mit ♥ unterwegs" — block-level flex so it stays
@@ -61,6 +64,27 @@ export function Footer() {
             Impressum
           </Link>
         </nav>
+
+        {/* v1.19.0 — Pilot-Reisebüro + Plattform-Hinweis. Bei
+            Multi-Tenant (Phase 2) zeigt jeder Tenant hier seine eigene
+            Reisebüro-Info, die Plattform-Zeile bleibt (hp+). */}
+        <div className="pt-2 border-t border-cream-200 space-y-0.5">
+          <p className="text-[10px] text-ink-light">
+            Pilot-Reisebüro:{" "}
+            <a
+              href={`https://${tenant.agency.website}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-navy underline"
+            >
+              {tenant.agency.name}
+            </a>{" "}
+            · {tenant.agency.city}
+          </p>
+          <p className="text-[10px] text-ink-light">
+            Plattform: {tenant.owner.name}, {tenant.owner.city}
+          </p>
+        </div>
       </div>
     </footer>
   );

@@ -1,9 +1,14 @@
 import type { Metadata } from "next";
 import { getTripBySlug } from "@/data/trips";
 import { EventResearchClient } from "@/components/research/EventResearchClient";
+import { getBrandName } from "@/lib/tenant/current";
 
+// v1.19.0 — Metadata wird zur Build-Zeit per Server-Component-Eval
+// erzeugt; getBrandName() ist sync und liefert den aktiven Tenant-
+// Brand. Bei Multi-Tenant-Phase 2 (Subdomain-Routing) muss das auf
+// `generateMetadata({ params })` umgestellt werden.
 export const metadata: Metadata = {
-  title: "Event-Recherche · Travel Concierge",
+  title: `Event-Recherche · ${getBrandName()}`,
   robots: { index: false, follow: false },
 };
 

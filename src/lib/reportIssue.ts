@@ -4,16 +4,14 @@
  * so users can hit one button to send Harald a useful issue report
  * without having to remember all the diagnostic context.
  *
- * The destination phone number defaults to Harald's personal mobile
- * (this is a private app for the travel group, Harald explicitly
- * shared the number for this purpose). Can be overridden via
- * NEXT_PUBLIC_HARALD_WHATSAPP if needed (e.g. holiday-cover number).
+ * v1.19.0 — Empfänger-Nummer kommt jetzt aus dem aktiven Tenant
+ * (`getCurrentTenant().contact.whatsapp`). Heute = Harald (RCMK-Pilot).
+ * Multi-Tenant-Phase 2: jeder Reisebüro-Tenant hat eigene Kontakt-
+ * Routing. `NEXT_PUBLIC_HARALD_WHATSAPP` bleibt als Hard-Override
+ * für Holiday-Cover etc.
  */
 
-/** Harald's personal WhatsApp — only used by the 5 travelers to
- *  report bugs during the trip. Format: international without "+" or
- *  leading "00", just digits. wa.me requires this exact format. */
-const DEFAULT_HARALD_WHATSAPP = "4369918888002";
+import { getCurrentTenant } from "./tenant/current";
 
 export interface IssueContext {
   /** Optional: user's chosen identity from localStorage */
@@ -68,8 +66,9 @@ export function buildIssueMessage(ctx: IssueContext = {}): string {
  *   3. Require ≥8 digits as a sanity check
  */
 export function buildWhatsappUrl(ctx: IssueContext = {}): string | null {
+  const tenant = getCurrentTenant();
   const raw =
-    process.env.NEXT_PUBLIC_HARALD_WHATSAPP || DEFAULT_HARALD_WHATSAPP;
+    process.env.NEXT_PUBLIC_HARALD_WHATSAPP || tenant.contact.whatsapp;
   const sanitised = raw.replace(/[^\d]/g, "").replace(/^00/, "");
   if (sanitised.length < 8) return null;
   const text = buildIssueMessage(ctx);

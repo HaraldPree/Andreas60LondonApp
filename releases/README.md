@@ -49,6 +49,7 @@ Wenn ich (Claude) eine Code-Änderung mache:
 
 | Version | Datum | Titel | Status |
 |---|---|---|---|
+| [v1.19.0](./v1.19.0.md) | 26.05.2026 | Tenant-Branding-Vorbereitung: RCMK-Hardcoding raus, TenantConfig-Schicht + Pilot-/Plattform-Block im Footer | deployed |
 | [v1.18.0](./v1.18.0.md) | 26.05.2026 | Landing-Page erweitert: „Nächste Reise"-Kontakt-CTA + Inspirationen + Drei-Phasen-Erklärung | deployed |
 | [v1.17.0](./v1.17.0.md) | 26.05.2026 | Drei-Phasen-Navigation „Planen / Erleben / Erinnern" + SOS + Info (Apple-Way, von 7 auf 5 Tabs, Auto-Default via Phase) | deployed |
 | [v1.16.1](./v1.16.1.md) | 26.05.2026 | UX-Polish: Reise-Fragen default sichtbar, Anlass in eigener Zeile, EventBanner nach Reise-Ende weg | deployed |

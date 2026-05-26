@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Lock, Loader2 } from "lucide-react";
 import { GoldDivider } from "@/components/ui/GoldDivider";
+import { getBrandName } from "@/lib/tenant/current";
 
 const PIN_LENGTH = 4;
 
@@ -15,6 +16,7 @@ function LoginContent() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const inputs = useRef<Array<HTMLInputElement | null>>([]);
+  const brandName = getBrandName();
 
   useEffect(() => {
     inputs.current[0]?.focus();
@@ -84,7 +86,7 @@ function LoginContent() {
             <Lock size={24} />
           </div>
           <p className="font-display text-[11px] tracking-[0.22em] text-gold font-semibold uppercase">
-            Travel Concierge
+            {brandName}
           </p>
           <GoldDivider width="sm" className="mx-auto my-3" />
           <h1 className="font-display text-2xl font-semibold text-navy">
