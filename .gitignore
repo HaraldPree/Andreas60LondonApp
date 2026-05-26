@@ -39,13 +39,13 @@ next-env.d.ts
 releases/workshop/
 releases/internal/
 
-# v1.20.0 — next-pwa generated Service-Worker artefacts in public/.
-# v1.21.3 — Ausnahme: `public/sw.js` ist jetzt ein MANUELL gepflegter
-# Self-Destroying-SW (Kill-Switch für User-Browser die noch alte SWs
-# aus v1.20.x/v1.21.x haben). Wenn wir später next-pwa wieder
-# aktivieren, müssen wir entweder die manuelle Datei löschen oder
-# next-pwa-Output umleiten.
-# public/sw.js  ← bewusst NICHT mehr in .gitignore
+# v1.22.0 — next-pwa generiert wieder Service-Worker-Artefakte in
+# public/ (sw.js + workbox-*.js + fallback-*.js + Maps). Diese werden
+# bei jedem Build neu erzeugt und gehören nicht in git.
+# Der manuelle Kill-Switch-SW aus v1.21.3 wurde gelöscht — wird durch
+# den next-pwa-Output ersetzt. User mit altem SW werden vom
+# ServiceWorkerCleanup-Hook (mit Idempotenz-Flag) einmalig aufgeräumt.
+public/sw.js
 public/sw.js.map
 public/workbox-*.js
 public/workbox-*.js.map

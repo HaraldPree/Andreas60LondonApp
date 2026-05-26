@@ -3,79 +3,40 @@
 // v1.21.2 — Package-Version für User-sichtbare Anzeige (Info-Tab Footer).
 const pkg = require("./package.json");
 
-// v1.21.2 — Service-Worker komplett deaktiviert (Rollback der
-// v1.20-v1.21.1-Initiative).
+// v1.22.0 — Service-Worker Comeback nach Open-Meteo-Erkenntnis.
 //
-// Grund: Trotz Schritt-für-Schritt-Vorgehen und Hotfix v1.21.1 blieb
-// Wetter online tot — wahrscheinlich kombiniert: Cross-Origin-Workbox-
-// Bug + alter SW-Cache der nicht sauber gepurged wurde.
+// Rückblick: v1.20.0 hatte Static-Caching + Offline-Page. Hat technisch
+// vermutlich funktioniert — wir haben es falsch interpretiert, weil zur
+// selben Zeit Open-Meteo's API mit HTTP 502 down war (siehe
+// `releases/v1.21.4.md`). v1.21.0-v1.21.3 waren halber Tag SW-Bug-Jagd
+// für einen externen API-Ausfall.
 //
-// Pragmatische Entscheidung: SW-Initiative zurück nehmen, Wetter
-// funktioniert online wieder zuverlässig. Cleanup-Hook in
-// `<ServiceWorkerCleanup/>` (RootLayout) deregistert beim ersten
-// Page-Mount alte SWs + Workbox-Caches → User landet auf SW-frei
-// nach 1–2 Reloads.
+// Heute (v1.22.0): SW wieder eingeschaltet, aber bewusst **NUR
+// Static-Caching** — kein Cross-Origin, keine eigene API. Das war
+// die Architektur die schon in v1.20.0 funktional war und keinen
+// echten Bug verursacht hat.
 //
-// Frühere Stand (v1.20-v1.21.1, dokumentiert in releases/): static
-// caching + offline-fallback + same-origin API-caching. Funktional
-// gewollt, aber praktisch zu fragil mit Update-Flow + Cross-Origin.
-// Falls SW später nochmal kommt, vermutlich als Server-API-Proxy +
-// Same-Origin-only.
+// Future-Etappen falls gewünscht:
+//   v1.23.0 (optional) /api/weather-Server-Proxy (Same-Origin)
+//   v1.24.0 (optional) SW-Caching für Same-Origin-API-Routes
+//   Cross-Origin-Caching: bleibt deaktiviert (Open-Meteo, TfL direkt)
+//
+// User mit altem v1.20-v1.21.x-SW werden vom ServiceWorkerCleanup-
+// Hook (in RootLayout, mit Idempotenz-Flag v1.22.0+) einmalig aufgeräumt.
 const withPWA = require("next-pwa")({
   dest: "public",
-  // v1.21.2 — komplett aus. Cleanup-Hook im Code räumt alte SWs auf.
-  disable: true,
+  disable: process.env.NODE_ENV === "development",
   register: true,
   skipWaiting: true,
-  // Offline-Fallback: wenn User eine ungecachte Route offline aufruft,
-  // landet er auf /offline statt im Browser-Fehlerbildschirm.
+  // Workbox räumt alte Cache-Versionen automatisch auf bei SW-Updates
+  cleanupOutdatedCaches: true,
+  // Offline-Fallback wenn User eine ungecachte Route ohne Netz aufruft.
   // Wichtig: KEIN Underscore-Prefix — Next.js App Router behandelt
   // `_*`-Ordner als private folders und routet sie nicht.
   fallbacks: {
     document: "/offline",
   },
-  // Workbox-Runtime-Caching. Reihenfolge zählt: erste passende Regel
-  // gewinnt. API-Patterns kommen vor den static-Patterns damit sie
-  // nicht versehentlich von der HTML-NetworkFirst-Regel gefangen werden.
   runtimeCaching: [
-    // ═══════════════════════════════════════════════════════════════
-    // v1.21.0/.1 — API-Caching (Schritt b, korrigiert)
-    //
-    // v1.21.0 hatte versucht externe Cross-Origin-APIs (Open-Meteo,
-    // TfL) zu cachen — Workbox-NetworkFirst-Handler hat dabei
-    // offenbar Cross-Origin-Responses blockiert statt durchzulassen,
-    // Resultat: Wetter offline UND ONLINE nicht geladen.
-    //
-    // v1.21.1 (Hotfix): externe APIs aus dem SW-Interception raus
-    // (kein Caching, aber sicher kein Bruch). Same-Origin-APIs
-    // (eigene /api/-Routes) bleiben gecacht — die sind unproblematisch.
-    //
-    // Künftige Iteration (vermutlich v1.22.0 oder eigene v1.21.2):
-    // Wetter über Server-API-Proxy `/api/weather` legen → wird damit
-    // Same-Origin und cache-fähig ohne CORS-Stress. Bis dahin: Wetter
-    // braucht Netz.
-    // ═══════════════════════════════════════════════════════════════
-    {
-      // Eigene App-API-Routes — nur idempotente Read-Calls cachen.
-      // Bewusst NICHT in dieser Whitelist:
-      //   /api/version       — sonst sieht useVersionCheck keine Updates
-      //   /api/chat          — LLM-Cost, jede Frage frisch
-      //   /api/photo-narrate — LLM-Cost
-      //   /api/research/events — LLM-Cost
-      //   /api/photos/share  — POST (wird ohnehin nicht gecacht)
-      //   /api/login,logout  — Auth, niemals cachen
-      urlPattern: /^\/api\/(photos\/list|flight-status)/i,
-      handler: "StaleWhileRevalidate",
-      options: {
-        cacheName: "app-api",
-        expiration: { maxEntries: 50, maxAgeSeconds: 60 * 60 },
-        cacheableResponse: { statuses: [200] },
-      },
-    },
-
-    // ═══════════════════════════════════════════════════════════════
-    // v1.20.0 — Static-Caching (Schritt a)
-    // ═══════════════════════════════════════════════════════════════
     {
       // Hero-Bilder, Icons, Avatare aus /public/images + /public/icons
       urlPattern: /\/(images|icons)\/.*\.(?:png|jpg|jpeg|webp|svg)$/i,
@@ -86,7 +47,7 @@ const withPWA = require("next-pwa")({
       },
     },
     {
-      // Tile-Cache für Leaflet-Karten — offline-Karte ohne Pan/Zoom-Reload
+      // OSM-Tiles für Leaflet — offline-Karte für besuchte Regions
       urlPattern: /^https:\/\/[a-c]\.tile\.openstreetmap\.org\/.*/i,
       handler: "CacheFirst",
       options: {
@@ -95,7 +56,7 @@ const withPWA = require("next-pwa")({
       },
     },
     {
-      // Fonts (Playfair Display, DM Sans)
+      // Fonts (Playfair Display, DM Sans, JetBrains Mono)
       urlPattern: /\.(?:woff|woff2|ttf|otf|eot)$/i,
       handler: "CacheFirst",
       options: {
@@ -104,7 +65,7 @@ const withPWA = require("next-pwa")({
       },
     },
     {
-      // JS/CSS-Bundles aus Next.js
+      // Next.js JS/CSS-Bundles
       urlPattern: /\/_next\/static\/.*/i,
       handler: "StaleWhileRevalidate",
       options: {
@@ -113,7 +74,7 @@ const withPWA = require("next-pwa")({
       },
     },
     {
-      // HTML-Seiten (App-Routes) — Network-First mit Cache-Fallback.
+      // HTML-Pages (App-Routes) — NetworkFirst mit Cache-Fallback.
       // Damit ist navigieren offline möglich nach mind. einem Online-
       // Besuch der Seite.
       urlPattern: /^\/(?!api|_next).*/i,
@@ -124,6 +85,11 @@ const withPWA = require("next-pwa")({
         expiration: { maxEntries: 50, maxAgeSeconds: 60 * 60 * 24 * 14 },
       },
     },
+    // BEWUSST KEIN CROSS-ORIGIN-CACHING (Open-Meteo, TfL etc.) —
+    // war die Bug-Quelle in v1.21.0. Wetter-Resilienz läuft jetzt
+    // über localStorage-Cache im useWeather-Hook (v1.21.4).
+    // BEWUSST KEIN EIGENES API-CACHING — kommt ggf. in v1.24.0,
+    // wenn überhaupt nötig.
   ],
 });
 

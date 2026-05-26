@@ -3,28 +3,45 @@
 import { useEffect } from "react";
 
 /**
- * v1.21.2 — Cleanup-Hook für alte Service-Worker.
+ * v1.21.2 — Cleanup-Hook für alte Service-Worker aus v1.20.0–v1.21.x.
+ * v1.22.0 — Mit localStorage-Flag versehen: läuft genau EINMAL pro
+ * Browser, danach NIE wieder. Sonst würde der Hook bei jedem App-Open
+ * den NEUEN v1.22.0+ SW direkt nach Install wieder killen — und wir
+ * hätten dauerhaft keinen funktionierenden SW.
  *
- * Hintergrund: v1.20.0–v1.21.1 hatten Service-Worker installiert. Bei
- * v1.21.1 wurde der SW per Hotfix korrigiert, aber Workbox+Cross-Origin
- * blieben unzuverlässig (Wetter blieb tot). Pragmatischer Schritt:
- * SW komplett deaktiviert in v1.21.2 (`next-pwa` `disable: true`).
+ * Verhalten:
+ *  - 1. Visit nach v1.22.0-Deploy: Flag noch nicht gesetzt → Cleanup
+ *    läuft (alte v1.20-v1.21.x SWs werden gekillt, Caches gelöscht,
+ *    Tab reloaded). Flag wird gesetzt.
+ *  - 2. + alle weiteren Visits: Flag gesetzt → Hook returns sofort →
+ *    neuer v1.22.0+ SW darf installieren + laufen.
+ *  - Frischer User der nie alten SW hatte: Cleanup läuft trotzdem
+ *    einmal leer durch (kostet ~5ms), Flag wird gesetzt, fine.
  *
- * Problem dabei: Der ALTE SW im Browser läuft weiter bis er explizit
- * geunregistert ist. Dieser Hook macht das beim ersten App-Mount:
- *  1. Findet alle registrierten Service-Worker
- *  2. Deregistert jeden (`reg.unregister()`)
- *  3. Löscht alle bekannten Workbox- + App-Caches
- *
- * Effekt für User: beim nächsten Reload ist die App SW-frei, Wetter
- * funktioniert wieder direkt online.
- *
- * **Wenn wir später SW wieder einführen**: diesen Hook entfernen, sonst
- * killt er bei jedem App-Open den neuen SW.
+ * Bei künftigem grundlegendem SW-Reset (z.B. v1.30.0 mit komplett
+ * neuer Caching-Strategie): einfach `CLEANUP_DONE_KEY` auf v2/v3
+ * incrementieren — alle User durchlaufen Cleanup einmalig erneut.
  */
+
+const CLEANUP_DONE_KEY = "travelConcierge:sw-cleanup-done:v1";
+
 export function ServiceWorkerCleanup() {
   useEffect(() => {
     if (typeof window === "undefined") return;
+
+    // v1.22.0 — Idempotenz-Flag: einmal gelaufen, nie wieder.
+    try {
+      if (window.localStorage.getItem(CLEANUP_DONE_KEY)) {
+        return;
+      }
+      // Sofort Flag setzen — damit selbst bei Race-Conditions (z.B.
+      // schneller Tab-Switch während Cleanup läuft) nicht doppelt
+      // gefeuert wird.
+      window.localStorage.setItem(CLEANUP_DONE_KEY, new Date().toISOString());
+    } catch {
+      // localStorage disabled → kein Flag, Cleanup kann zwar mehrfach
+      // laufen aber ist idempotent, kein Schaden.
+    }
 
     // 1. SW unregister
     if ("serviceWorker" in navigator) {

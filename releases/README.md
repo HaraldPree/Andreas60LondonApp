@@ -49,6 +49,7 @@ Wenn ich (Claude) eine Code-Änderung mache:
 
 | Version | Datum | Titel | Status |
 |---|---|---|---|
+| [v1.22.0](./v1.22.0.md) | 26.05.2026 | Service-Worker Static-only Comeback — next-pwa wieder aktiv (Bilder, OSM-Tiles, Fonts, JS, HTML); Cleanup-Hook mit Idempotenz-Flag, kein Cross-Origin-Caching mehr | deployed |
 | [v1.21.4](./v1.21.4.md) | 26.05.2026 | Wetter-Cache + bessere Error-Message bei API-Ausfall (Open-Meteo war 502 → 1/2 Tag SW-Bugs gejagt). Cache 24h, sichtbarer Status-Footer | deployed |
 | [v1.21.3](./v1.21.3.md) | 26.05.2026 | Self-Destroying Service-Worker als public/sw.js (killt alten SW + alle Caches + reload) + RCMK-Stadt korrigiert auf St. Valentin | deployed |
 | [v1.21.2](./v1.21.2.md) | 26.05.2026 | SW komplett deaktiviert (Rollback) + Cleanup-Hook für alte SWs + Version-Anzeige in InfoTab + RCMK-Stadt korrigiert (Linz statt Wien-Liesing) | deployed |
