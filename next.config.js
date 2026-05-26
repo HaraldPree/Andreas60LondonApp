@@ -1,10 +1,17 @@
 /** @type {import('next').NextConfig} */
 
-// v1.20.0 — Service-Worker via next-pwa (Schritt a: Static-only + Offline-Fallback).
-// Schrittweise Erweiterung:
-//   v1.20.0 (jetzt)  static caching + offline fallback page
-//   v1.21.0 (geplant) API-Caching (Wetter, Trip-Daten, geteilte Fotos-Liste)
-//   v1.22.0 (geplant) Foto-Thumbnail-Caching (Polarsteps-Parität, voll offline)
+// Service-Worker via next-pwa (schrittweise Polarsteps-Parität).
+//   v1.20.0  static caching + offline fallback page (done)
+//   v1.21.0  API-Caching: Open-Meteo Wetter, TfL Tube, /api/photos/list,
+//             /api/flight-status (jetzt aktiv)
+//   v1.22.0  Foto-Thumbnail-Caching (Vercel-Blob-URLs der geteilten
+//             Galerie) — letzte Etappe für voll-offline-Erlebnis
+//
+// AUSGESCHLOSSEN vom Caching (bleiben immer online-frisch):
+//   /api/version   → sonst funktioniert Update-Detection nicht
+//   /api/chat      → LLM-Cost, jeder Call frisch
+//   /api/photo-narrate → LLM-Cost
+//   /api/research/events → LLM-Cost
 //
 // Library-Wahl: next-pwa wraps Workbox (Google-Standard). Vorteile gegenüber
 // Vanilla-SW: keine Edge-Cases selbst bauen (iOS Safari, Samsung Internet),
@@ -24,9 +31,59 @@ const withPWA = require("next-pwa")({
   fallbacks: {
     document: "/offline",
   },
-  // Workbox-Runtime-Caching — Schritt a: nur static assets.
-  // API-Caching (Wetter, Foto-Liste) kommt in v1.21.0.
+  // Workbox-Runtime-Caching. Reihenfolge zählt: erste passende Regel
+  // gewinnt. API-Patterns kommen vor den static-Patterns damit sie
+  // nicht versehentlich von der HTML-NetworkFirst-Regel gefangen werden.
   runtimeCaching: [
+    // ═══════════════════════════════════════════════════════════════
+    // v1.21.0 — API-Caching (Schritt b)
+    // ═══════════════════════════════════════════════════════════════
+    {
+      // Open-Meteo Wetter-API. NetworkFirst mit 3s-Timeout: aktuell
+      // wenn online, Cache wenn nicht. 30 Min Cache-Frische — Wetter
+      // ändert sich nicht alle 5 Min.
+      urlPattern: /^https:\/\/api\.open-meteo\.com\/.*/i,
+      handler: "NetworkFirst",
+      options: {
+        cacheName: "weather-api",
+        networkTimeoutSeconds: 3,
+        expiration: { maxEntries: 50, maxAgeSeconds: 60 * 30 },
+        cacheableResponse: { statuses: [0, 200] },
+      },
+    },
+    {
+      // TfL Tube-Status. Kurzer Cache (10 Min) — Streiks/Delays sind
+      // zeitkritisch, aber offline lieber „letzter Stand" als gar nichts.
+      urlPattern: /^https:\/\/api\.tfl\.gov\.uk\/.*/i,
+      handler: "NetworkFirst",
+      options: {
+        cacheName: "tfl-api",
+        networkTimeoutSeconds: 3,
+        expiration: { maxEntries: 30, maxAgeSeconds: 60 * 10 },
+        cacheableResponse: { statuses: [0, 200] },
+      },
+    },
+    {
+      // Eigene App-API-Routes — nur idempotente Read-Calls cachen.
+      // Bewusst NICHT in dieser Whitelist:
+      //   /api/version       — sonst sieht useVersionCheck keine Updates
+      //   /api/chat          — LLM-Cost, jede Frage frisch
+      //   /api/photo-narrate — LLM-Cost
+      //   /api/research/events — LLM-Cost
+      //   /api/photos/share  — POST (wird ohnehin nicht gecacht)
+      //   /api/login,logout  — Auth, niemals cachen
+      urlPattern: /^\/api\/(photos\/list|flight-status)/i,
+      handler: "StaleWhileRevalidate",
+      options: {
+        cacheName: "app-api",
+        expiration: { maxEntries: 50, maxAgeSeconds: 60 * 60 },
+        cacheableResponse: { statuses: [0, 200] },
+      },
+    },
+
+    // ═══════════════════════════════════════════════════════════════
+    // v1.20.0 — Static-Caching (Schritt a)
+    // ═══════════════════════════════════════════════════════════════
     {
       // Hero-Bilder, Icons, Avatare aus /public/images + /public/icons
       urlPattern: /\/(images|icons)\/.*\.(?:png|jpg|jpeg|webp|svg)$/i,

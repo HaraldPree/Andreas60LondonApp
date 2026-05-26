@@ -49,6 +49,7 @@ Wenn ich (Claude) eine Code-Änderung mache:
 
 | Version | Datum | Titel | Status |
 |---|---|---|---|
+| [v1.21.0](./v1.21.0.md) | 26.05.2026 | Service-Worker Schritt b: API-Caching (Open-Meteo, TfL, /api/photos/list, /api/flight-status) — Etappe 2/3 | deployed |
 | [v1.20.0](./v1.20.0.md) | 26.05.2026 | Service-Worker Schritt a: Static-Caching + Offline-Fallback-Page (next-pwa/Workbox, Polarsteps-Parität-Etappe 1/3) | deployed |
 | [v1.19.0](./v1.19.0.md) | 26.05.2026 | Tenant-Branding-Vorbereitung: RCMK-Hardcoding raus, TenantConfig-Schicht + Pilot-/Plattform-Block im Footer | deployed |
 | [v1.18.0](./v1.18.0.md) | 26.05.2026 | Landing-Page erweitert: „Nächste Reise"-Kontakt-CTA + Inspirationen + Drei-Phasen-Erklärung | deployed |
