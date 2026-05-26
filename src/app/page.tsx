@@ -7,6 +7,10 @@ import { ParticipantsRow } from "@/components/trip/ParticipantsRow";
 import { TripCountdownChip } from "@/components/trip/TripCountdownChip";
 import { InstallHint } from "@/components/pwa/InstallHint";
 import { UpdateBanner } from "@/components/pwa/UpdateBanner";
+// v1.18.0 — Landing-Page Erweiterung: Kontakt-CTA, Inspirationen, 3-Phasen.
+import { NextTripCTA } from "@/components/landing/NextTripCTA";
+import { InspirationsSection } from "@/components/landing/InspirationsSection";
+import { ThreePhaseExplainer } from "@/components/landing/ThreePhaseExplainer";
 
 export default function HomePage() {
   return (
@@ -126,6 +130,26 @@ export default function HomePage() {
           ))}
         </ul>
 
+        {/* v1.18.0 — Nächste-Reise-CTA direkt nach Reisen-Liste:
+            "ich habe eine Reise gesehen, möchte mehr" → Beratung. */}
+        <div className="mt-6">
+          <NextTripCTA />
+        </div>
+
+        {/* v1.18.0 — Inspirationen-Sektion: Reise-Konzepte als Anker
+            fürs Beratungsgespräch. Heute statisch, später per Tenant. */}
+        <div className="mt-8">
+          <InspirationsSection />
+        </div>
+
+        {/* v1.18.0 — Drei-Phasen-Erklärung Planen/Erleben/Erinnern.
+            Bildet das v1.17.0-Navigationskonzept auch in der Außen-
+            darstellung ab — Interessenten verstehen sofort wie die
+            App eine Reise begleitet. */}
+        <div className="mt-8">
+          <ThreePhaseExplainer />
+        </div>
+
         {/* v1.10.0 / v1.11.1 — KI-Event-Recherche pro Trip.
             Bewusst dezent — nicht für End-Reisende, sondern für den
             Reise-Vorbereiter. v1.11.1 umbenannt auf User-Wunsch:
@@ -153,7 +177,8 @@ export default function HomePage() {
 
         <div className="mt-6 rounded-2xl bg-white/60 border border-cream-200 p-4 text-center">
           <p className="text-xs text-ink-mid leading-relaxed">
-            Privates Test-Produkt für die Reisegruppe.
+            Travel Concierge — eine Plattform von hp+ consulting &amp; marketing
+            gmbh, Leonding. Pilot-Kunde: ReiseCenter Mader-Kuoni.
           </p>
         </div>
 
