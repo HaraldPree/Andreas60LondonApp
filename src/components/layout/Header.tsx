@@ -64,15 +64,20 @@ export function Header({
           </span>
         </div>
         <GoldDivider width="full" className="opacity-90 h-[1px]" />
-        {/* Trip title with optional right-slot */}
+        {/* Trip title with optional right-slot.
+            v1.16.1 — Anlass jetzt in eigener Zeile statt inline neben
+            der Destination (User-Feedback: „60. Geburtstag" verdient
+            eine eigene Zeile, nicht als Fußnote zur Stadt). */}
         <div className="px-4 pt-3 pb-4 flex items-start justify-between gap-3">
           <div className="min-w-0">
             <h1 className="font-display text-2xl leading-tight">
               {destination}
-              {occasion && (
-                <span className="ml-2 text-base align-middle">{occasion}</span>
-              )}
             </h1>
+            {occasion && (
+              <p className="font-display text-base text-cream/95 mt-0.5 leading-tight">
+                {occasion}
+              </p>
+            )}
             {subtitle && (
               <p className="text-sm text-cream/85 mt-0.5">{subtitle}</p>
             )}

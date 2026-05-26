@@ -200,8 +200,11 @@ export function ProgrammTab({
 
       {/* v1.9.0 — Event-Banner: zeigt nur Events die mit dem Reisezeitraum
           überlappen (Chelsea Flower Show, Wimbledon etc.). Null-fallback
-          wenn nichts passt — komplett unsichtbar. */}
-      <EventBanner trip={trip} />
+          wenn nichts passt — komplett unsichtbar.
+          v1.16.1 — nach Reise-Ende ausgeblendet (User-Feedback: „mit
+          Ende der Reise nicht mehr erforderlich, nur während der Reise
+          wichtig und bei der Vorbereitung"). */}
+      {!isPastTrip && <EventBanner trip={trip} />}
 
       {/* v1.8.0 + v1.10.1 — Goodbye-Reel-Banner ab Abreise-Tag und danach.
           Bleibt dauerhaft sichtbar zum nostalgischen Wieder-Ansehen. */}

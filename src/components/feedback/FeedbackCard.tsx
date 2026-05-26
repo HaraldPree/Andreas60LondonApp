@@ -147,10 +147,10 @@ function FeedbackForm({
     initial?.appScore ?? null,
   );
   const [appComment, setAppComment] = useState(initial?.appComment ?? "");
-  const [secondaryOpen, setSecondaryOpen] = useState(
-    typeof initial?.contentScore === "number" ||
-      typeof initial?.organizationScore === "number",
-  );
+  // v1.16.1 — Sekundär-Fragen Default OFFEN: User hat sie sonst übersehen.
+  // Sie sind die explizite Anforderung („Inhalt der Reise" + „Organisation"
+  // statt RCMK-Bewertung) und sollen direkt sichtbar sein.
+  const [secondaryOpen, setSecondaryOpen] = useState(true);
   const [contentScore, setContentScore] = useState<number | null>(
     initial?.contentScore ?? null,
   );
@@ -308,7 +308,7 @@ function FeedbackForm({
         >
           {secondaryOpen
             ? "Reise-Bewertung ausblenden"
-            : "Bonus: auch noch die Reise bewerten (optional)"}
+            : "Auch die Reise bewerten (optional, 2 kurze Fragen)"}
           <ChevronDown
             size={11}
             className={classNames(

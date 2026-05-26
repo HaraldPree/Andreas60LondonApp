@@ -49,6 +49,7 @@ Wenn ich (Claude) eine Code-Änderung mache:
 
 | Version | Datum | Titel | Status |
 |---|---|---|---|
+| [v1.16.1](./v1.16.1.md) | 26.05.2026 | UX-Polish: Reise-Fragen default sichtbar, Anlass in eigener Zeile, EventBanner nach Reise-Ende weg | deployed |
 | [v1.16.0](./v1.16.0.md) | 26.05.2026 | Marken-Umbenennung „Travel Companion" → „Travel Concierge" + Feedback-Karte (NPS + 2 Reise-Achsen, WhatsApp-Versand) | deployed |
 | [v1.15.0](./v1.15.0.md) | 26.05.2026 | Print-Export-Abstraktion (PrintProvider Interface) — Mock aktiv, 3 Stubs (HappyFoto/CEWE/Saal) bereit | deployed |
 | [v1.14.4](./v1.14.4.md) | 26.05.2026 | Revert von v1.14.3 — ProgramItem-Match attribuierte Orte falsch (Anti-Halluzinations-Verstoß) | deployed |
